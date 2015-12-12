@@ -73,7 +73,6 @@ my @table = lol2table(@columns,@rows);
 my $d = Data::Dump::Tree.new ;
 $d does DescribeDog ;
 $d does DescribeShyFinal ;
-#$d does Data::Dump::Tree::Role::MatchDetails ;
 
 my $dump = $d.get_dump(
 		get_test_structure(),

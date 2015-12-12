@@ -43,16 +43,21 @@ multi method get_elements (Match $a)
 #role 
 }
 
+role DDTR::MatchDetails does Data::Dump::Tree::Role::MatchDetails {} ;
+
+
 role Data::Dump::Tree::Role::PerlString 
 {
 multi method get_header (Str $s) { ($s.perl, '.' ~ $s.^name, DDT_FINAL) } 
 }
+role DDTR::PerlString does Data::Dump::Tree::Role::PerlString {} ;
 
 role Data::Dump::Tree::Role::SilentSub
 {
 multi method get_header (Routine $r) { ('', '.' ~ $r.^name, DDT_FINAL) }
 multi method get_header (Sub $r) { ('', '.' ~ $r.^name, DDT_FINAL) }
 }
+role DDTR::SilentSub does Data::Dump::Tree::Role::SilentSub {} ;
 
 class Data::Dump::Tree::Type::Nothing
 {
