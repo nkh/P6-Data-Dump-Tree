@@ -6,13 +6,13 @@ Date::Dump::Tree - Renders data structures in a tree fashion
 =head1 SYNOPSIS
 	use Data::Dump::Tree ;
 
-	say dump @your_data, 'a_title', %options ;
+	dump @your_data, 'a_title', %options ;
 
 	my $d = Data::Dump::Tree.new ;
-	say $d.dump @your_data ;
+	$d.dump @your_data ;
 
 	$dumper does role { .... } ;
-	say $d.dump @your_data ;
+	$d.dump @your_data ;
 	
 =head1 DESCRIPTION
 
@@ -43,7 +43,7 @@ If you have Term::ANSIColor installed, the output will be so colored.
 		'aaa' ~~ m:g/(a)/,
 		] ;
 
-	say dump $s, 'A complex structure', { color => 0 } ;
+	dump $s, 'A complex structure', { color => 0 } ;
 
 =head2 Output
 	
@@ -182,7 +182,7 @@ Data::Dump::Tree uses two methods, you can define either one or both.
 
 =head5 ddt_get_elements, code is defined in your class 
 
-	method ddt_get_element
+	method ddt_get_elements
 	{
  
 	[ 
@@ -300,6 +300,12 @@ Sub objects are rendered in a very succint way
 
 =head1 BUGS, LIMITATIONS, AND SUPPORT
 
+You may encounter errors when you use this module as it uses the MOP interface
+and not all the classes that need to have a handler have one. An example is
+Grammar that I tied to dump and reurned an error about a class that I didn't
+even know existed. Best it to let me know  I add a handler for it. You can, of
+course, also add the handler yourself.
+ 
 Submit bugs (preferably as executable tests) and feel free to make 
 suggestions.
 

@@ -9,11 +9,21 @@ has $.color = AnsiColor.new() ;
 
 sub dump($s, $title?, %options? is copy) is export
 {
+say get_dump($s, $title, %options) ;
+}
+
+sub get_dump($s, $title?, %options? is copy) is export
+{
 my $d = Data::Dump::Tree.new() ;
-$d.dump($s, $title, %options) ;
+$d.get_dump($s, $title, %options) ;
 }
 
 method dump($s, $title?, %options? is copy)
+{
+say self.get_dump($s, $title, %options)
+}
+
+method get_dump($s, $title?, %options? is copy)
 {
 #%options<glyphs> //= {last => '└ ', not_last => '├ ', last_continuation => '  ', not_last_continuation => '│ '} ;
 #%options<glyphs><max_depth> //= '…' ;

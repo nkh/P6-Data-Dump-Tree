@@ -75,7 +75,7 @@ $d does DescribeDog ;
 $d does DescribeShyFinal ;
 #$d does Data::Dump::Tree::Role::MatchDetails ;
 
-my $dump = $d.dump(
+my $dump = $d.get_dump(
 		get_test_structure(),
 		'test data',
 		{

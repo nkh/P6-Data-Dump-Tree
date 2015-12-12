@@ -21,7 +21,7 @@ method ddt_get_elements
 }
 
 my $d = Data::Dump::Tree.new() ;
-my $dump = $d.dump(HasNothing.new(), Nil, {color => 0}) ;
+my $dump = $d.get_dump(HasNothing.new(), Nil, {color => 0}) ;
 
 is $dump.lines.elems, 3, '3 lines output' ;
 like $dump, /nothing\n/, 'nothing as no value' ;
