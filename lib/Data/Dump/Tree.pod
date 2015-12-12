@@ -298,20 +298,22 @@ codes and hex values.
 =item Data::Dump::Tree::Role::SilentSub or DDTR::SilentSub
 Sub objects are rendered in a very succint way
 
-=head1 BUGS, LIMITATIONS, AND SUPPORT
-
-You may encounter errors when you use this module as it uses the MOP interface
-and not all the classes that need to have a handler have one. An example is
-Grammar that I tied to dump and reurned an error about a class that I didn't
-even know existed. Best it to let me know  I add a handler for it. You can, of
-course, also add the handler yourself.
- 
+=head1 BUGS
 Submit bugs (preferably as executable tests) and feel free to make 
 suggestions.
 
 This module will mature with time, and with your suggestions, it 
 is intended to replace my P5 Data::TreeDumper module for P6.
 
+=head2 Dumper Exception
+You may encounter errors when you use this module as it uses the MOP interface
+and not all the classes that need to have a handler have one. An example is
+Grammar that I tied to dump and got an exception about a class that I didn't
+even know existed. Those exception are caught and displayed by the dumper.
+
+Please le me know about them so I can add the necessary handlers to the 
+distribution.
+ 
 =head1 AUTHOR
 
 Nadim ibn hamouda el Khemir

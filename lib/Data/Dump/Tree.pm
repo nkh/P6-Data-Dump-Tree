@@ -235,9 +235,18 @@ $.color.color(
 }
 
 method !get_Any_parents_list(Any $a) { get_Any_parents_list($a) }
-method !get_Any_attributes (Any $a) { get_Any_attributes($a) } 
-
 sub get_Any_parents_list(Any $a) is export { $a.^parents.map({ $_.^name }) }
+
+method !get_Any_attributes (Any $a) 
+{
+my @a ;
+
+try { @a = get_Any_attributes($a)}
+
+if $! {@a = ('Dumper exception! See documentation', "$!"),  } 
+
+@a
+} 
 
 multi sub get_Any_attributes (Any $a) is export 
 {
