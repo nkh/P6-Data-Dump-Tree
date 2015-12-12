@@ -20,6 +20,7 @@ multi method get_header (Any $a) { ('',([$a.^name, |self!get_Any_parents_list($a
 multi method get_elements (Any $a) { [ self!get_Any_attributes($a)] } 
 
 multi method get_header (Match $a) { ('[' ~ $a.from ~ ' .. ' ~ $a.to ~ ']', '.' ~ $a.^name, DDT_FINAL) } 
+multi method get_header (Grammar $a) { ($a.perl, '.Grammar', DDT_FINAL) } 
 
 multi method get_header (List $l) { ('', '(' ~ $l.elems ~ ')') }
 multi method get_elements (List $l) { [ ($l Z 0 .. *).map: -> ($v, $i) {"$i = ", $v} ] }
