@@ -1,0 +1,15 @@
+{
+"perl" : "6.*",
+
+"name" : "Data::Dump::Tree",
+"version" : "0.1.0",
+"author" : "Nadim Khemir",
+
+"description" : "Data dumper which renders data as trees",
+"provides" : { "Data::Dump::Tree" : "lib/Data/Dump/tree.pm" },
+"depends" : [ ],
+"test-depends" : [ "Test"  ],
+
+"source-url" : "git://github.com/nkh/P6-Data-Dump-Tree.git"
+}
+
