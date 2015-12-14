@@ -19,7 +19,7 @@ multi method get_header (Sub $s) { ($s.perl, '.' ~ $s.^name, DDT_FINAL) }
 multi method get_header (Any $a) { ('', self!get_class_and_parents($a)) }
 multi method get_elements (Any $a) { [ self!get_Any_attributes($a)] } 
 
-multi method get_header (Match $a) { ('[' ~ $a.from ~ ' .. ' ~ $a.to ~ ']', '.' ~ $a.^name, DDT_FINAL) } 
+multi method get_header (Match $a) { ('[' ~ $a.from ~ '..' ~ $a.to ~ '|', '.' ~ $a.^name, DDT_FINAL) } 
 
 multi method get_header (Grammar $a) { ($a.perl ~ ' ', '.Grammar', DDT_FINAL,) } 
 
@@ -35,16 +35,25 @@ multi method get_elements (Hash $h) { [ $h.sort(*.key)>>.kv.map: -> ($k, $v) {"$
 
 role Data::Dump::Tree::Role::MatchDetails 
 {
-multi method get_header (Match $a) { ('', '.' ~ $a.^name) } 
-multi method get_elements (Match $a) 
+
+multi method get_header (Match $a)
 {
-# removed list hash ast
-[ <from to orig>.map: { ("$_: ", $a."$_"()) } ]
-}
-#role 
+my $final = (1 == $a.keys && $a{$a.keys[0]} ~~ Nil) || 0 == $a.keys
+                ?? DDT_FINAL
+                !!  '' ;
+
+( $a ~ ' [' ~ $a.from ~ '..' ~ $a.to ~ '|', '.' ~ $a.^name, $final )
 }
 
-role DDTR::MatchDetails does Data::Dump::Tree::Role::MatchDetails {} ;
+multi method get_elements (Match $m)
+{
+[ ($m.keys.sort: { $m{$^a}.from <=> $m{$^b}.from }).map: { ( "$_: ", $m{$_}) } ]
+}
+
+#role
+}
+
+role DDTR::MatchDetails does Data::Dump::Tree::Role::MatchDetails {} 
 
 
 role Data::Dump::Tree::Role::PerlString 

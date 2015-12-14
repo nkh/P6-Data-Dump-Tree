@@ -79,10 +79,11 @@ my $dump = $d.get_dump(
 		'test data',
 		{
 			caller => 1,
-#			max_depth => 4,
+			max_depth => 3,
+			#display_perl_address => 1,
 		});
 
-is( $dump.lines.elems, 87, 'all lines') ; # or diag $dump ;
+is( $dump.lines.elems, 86, 'all lines') ; # or diag $dump ;
 
 diag $dump ;
 
