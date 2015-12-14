@@ -5,7 +5,7 @@ use Data::Dump::Tree::DescribeBaseObjects ;
 
 class Data::Dump::Tree does DescribeBaseObjects 
 {
-has $.color = AnsiColor.new() ;
+has $!color = AnsiColor.new() ;
 
 sub dump($s, $title?, %options? is copy) is export
 {
@@ -24,23 +24,8 @@ say self.get_dump($s, $title, %options)
 }
 
 
-multi method get_glyphs
-{
-{
-last => "`- ", not_last => '|- ', last_continuation => '   ', not_last_continuation => '|  ',
-max_depth => '...' ,
-}
-}
-
 method get_dump($s, $title?, %options? is copy)
 {
-%options<glyphs> //= $.get_glyphs() ;
-
-%options<glyphs><empty> //= ' ' x %options<glyphs><last>.chars ;
-
-%options<width> //= 79 ;
-%options<width> -= %options<glyphs><last>.chars ; # we may shift text on multiline values
-
 %options<color> //= True ;
 
 my %default_colors =
@@ -50,18 +35,22 @@ my %default_colors =
 	> ;
 
 %options<colors> = %( |%default_colors, |(%options<colors>.kv)) ;
+$!color.set_colors(%options<colors>, so %options<color>) ;
+
+%options<address> = 0 ;
+%options<display_perl_address> //= 0 ; 
+%options<display_address> //= 1 ;
+
+%options<glyphs> //= $.get_glyphs() ; #colors must be set before (for ANSI checking)
+%options<glyphs><empty> //= ' ' x %options<glyphs><last_continuation>.chars ;
+
+%options<width> //= 79 ;
+%options<width> -= %options<glyphs><last_continuation>.chars ; # we may shift text on multiline values
 
 %options<max_depth> //= -1 ;
 %options<current_depth> = 0 ;
 
-%options<display_perl_address> //= 0 ; 
-%options<display_address> //= 1 ;
-
-%options<address> = 0 ;
-
 # ----------
-
-$.color.set_colors(%options<colors>, so %options<color>) ;
 
 self!render_element(
 	(self!get_title($title, so %options<caller>), $s),
@@ -76,7 +65,7 @@ return ( %options<glyphs><empty> ~ %options<glyphs><max_depth> ~ " max depth(%op
 	if %options<current_depth> + 1 == %options<max_depth> ;
 
 temp %options<current_depth> = %options<current_depth> + 1 ;
-temp %options<width> = %options<width> - %options<glyphs><last>.chars ; # text wrap
+temp %options<width> = %options<width> - %options<glyphs><last_continuation>.chars ; # text wrap
 
 my $elements = 
 	self!has_dumper_method('get_elements', $s.WHAT)
@@ -171,9 +160,9 @@ my @fs = self!split_text($f, $width) ;
 
 my $kvf = @ks.join('') ~ @vs.join('') ~ @fs.join('') ;
 
-@ks = $.color.color(@ks, 'key') ; 
-@vs = $.color.color(@vs, 'value') ; 
-@fs = $.color.color(@fs, 'header') ;
+@ks = $!color.color(@ks, 'key') ; 
+@vs = $!color.color(@vs, 'value') ; 
+@fs = $!color.color(@fs, 'header') ;
 
 if +@ks > 1 || +@vs >1 || +@fs > 1
 	{
@@ -219,9 +208,9 @@ else
 $perl_address = %options<display_perl_address> ?? ' ' ~ $perl_address !! '' ;
 
 my $address = %options<display_address> 
-	?? $.color.color(' @' ~ $ddt_address, 'ddt_address') 
-		~ $.color.color($perl_address, 'perl_address') 
-		~ $.color.color($link, 'link') 
+	?? $!color.color(' @' ~ $ddt_address, 'ddt_address') 
+		~ $!color.color($perl_address, 'perl_address') 
+		~ $!color.color($link, 'link') 
 	!! '' ;
 
 $address, !$rendered
@@ -231,7 +220,7 @@ method !get_level_glyphs(Bool $is_last, %options)
 {
 my %glyphs = %options<glyphs> ;
 
-$.color.color(
+$!color.color(
 	$is_last
 		?? (%glyphs<last>, %glyphs<last_continuation>, %glyphs<not_last_continuation>)
 		!! (%glyphs<not_last>, %glyphs<not_last_continuation>, %glyphs<not_last_continuation>)
@@ -283,7 +272,19 @@ else
 	else                 { $title = '' }
 	}
 
-$.color.color($title, 'title') ;
+$!color.color($title, 'title') ;
+}
+
+method is_ansi { $!color.is_ansi }
+
+multi method get_glyphs
+{
+self.is_ansi
+	?? { last => "\x1b(0\x6d \x1b(B", not_last => "\x1b(0\x74 \x1b(B",
+		last_continuation => '  ', not_last_continuation => "\x1b(0\x78 \x1b(B",
+		max_depth => '..',}
+	!! { last => "`- ", not_last => '|- ', last_continuation => '   ', not_last_continuation => '|  ',
+		max_depth => '...' ,	}
 }
 
 #classs

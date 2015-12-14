@@ -79,10 +79,8 @@ role Data::Dump::Tree::Role::UnicodeGlyphs
 
 multi method get_glyphs
 {
-{
-last => '└', not_last => '├', last_continuation => ' ', not_last_continuation => '│',
-max_depth => '…',
-}
+	{ last => '└', not_last => '├', last_continuation => ' ', not_last_continuation => '│',
+		max_depth => '…', }
 }
 
 #role
@@ -90,5 +88,19 @@ max_depth => '…',
 
 role DDTP::UnicodeGlyphs does Data::Dump::Tree::Role::UnicodeGlyphs {} 
 
+
+role Data::Dump::Tree::Role::AsciiGlyphs
+{
+
+multi method get_glyphs
+{
+	{ last => "`- ", not_last => '|- ', last_continuation => '   ', not_last_continuation => '|  ',
+		max_depth => '...' , }
+}
+
+#role
+}
+
+role DDTP::AsciiGlyphs does Data::Dump::Tree::Role::AsciiGlyphs {} 
 
 

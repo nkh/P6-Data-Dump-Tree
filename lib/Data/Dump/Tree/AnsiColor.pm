@@ -2,6 +2,7 @@
 class AnsiColor
 {
 has %!color_lookup ;
+has Bool $.is_ansi is rw = False ;
 
 method set_colors(%lookup, Bool $do_ansi)
 {
@@ -15,6 +16,7 @@ if $do_ansi == True
 		{
 		require Terminal::ANSIColor;
 		self!set_lookup_table(%lookup, GLOBAL::Terminal::ANSIColor::EXPORT::DEFAULT::<&color>) ;
+		$.is_ansi = True ;
 		}
 	}
 }

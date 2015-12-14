@@ -112,10 +112,10 @@ by '@current_address -> @first_time_seen'
 
 =head2 Configuration and Overrides
 
-=head3 ASCII vs ANSI vs Unicode tree drawing
+=head3 ANSI vs ASCII vs Unicode tree drawing
 
-As of this version, only ASCII is supported. ANSI makes the output nicer
-to look at. The unicode outpt saves a character a every level.
+The tree is draw with ANSI codes, if possible, otherwise in ASCII. See roles
+AsciiGyphs and UnicodeGlyphs.
 
 =head3 colors
 
@@ -287,6 +287,12 @@ you belive fit well in the same bundle.
 
 You are welcome to make your own distribution too, I recomment using namespace
 Data::Dump::Tree::Role::YouRole and an alias in DDTR::YourRole.
+
+=item Data::Dump::Tree::Role::AsciiGlyphs or DDTR::AsciiGlyphs
+Uses ASCII codes rather than ANSI to render the tree.
+
+=item Data::Dump::Tree::Role::UnicodeGlyphs or DDTR::UnicodeGlyphs
+Uses Unicode to render the tree.
 
 =item Data::Dump::Tree::Role::MatchDetails or DDTR::MatchDetails
 Give a bit more details about a Match
