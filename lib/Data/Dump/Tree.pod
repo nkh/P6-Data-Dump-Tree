@@ -262,7 +262,7 @@ display it on a single line.
 You can, in a handler, tell Data::Dump::Tree that a type rendering is FINAL.
  
 The default role has a handler that is specific for the Rat class. Rather than
-show a flaoting number, as say $rat would, or remder the Rat type with it's 
+show a floating number, as say $rat would, or render the Rat type with it's 
 attributes, we display the Rat on a single line. Here is the handler:
  
 	multi method get_header (Rat $r)
@@ -306,10 +306,14 @@ This module will mature with time, and with your suggestions, it
 is intended to replace my P5 Data::TreeDumper module for P6.
 
 =head2 Dumper Exception
-You may encounter errors when you use this module as it uses the MOP interface
-and not all the classes that need to have a handler have one. An example is
-Grammar that I tied to dump and got an exception about a class that I didn't
-even know existed. Those exception are caught and displayed by the dumper.
+As this module uses the MOP interface, it happens that it may use interfaces
+not implemented by some internal classes. 
+
+An example is Grammar that I tried to dump and got an exception about a class
+that I didn't even know existed. 
+
+Those exception are caught and displayed by the dumper as 
+	"DDT Exception: the_caugt_excaption_class"
 
 Please le me know about them so I can add the necessary handlers to the 
 distribution.

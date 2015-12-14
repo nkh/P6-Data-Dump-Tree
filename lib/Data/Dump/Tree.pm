@@ -234,23 +234,21 @@ $.color.color(
 	) ;
 }
 
+method !get_class_and_parents ($a) { get_class_and_parents($a) }
+sub get_class_and_parents (Any $a) is export { (($a.^name, |get_Any_parents_list($a)).map: {'.' ~ $_}).join(' ') }
+ 
 method !get_Any_parents_list(Any $a) { get_Any_parents_list($a) }
 sub get_Any_parents_list(Any $a) is export { $a.^parents.map({ $_.^name }) }
 
-method !get_Any_attributes (Any $a) 
+method !get_Any_attributes (Any $a)
 {
-my @a ;
-
-try { @a = get_Any_attributes($a)}
-
-if $! {@a = ('Dumper exception! See documentation', "$!"),  } 
-
-@a
-} 
+my @a = try { @a = get_Any_attributes($a) }  ;
+$! ?? (('DDT exception: ', "$!"),)  !! @a ;
+}
 
 multi sub get_Any_attributes (Any $a) is export 
 {
-$a.^attributes.grep({$_.^isa(Attribute)}).map:   #weeding out perl internal, thanks to moriz 
+$a.^attributes.grep({$_.^isa(Attribute)}).map:   #weeding out perl internal, thanks to moritz 
 	{
 	my $name = $_.name ;
 	$name ~~ s~^(.).~$0.~ if $_.has-accessor ;
