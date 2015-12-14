@@ -60,18 +60,35 @@ role Data::Dump::Tree::Role::PerlString
 {
 multi method get_header (Str $s) { ($s.perl, '.' ~ $s.^name, DDT_FINAL) } 
 }
-role DDTR::PerlString does Data::Dump::Tree::Role::PerlString {} ;
+role DDTR::PerlString does Data::Dump::Tree::Role::PerlString {}
 
 role Data::Dump::Tree::Role::SilentSub
 {
 multi method get_header (Routine $r) { ('', '.' ~ $r.^name, DDT_FINAL) }
 multi method get_header (Sub $r) { ('', '.' ~ $r.^name, DDT_FINAL) }
 }
-role DDTR::SilentSub does Data::Dump::Tree::Role::SilentSub {} ;
+role DDTR::SilentSub does Data::Dump::Tree::Role::SilentSub {} 
 
 class Data::Dump::Tree::Type::Nothing
 {
 multi method ddt_get_header { ('', '', DDT_FINAL) }
 }
+
+role Data::Dump::Tree::Role::UnicodeGlyphs
+{
+
+multi method get_glyphs
+{
+{
+last => '└', not_last => '├', last_continuation => ' ', not_last_continuation => '│',
+max_depth => '…',
+}
+}
+
+#role
+}
+
+role DDTP::UnicodeGlyphs does Data::Dump::Tree::Role::UnicodeGlyphs {} 
+
 
 

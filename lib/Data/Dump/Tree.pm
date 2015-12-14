@@ -23,13 +23,18 @@ method dump($s, $title?, %options? is copy)
 say self.get_dump($s, $title, %options)
 }
 
+
+multi method get_glyphs
+{
+{
+last => "`- ", not_last => '|- ', last_continuation => '   ', not_last_continuation => '|  ',
+max_depth => '...' ,
+}
+}
+
 method get_dump($s, $title?, %options? is copy)
 {
-#%options<glyphs> //= {last => '└ ', not_last => '├ ', last_continuation => '  ', not_last_continuation => '│ '} ;
-#%options<glyphs><max_depth> //= '…' ;
-
-%options<glyphs> //= {last => "`- ", not_last => '|- ', last_continuation => '   ', not_last_continuation => '|  '} ;
-%options<glyphs><max_depth> //= '...' ;
+%options<glyphs> //= $.get_glyphs() ;
 
 %options<glyphs><empty> //= ' ' x %options<glyphs><last>.chars ;
 
@@ -86,7 +91,7 @@ for $elements Z 0 .. * -> ($e, $index)
 	{
 	@renderings.append: self!render_element(
 				$e,
-				self!get_glyphs($index == $elements.end, %options),
+				self!get_level_glyphs($index == $elements.end, %options),
 				%options
 				) ;
 	}
@@ -222,7 +227,7 @@ my $address = %options<display_address>
 $address, !$rendered
 }
 
-method !get_glyphs(Bool $is_last, %options)
+method !get_level_glyphs(Bool $is_last, %options)
 {
 my %glyphs = %options<glyphs> ;
 
