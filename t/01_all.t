@@ -83,7 +83,7 @@ my $dump = $d.get_dump(
 			#display_perl_address => 1,
 		});
 
-is( $dump.lines.elems, 86, 'all lines') ; # or diag $dump ;
+is( $dump.lines.elems, 85, 'all lines') ; # or diag $dump ;
 
 diag $dump ;
 

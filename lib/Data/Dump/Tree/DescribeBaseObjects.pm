@@ -6,7 +6,8 @@ role DescribeBaseObjects
 {
 # get_headers: "final" objects returnf their value and type
 multi method get_header (Int $i) { ($i,  '.' ~ $i.^name, DDT_FINAL) }
-multi method get_header (Str $s) { ($s.defined ?? $s !! 'Type object', '.' ~ $s.^name, DDT_FINAL) }
+multi method get_header (Str:U $s) { ('type object', '.' ~ $s.^name, DDT_FINAL) }
+multi method get_header (Str:D $s) { ($s, '.' ~ $s.^name, DDT_FINAL) } 
 multi method get_header (Rat $r) { ('den: ' ~ $r.denominator ~ ' num: ' ~ $r.numerator, '.' ~ $r.^name, DDT_FINAL) }
 
 # Block must be declare or it groaks when passed a Sub
@@ -36,21 +37,29 @@ multi method get_elements (Hash $h) { [ $h.sort(*.key)>>.kv.map: -> ($k, $v) {"$
 role Data::Dump::Tree::Role::MatchDetails 
 {
 
-multi method get_header (Match $a)
+multi method get_header (Match:U $m) { ( 'type object', '.' ~ $m.^name, DDT_FINAL) }
+multi method get_header (Match:D $m) 
 {
-my $final = (1 == $a.keys && $a{$a.keys[0]} ~~ Nil) || 0 == $a.keys
-                ?? DDT_FINAL
-                !!  '' ;
-
-( $a ~ ' [' ~ $a.from ~ '..' ~ $a.to ~ '|', '.' ~ $a.^name, $final )
+#note that DDT_NOT_FINAL is return in both cases
+$m.hash.elems
+	?? ( $m ~ ' '  ~ ' [' ~ $m.from ~ '..' ~ $m.to ~ '| ', '.' ~ $m.^name, DDT_NOT_FINAL) 
+	!! ( $m ~ ' ', '.' ~ $m.^name, DDT_NOT_FINAL) 
 }
 
 multi method get_elements (Match $m)
 {
-[ ($m.keys.sort: { $m{$^a}.from <=> $m{$^b}.from }).map: { ( "$_: ", $m{$_}) } ]
+
+[
+($m.hash.keys.sort: { ($m{$^a}.from // 0) <=> ($m{$^b}.from // 0)} )
+	.map: 
+		{
+		( $_ ~ ' [' ~ ($m{$_}.from // '?') ~ '..' ~ ($m{$_}.to // '?') ~ '|: ', $m{$_})
+		} 
+]
+
 }
 
-#role
+#role MatchDetails
 }
 
 role DDTR::MatchDetails does Data::Dump::Tree::Role::MatchDetails {} 
@@ -58,7 +67,7 @@ role DDTR::MatchDetails does Data::Dump::Tree::Role::MatchDetails {}
 
 role Data::Dump::Tree::Role::PerlString 
 {
-multi method get_header (Str $s) { ($s.perl, '.' ~ $s.^name, DDT_FINAL) } 
+multi method get_header (Str:D $s) { ($s.perl, '.' ~ $s.^name, DDT_FINAL) } 
 }
 role DDTR::PerlString does Data::Dump::Tree::Role::PerlString {}
 
@@ -80,13 +89,13 @@ role Data::Dump::Tree::Role::UnicodeGlyphs
 multi method get_glyphs
 {
 	{ last => '└', not_last => '├', last_continuation => ' ', not_last_continuation => '│',
-		max_depth => '…', }
+		empty => ' ', max_depth => '…', }
 }
 
 #role
 }
 
-role DDTP::UnicodeGlyphs does Data::Dump::Tree::Role::UnicodeGlyphs {} 
+role DDTR::UnicodeGlyphs does Data::Dump::Tree::Role::UnicodeGlyphs {} 
 
 
 role Data::Dump::Tree::Role::AsciiGlyphs
@@ -95,12 +104,12 @@ role Data::Dump::Tree::Role::AsciiGlyphs
 multi method get_glyphs
 {
 	{ last => "`- ", not_last => '|- ', last_continuation => '   ', not_last_continuation => '|  ',
-		max_depth => '...' , }
+		empty => '   ', max_depth => '...' , }
 }
 
 #role
 }
 
-role DDTP::AsciiGlyphs does Data::Dump::Tree::Role::AsciiGlyphs {} 
+role DDTR::AsciiGlyphs does Data::Dump::Tree::Role::AsciiGlyphs {} 
 
 

@@ -40,9 +40,14 @@ grammar my_grammar {
 my $d_4 = Data::Dump::Tree.new does DDTR::MatchDetails ;
 
 my $dump_4 = $d_4.get_dump(my_grammar.parse("fuu \n\nbart baz x"));
-like $dump_4, /0\.\.16/, 'complex Match' ;
-is $dump_4.lines.elems, 18, 'complex Match lines' or diag get_dump $dump_4;
+like $dump_4, /0\.\.16/, 'Grammar Match' ;
+is $dump_4.lines.elems, 18, 'Grammar Match lines' or diag get_dump $dump_4;
 
 my $dump_4_2 = $d_4.get_dump('aaaaa' ~~ m:g/(aa)/);
 is $dump_4_2.lines.elems, 3, 'terminal Match lines' or diag get_dump $dump_4_2;
 
+#`{{{
+my $d_5 = Data::Dump::Tree.new does DDTR::MatchDetails ;
+my $dump_5 = $d_5.get_dump([Match, Grammar]);
+is $dump_5.lines.elems, 0, 'type object matches' or diag get_dump $dump_5;
+}}}

@@ -7,6 +7,17 @@ class Data::Dump::Tree does DescribeBaseObjects
 {
 has $!color = AnsiColor.new() ;
 
+sub get_dumper(%options? is copy --> Data::Dump::Tree) is export
+{
+my $d = Data::Dump::Tree.new() ;
+
+# bind standard options
+
+for (%options<does> // ()).list -> $role { $d does $role } ; 
+	
+$d ;
+}
+
 sub dump($s, $title?, %options? is copy) is export
 {
 say get_dump($s, $title, %options) ;
@@ -42,7 +53,6 @@ $!color.set_colors(%options<colors>, so %options<color>) ;
 %options<display_address> //= 1 ;
 
 %options<glyphs> //= $.get_glyphs() ; #colors must be set before (for ANSI checking)
-%options<glyphs><empty> //= ' ' x %options<glyphs><last_continuation>.chars ;
 
 %options<width> //= 79 ;
 %options<width> -= %options<glyphs><last_continuation>.chars ; # we may shift text on multiline values
@@ -92,27 +102,26 @@ method !render_element($element, $glyphs, %options)
 {
 
 my ($k, $e) = $element ;
-my ($glyph, $continuation_glyph, $not_last_continuation_glyph) = $glyphs ;
 
+my ($glyph, $continuation_glyph, $multi_line_glyph) = $glyphs ;
+
+my $rendered = 1 ;
 my @renderings ;
-my ($not_rendered_yet, $multi_line_glyph) = (0, '?') ;
 
 my ($v, $f, $final) = self!get_vf($e) ;
 $final //= DDT_NOT_FINAL ;
 
-if $final ~~ DDT_FINAL 
+($v, $, $) = self.get_header($v) if $v ~~ Str ;
+
+if ! $final && $e.^name !~~ any('Any')
 	{
-	$multi_line_glyph = %options<glyphs><empty> ;
+	(my $address, $rendered) = self!get_address(%options, $e) ;
+	$f ~= $address ;
 	}
-else 
+
+if $final || $rendered 
 	{
-	$multi_line_glyph = $not_last_continuation_glyph ;
-	
-	if $e.^name !~~ any('Any')
-		{
-		(my $address, $not_rendered_yet) = self!get_address(%options, $e) ;
-		$f ~= $address ;
-		}
+	$multi_line_glyph = %options<glyphs><last_continuation> ;
 	}
 
 my ($kvf, @ks, @vs, @fs) := self!split_entry($k, $v, $f, %options<width>) ;
@@ -123,13 +132,15 @@ if $kvf.defined
 	}
 else
 	{
+	#@renderings.append: 'final: ' ~ $final ~ ' rendered: ' ~ $rendered ;
+
 	@renderings.append: $glyph ~ (@ks.shift if @ks) ; 
 	@renderings.append: @ks.map: { $continuation_glyph ~ $_} ; 
 	@renderings.append: @vs.map: { $continuation_glyph ~ $multi_line_glyph ~ $_} ; 
 	@renderings.append: @fs.map: { $continuation_glyph ~ $multi_line_glyph ~ $_} ; 
 	}
 
-if $not_rendered_yet
+if ! $final && ! $rendered
 	{
 	@renderings.append: self!render($e, %options).map: { $continuation_glyph ~ $_} 
 	}
@@ -180,10 +191,27 @@ $kvf, @ks, @vs, @fs
 
 method !split_text(Cool $e, $width)
 {
-return ('Type object') unless $e.defined ;
+return ('type object') unless $e.defined ;
 
 # given a, possibly empty, string, split the string on \n and width
 ($e.split("\n", :skip-empty).flatmap: {$_ ~~ m:g/(. ** {1..$width})/}).map: {$_.Str} 
+
+#`{{{
+my ($index, @lines_2) = (0) ;
+for $e.lines -> $line
+	{
+	my $index = 0 ;
+
+	while $index < $line.chars 
+		{
+		@lines_2.push: $line.substr($index, $width) ;
+		$index += $width ;
+		}
+	}
+
+@lines_2 ;
+}}}
+
 }
 
 method !get_address(%options, $v)
@@ -213,7 +241,7 @@ my $address = %options<display_address>
 		~ $!color.color($link, 'link') 
 	!! '' ;
 
-$address, !$rendered
+$address, $rendered
 }
 
 method !get_level_glyphs(Bool $is_last, %options)
@@ -282,12 +310,12 @@ multi method get_glyphs
 self.is_ansi
 	?? { last => "\x1b(0\x6d \x1b(B", not_last => "\x1b(0\x74 \x1b(B",
 		last_continuation => '  ', not_last_continuation => "\x1b(0\x78 \x1b(B",
-		max_depth => '..',}
+		empty => '  ', max_depth => '..',}
 	!! { last => "`- ", not_last => '|- ', last_continuation => '   ', not_last_continuation => '|  ',
-		max_depth => '...' ,	}
+		empty => '   ', max_depth => '...' ,	}
 }
 
-#classs
+#class
 }
 
 

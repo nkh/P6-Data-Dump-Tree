@@ -1,7 +1,7 @@
 #!/usr/bin/env perl6
 
 use Test ;
-plan 8 ;
+plan 10 ;
 
 use Data::Dump::Tree;
 
@@ -22,4 +22,9 @@ is all($dump.lines>>.chars) <= 20,  True, 'all lines under 20 chars' or do { dia
 $dump = get_dump '1234567890' x 5, 'title' x 5, {color => 0, width => 20} ;
 is $dump.lines.elems, 6, '6 lines, width set to 20' or diag $dump ;
 is all($dump.lines>>.chars) <= 70,  True, 'all lines under 70 chars' or do { diag $dump.lines>>.chars ;diag $dump ; }
+
+$dump = get_dump "12345678901234567890\n" x 3, 'title' x 5, {color => 0, width => 15} ;
+is $dump.lines.elems, 10, '10 lines, width set to 15' or diag $dump ;
+is all($dump.lines>>.chars) <= 15,  True, 'all lines under 15 chars' or do { diag $dump.lines>>.chars ;diag $dump ; }
+
 
