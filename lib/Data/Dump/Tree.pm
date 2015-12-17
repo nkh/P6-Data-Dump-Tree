@@ -43,6 +43,7 @@ my %default_colors =
 	<
 	title yellow   glyph reset    perl_address yellow    ddt_address blue
 	link  green    key   cyan     value        reset     header      magenta 
+	wrap  cyan 
 	> ;
 
 %options<colors> = %( |%default_colors, |(%options<colors>.kv)) ;
@@ -54,7 +55,9 @@ $!color.set_colors(%options<colors>, so %options<color>) ;
 
 %options<glyphs> //= $.get_glyphs() ; #colors must be set before (for ANSI checking)
 
-%options<width> //= 79 ;
+%options<width> //= +(qx[stty size] ~~ /\d+ \s+ (\d+)/)[0] ; 
+%options<width> //= 79 ; 
+
 %options<width> -= %options<glyphs><last_continuation>.chars ; # we may shift text on multiline values
 
 %options<max_depth> //= -1 ;
@@ -105,24 +108,25 @@ my ($k, $e) = $element ;
 
 my ($glyph, $continuation_glyph, $multi_line_glyph) = $glyphs ;
 
-my $rendered = 1 ;
 my @renderings ;
 
-my ($v, $f, $final) = self!get_vf($e) ;
+my ($v, $f, $final, $wants_address) = self!get_vf($e) ;
 $final //= DDT_NOT_FINAL ;
 
-($v, $, $) = self.get_header($v) if $v ~~ Str ;
+$final = DDT_FINAL if $e.^name eq 'Any' ; # Any is final 
 
-if ! $final && $e.^name !~~ any('Any')
-	{
-	(my $address, $rendered) = self!get_address(%options, $e) ;
-	$f ~= $address ;
-	}
+$wants_address //= $final ?? False !! True ;
 
-if $final || $rendered 
+my ($address, $rendered) = self!get_address(%options, $e) ;
+$f ~= $wants_address ?? $address !! '' ;
+
+if $final 
 	{
 	$multi_line_glyph = %options<glyphs><last_continuation> ;
 	}
+
+# perl stringy $v if role is on
+($v, $, $) = self.get_header($v) if $v ~~ Str ;
 
 my ($kvf, @ks, @vs, @fs) := self!split_entry($k, $v, $f, %options<width>) ;
 
@@ -132,7 +136,7 @@ if $kvf.defined
 	}
 else
 	{
-	#@renderings.append: 'final: ' ~ $final ~ ' rendered: ' ~ $rendered ;
+	#@renderings.append: 'final: ' ~ $final ~ ' wants_addr: ' ~ $wants_address ~ ' rendered: ' ~ $rendered ;
 
 	@renderings.append: $glyph ~ (@ks.shift if @ks) ; 
 	@renderings.append: @ks.map: { $continuation_glyph ~ $_} ; 
@@ -189,28 +193,39 @@ else
 $kvf, @ks, @vs, @fs 
 }
 
-method !split_text(Cool $e, $width)
+method !split_text(Cool $e, $width is copy)
 {
 return ('type object') unless $e.defined ;
 
-# given a, possibly empty, string, split the string on \n and width
-($e.split("\n", :skip-empty).flatmap: {$_ ~~ m:g/(. ** {1..$width})/}).map: {$_.Str} 
+return $e if $width < 1 ;
 
-#`{{{
-my ($index, @lines_2) = (0) ;
+# given a, possibly empty, string, split the string on \n and width
+
+my ($index, @lines) = (0) ;
 for $e.lines -> $line
 	{
 	my $index = 0 ;
-
-	while $index < $line.chars 
+	
+	my $line2 = $line.subst(/\t/, '' x 8, :g) ;
+	
+	while $index < $line2.chars 
 		{
-		@lines_2.push: $line.substr($index, $width) ;
+
+		my $chunk = $line2.substr($index, $width) ;
 		$index += $width ;
+		
+		if $index < $line2.chars && self.is_ansi
+			{
+
+			$chunk = $chunk.substr(0, *-1) ~ $!color.color($chunk.substr(*-1), 'wrap') ;
+			}
+
+		@lines.push: $chunk ;
+
 		}
 	}
 
-@lines_2 ;
-}}}
+@lines
 
 }
 
@@ -310,9 +325,9 @@ multi method get_glyphs
 self.is_ansi
 	?? { last => "\x1b(0\x6d \x1b(B", not_last => "\x1b(0\x74 \x1b(B",
 		last_continuation => '  ', not_last_continuation => "\x1b(0\x78 \x1b(B",
-		empty => '  ', max_depth => '..',}
+		empty => '  ', max_depth => '...', }
 	!! { last => "`- ", not_last => '|- ', last_continuation => '   ', not_last_continuation => '|  ',
-		empty => '   ', max_depth => '...' ,	}
+		empty => '   ', max_depth => '...', }
 }
 
 #class

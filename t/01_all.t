@@ -32,7 +32,7 @@ class GenericClass { has $.x ; has $!z ; method zz {} }
 class Dog { has $.name; }
 role DescribeDog
 {
-multi method get_header (Dog $d) { ('Woof! ', '.Dog') }
+multi method get_header (Dog $d) { ('Woof! ', '.Dog (but this one is vagrant, no address)', DDT_NOT_FINAL, DDT_HAS_NO_ADDRESS) }
 multi method get_elements (Dog $d) { [ (q/the dog's name is: /, $d.name), ] }
 }
 
@@ -81,9 +81,10 @@ my $dump = $d.get_dump(
 			caller => 1,
 			max_depth => 3,
 			#display_perl_address => 1,
+			width => 75,
 		});
 
-is( $dump.lines.elems, 85, 'all lines') ; # or diag $dump ;
+is( $dump.lines.elems, 84, 'all lines') ; # or diag $dump ;
 
 diag $dump ;
 

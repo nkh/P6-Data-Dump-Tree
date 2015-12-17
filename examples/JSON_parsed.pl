@@ -27,9 +27,9 @@ Q<<{
 }>> ;
 
 my $parsed = JSON::Tiny::Grammar.parse($JSON) ;
-$parsed.say ;
+#$parsed.say ;
 
-my $d = get_dumper {roles => (DDTR::MatchDetails, DDTR::PerlString), } ;
+my $d = get_dumper {does => (DDTR::MatchDetails, DDTR::PerlString, DDTR::UnicodeGlyphs), } ;
 
-$d.dump( $parsed, 'Parsed JSON', {width => 135} );
+$d.dump( $parsed, 'Parsed JSON' );
 

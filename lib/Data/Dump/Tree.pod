@@ -1,9 +1,9 @@
 =begin pod
 
-=head1 NAME
+=NAME
 Date::Dump::Tree - Renders data structures in a tree fashion
 
-=head1 SYNOPSIS
+=SYNOPSIS
 	use Data::Dump::Tree ;
 
 	dump @your_data, 'a_title', %options ;
@@ -14,19 +14,44 @@ Date::Dump::Tree - Renders data structures in a tree fashion
 	$dumper does role { .... } ;
 	$d.dump @your_data ;
 	
-=head1 DESCRIPTION
+=DESCRIPTION
 
 Data::Dump::Tree renders your data structures in a tree fashion. 
 
 If you have Term::ANSIColor installed, the output will be so colored.
 
-=head1 EXPORT
+=INTERFACE
 
 =item sub dump($structure_to_dump, $title?, %options?)
 
+Says the dump of the data structure
+
+=item sub get_dump($structure_to_dump, $title?, %options?)
+
+returns a string containing the dump of the data structure
+
 =item method dump(($structure_to_dump, $title?, %options?)
 
-=head1 EXAMPlE
+Says the dump of the data structure
+
+=item method  get_dump($structure_to_dump, $title?, %options?)
+
+returns a string containing the dump of the data structure
+
+=item sub get_dumper(%options?)
+
+Returns a dumper with the options applied. It supports options:
+
+=begin nested
+
+=item roles
+A list of roles the dumper plays
+
+	get_dumper({ roles => (role_1, role_2, ...) ;
+
+=end nested 
+
+=USAGE
 
 	use Data::Dump::Tree ;
 
@@ -127,11 +152,12 @@ Setting this option to False forced the output to be monochrome.
 =head4 %options<colors> 
 You can pass your own colors in a Hash in %options<colors>. The default are:
 
-my %default_colors =
-	<
-	title yellow   glyph reset    perl_address yellow    ddt_address blue
-	link  green    key   cyan     value        reset     header      magenta 
-	> ;
+	my %default_colors =
+		<
+		title yellow   glyph reset    perl_address yellow    ddt_address blue
+		link  green    key   cyan     value        reset     header      magenta 
+		wrap  cyan
+		> ;
 
 where colors are ANSI colors. reset meant default color.
 
@@ -142,13 +168,15 @@ terminal width if you do not specify a width.
 Note that the width you pass is reduced with the width of the glyps as we use
 that space when displaying multiline values in the dump.
 
+When using ANSI colors, the last character of each wrapped line is colored.
+
 =head3 %options<max_depth>
 Limit the depth of a dump to the option. by default there is no limit.
 
 =head3 %options<display_address>
 By default this option is set.
 
-=head3 display_perl_address 
+=head3 %options<display_perl_address> 
 Display the internal address of the objects. Not ser by default.
 
 
@@ -215,33 +243,30 @@ Data::Dump::Tree will display them on multiple lines. See the Role section.
 The module tests and Data::Dump::Tree::DescribeBaseobjects are a good place to
 look at for more examples.
 
-=head4 classes defined by someone else
+=head4 classes defined by someone else and base types
 
 You can not add methods to classes that you do not control. Data::Dump::Tree
-has a list or handlers that it uses to display the elements of the structure
+has handlers, via roles, that it uses to display the elements of the structure
 you pass to dump(). You can override those handler and add new handlers.
-
-You use the role machanism to set the handlers. The role contains multi
-methods
 
 =item get_header 
 
 =item get_elements
 
-They work in the same fashion as the methods you add to your own classes. Here
-is an example taken from Data::Dump::Tree code.
+Both work in the same fashion.
 
 	role some_role_name
 	{
 	# ..................... Type you want to handle is Hash
+	#                        ||||
+	#                        vvvv
 	multi method get_header (Hash $h)
 		 { ('', '{' ~ $h.elems ~ '}') }
-
-	# . ..................... Type you want to handle is Hash
+	
+	
 	multi method get_elements (Hash $h) 
 		{ [ $h.sort(*.key)>>.kv.map: -> ($k, $v) {"$k => ", $v} ] }
 
-	# more handlers for other types
 	}
 
 To make that handler active, make your dumper do the role
@@ -251,11 +276,8 @@ To make that handler active, make your dumper do the role
 
 	say $d.dump(@your_data) ;
 
-Adding Handler at the dumper creation time or when calling sub dump() is 
-planned for future versions. 
-
 =head4 FINAL elements
-o far we have seen how to render containers but sometimes we want to handle a
+So far we have seen how to render containers but sometimes we want to handle a
 type as if it was a Str or an Int, EG: not display its elements but instead
 display it on a single line.
 
@@ -269,10 +291,16 @@ attributes, we display the Rat on a single line. Here is the handler:
 	{(
 	# the rendition of the Rat
 	'den: ' ~ $r.denominator ~ ' num: ' ~ $r.numerator,
+
 	#its type
 	'.' ~ $r.^name,
-	# hint to Data::Dump::Tree that this is finall
-	DDT_FINAL
+
+	# optional hint to DDT that this is final
+	DDT_FINAL,
+
+	# optional hint to DDT that this is has an address or not
+	DDT_HAS_ADDRESS
+	
 	)}
 
 =head2 Roles provided with Data::Dump::Tree
@@ -292,7 +320,8 @@ Data::Dump::Tree::Role::YouRole and an alias in DDTR::YourRole.
 Uses ASCII codes rather than ANSI to render the tree.
 
 =item Data::Dump::Tree::Role::UnicodeGlyphs or DDTR::UnicodeGlyphs
-Uses Unicode to render the tree.
+Uses Unicode to render the tree. this is hte tightes rendering as only one
+character is used to display the tree.
 
 =item Data::Dump::Tree::Role::MatchDetails or DDTR::MatchDetails
 Give a bit more details about a Match
@@ -324,17 +353,17 @@ Those exception are caught and displayed by the dumper as
 Please le me know about them so I can add the necessary handlers to the 
 distribution.
  
-=head1 AUTHOR
+=AUTHOR
 
 Nadim ibn hamouda el Khemir
 https://github.com/nkh
 
-=head1 LICENSE AND COPYRIGHT
+=LICENSE
 
 This program is free software; you can redistribute it and/or modify it
 under the same terms as Perl6 itself.
 
-=head1 SEE ALSO
+=SEE-ALSO
 
 Data::Dump
 

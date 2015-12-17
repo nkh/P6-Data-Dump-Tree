@@ -40,10 +40,9 @@ role Data::Dump::Tree::Role::MatchDetails
 multi method get_header (Match:U $m) { ( 'type object', '.' ~ $m.^name, DDT_FINAL) }
 multi method get_header (Match:D $m) 
 {
-#note that DDT_NOT_FINAL is return in both cases
 $m.hash.elems
-	?? ( $m ~ ' '  ~ ' [' ~ $m.from ~ '..' ~ $m.to ~ '| ', '.' ~ $m.^name, DDT_NOT_FINAL) 
-	!! ( $m ~ ' ', '.' ~ $m.^name, DDT_NOT_FINAL) 
+	?? ( $m ~ ' '  ~ ' [' ~ $m.from ~ '..' ~ $m.to ~ '| ', '.' ~ $m.^name) 
+	!! ( $m ~ ' ', '.' ~ $m.^name, DDT_FINAL, DDT_HAS_ADDRESS) #final with address
 }
 
 multi method get_elements (Match $m)
@@ -89,7 +88,7 @@ role Data::Dump::Tree::Role::UnicodeGlyphs
 multi method get_glyphs
 {
 	{ last => '└', not_last => '├', last_continuation => ' ', not_last_continuation => '│',
-		empty => ' ', max_depth => '…', }
+		empty => ' ', max_depth => '…'}
 }
 
 #role
@@ -104,7 +103,7 @@ role Data::Dump::Tree::Role::AsciiGlyphs
 multi method get_glyphs
 {
 	{ last => "`- ", not_last => '|- ', last_continuation => '   ', not_last_continuation => '|  ',
-		empty => '   ', max_depth => '...' , }
+		empty => '   ', max_depth => '...'}
 }
 
 #role

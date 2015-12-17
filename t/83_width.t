@@ -8,7 +8,7 @@ use Data::Dump::Tree;
 my $dump = get_dump '1234567890' x 6, Nil, {color => 0} ;
 is $dump.lines.elems, 1, '1 line, default width setting' or diag $dump ;
 
-$dump = get_dump '1234567890' x 8, Nil, {color => 0} ;
+$dump = get_dump '1234567890' x 8, Nil, {color => 0, width => 79} ;
 is $dump.lines.elems, 4, '4 lines, default width setting' or diag $dump ;
 
 $dump = get_dump '1234567890' x 8, Nil, {color => 0, width => 20} ;
