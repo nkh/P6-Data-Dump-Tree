@@ -6,7 +6,7 @@ Date::Dump::Tree - Renders data structures in a tree fashion
 =SYNOPSIS
 	use Data::Dump::Tree ;
 
-	dump @your_data, 'a_title', %options ;
+	dump @your_data, title => 'a_title', ... ;
 
 	my $d = Data::Dump::Tree.new ;
 	$d.dump @your_data ;
@@ -22,34 +22,21 @@ If you have Term::ANSIColor installed, the output will be so colored.
 
 =INTERFACE
 
-=item sub dump($structure_to_dump, $title?, %options?)
+=item sub dump($structure_to_dump, named_argument, ...)
 
 Says the dump of the data structure
 
-=item sub get_dump($structure_to_dump, $title?, %options?)
+=item sub get_dump($structure_to_dump, named_argument, ...)
 
 returns a string containing the dump of the data structure
 
-=item method dump(($structure_to_dump, $title?, %options?)
+=item method dump(($structure_to_dump, named_argument, ...)
 
 Says the dump of the data structure
 
-=item method  get_dump($structure_to_dump, $title?, %options?)
+=item method  get_dump($structure_to_dump, named_argument, ...)
 
 returns a string containing the dump of the data structure
-
-=item sub get_dumper(%options?)
-
-Returns a dumper with the options applied. It supports options:
-
-=begin nested
-
-=item roles
-A list of roles the dumper plays
-
-	get_dumper({ roles => (role_1, role_2, ...) ;
-
-=end nested 
 
 =USAGE
 
@@ -68,7 +55,7 @@ A list of roles the dumper plays
 		'aaa' ~~ m:g/(a)/,
 		] ;
 
-	dump $s, 'A complex structure', { color => 0 } ;
+	dump $s, title => 'A complex structure', color => 0 ;
 
 =head2 Output
 	
@@ -87,9 +74,9 @@ A list of roles the dumper plays
 	   `- 2 = [2 .. 3].Match
 
 =head1 DUMP 
-Each line of output consists 5 elements, 2 elemets, the tree and the address,
+Each line of output consists 5 elements, 2 elements, the tree and the address,
 are under the control of Data::Dump::Tree, The three remaining elements can
-be under your control ut Data::Dump::Tree provides default rendering.	
+be under your control but Data::Dump::Tree will provide default rendering.	
 
 Refer to section 'handling specific types' to learn how to add your own types
 or render specific types with your how handlers.
@@ -127,7 +114,7 @@ Data::DumpTree will display
 
 =item  Arrays as '[x]' where x is the number of element of the Array
 
-=item  Listss as '(x)' where x is the number of element of the list
+=item  Lists as '(x)' where x is the number of element of the list
 
 =head3 address
 the Data::Dump::Tree address is added to every container in the form of a '@'
@@ -136,21 +123,40 @@ multiple times in the output, it will be rendered once only then refered to
 by '@current_address -> @first_time_seen' 
 
 =head2 Configuration and Overrides
+There are multiple ways to configure the Dumper. You can pass a configuration
+to the dump() sub or you can create a dumper object that you configure at
+creation time. 
 
-=head3 ANSI vs ASCII vs Unicode tree drawing
+	# sub interface
+	dump($s, title => 'text', width => 115, color => False)  ;
 
-The tree is draw with ANSI codes, if possible, otherwise in ASCII. See roles
-AsciiGyphs and UnicodeGlyphs.
+	# basic object
+	my $dumper = Data::Dump::Tree.new ;
+
+	# pass you configuration at every call
+	$dumper.get_dump($s, width => 115, color => False) ;
+
+	# configure object at creation time
+	my $dumper = Data::Dump::Tree.new(width => 79) ;
+
+	# use as configured
+	$dumper.dump($s) ;
+
+	# or with a call time configuration
+	$dumper.dump($s, width => 115, max_depth => 3) ;
+
+
+	# see roles for roles configuration
 
 =head3 colors
 
-=head4 %options<color> 
-By default colorin is on, if Term::ANSIColor is installed.
+=head4 $color = True 
+By default coloring is on, if Term::ANSIColor is installed.
 
 Setting this option to False forced the output to be monochrome. 
 
-=head4 %options<colors> 
-You can pass your own colors in a Hash in %options<colors>. The default are:
+=head4 %colors 
+You can pass your own colors. The default are:
 
 	my %default_colors =
 		<
@@ -161,24 +167,25 @@ You can pass your own colors in a Hash in %options<colors>. The default are:
 
 where colors are ANSI colors. reset meant default color.
 
-=head3 %options<width>
-The default widt is  79. In the next version, Data::Dump::Tree will use your 
-terminal width if you do not specify a width.
-
+=head3 $width = terminal width
 Note that the width you pass is reduced with the width of the glyps as we use
 that space when displaying multiline values in the dump.
 
 When using ANSI colors, the last character of each wrapped line is colored.
 
-=head3 %options<max_depth>
+=head3 $max_depth 
 Limit the depth of a dump to the option. by default there is no limit.
 
-=head3 %options<display_address>
+=head3 $display_address = True
 By default this option is set.
 
-=head3 %options<display_perl_address> 
-Display the internal address of the objects. Not ser by default.
+=head3 $display_perl_address = False 
+Display the internal address of the objects.
 
+=head3 ANSI vs ASCII vs Unicode tree drawing
+
+The tree is draw with ANSI codes, if possible, otherwise in ASCII. See roles
+AsciiGyphs and UnicodeGlyphs.
 
 =head3 handling specific types
 This section will show you how to write specific handler in the classes that
@@ -271,17 +278,28 @@ Both work in the same fashion.
 
 To make that handler active, make your dumper do the role
 
-	my $d = Data::Dump::Tree.new ;
-	$d does some_role_name ;
+	# using 'does'
+	my $d = Data::Dump::Tree.new(width => 80) ;
+	$d does some_role ;
 
-	say $d.dump(@your_data) ;
+	$d.dump(@your_data) ;
+
+	# by passing roles to the constructor
+	my $d = Data::Dump::Tree.new(does => (DDTR::MatchDetails, DDTR::PerlString)) ;
+
+	# by passing roles to dump() method
+	my $d = Data::Dump::Tree.new ;
+	$d.dump($m, does => ( DDTR::MatchDetails, DDTR::PerlString) ) ;
+
+	# by passing roles to dump() sub 
+	dump($m, does => ( DDTR::MatchDetails, DDTR::PerlString) ) ;
 
 =head4 FINAL elements
 So far we have seen how to render containers but sometimes we want to handle a
 type as if it was a Str or an Int, EG: not display its elements but instead
 display it on a single line.
 
-You can, in a handler, tell Data::Dump::Tree that a type rendering is FINAL.
+You can, in a handler, tell Data::Dump::Tree that a type rendering is DDT_FINAL.
  
 The default role has a handler that is specific for the Rat class. Rather than
 show a floating number, as say $rat would, or render the Rat type with it's 
@@ -299,16 +317,14 @@ attributes, we display the Rat on a single line. Here is the handler:
 	DDT_FINAL,
 
 	# optional hint to DDT that this is has an address or not
-	DDT_HAS_ADDRESS
+	DDT_HAS_ADDRESS,
 	
 	)}
 
 =head2 Roles provided with Data::Dump::Tree
 
 Data::Dump::Tree comes with a few extra roles that are not "played" by the
-object returned by .new
-
-More roles will be added in the future, Eg: RenderWithUnicode.
+object returned by new()
 
 Please feel free to send me roles you think would be useful to other and that
 you belive fit well in the same bundle.

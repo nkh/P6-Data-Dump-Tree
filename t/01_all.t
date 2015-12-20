@@ -76,13 +76,12 @@ $d does DescribeShyFinal ;
 
 my $dump = $d.get_dump(
 		get_test_structure(),
-		'test data',
-		{
-			caller => 1,
-			max_depth => 3,
-			#display_perl_address => 1,
-			width => 75,
-		});
+		title =>'test data',
+		caller => True,
+		max_depth => 3,
+		#display_perl_address => True,
+		width => 75,
+		);
 
 is( $dump.lines.elems, 84, 'all lines') ; # or diag $dump ;
 

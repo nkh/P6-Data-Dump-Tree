@@ -20,8 +20,8 @@ method ddt_get_elements
 #class
 }
 
-my $d = Data::Dump::Tree.new() ;
-my $dump = $d.get_dump(HasNothing.new(), Nil, {color => 0}) ;
+my $d = Data::Dump::Tree.new(color => False) ;
+my $dump = $d.get_dump(HasNothing.new()) ;
 
 is $dump.lines.elems, 3, '3 lines output' ;
 like $dump, /nothing\n/, 'nothing as no value' ;

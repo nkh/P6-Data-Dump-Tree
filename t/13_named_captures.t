@@ -1,7 +1,7 @@
 #!/usr/bin/env perl6
 
 use Test ;
-plan 1 ;
+plan 2 ;
 
 use Data::Dump::Tree;
 
@@ -22,11 +22,21 @@ my $contents = q:to/EOI/;
         joy=42
 EOI
 
-my $d = get_dumper( {does => ( DDTR::MatchDetails, DDTR::PerlString) } ) ;
-
 my $m = $contents ~~ /<section>*/ ;
 
-my $dump_5 = $d.get_dump($m, 'config', {width => 115}) ;
-is($dump_5.lines.elems, 37, '37 lines of section parsing') or diag $dump_5 ;
+my $d = Data::Dump::Tree.new(does => ( DDTR::MatchDetails, DDTR::PerlString) ) ;
 
+my $dump_5 = $d.get_dump($m, title => 'roles via new', width => 115) ;
+is($dump_5.lines.elems, 37, '37 lines of section parsing, roles via new() ') or diag $dump_5 ;
+
+# -------------------------------
+
+$m = $contents ~~ /<section>*/ ;
+
+my $d2 = Data::Dump::Tree.new ;
+my $dump_6 = $d2.get_dump($m, title => 'roles via config', width => 115, does => ( DDTR::MatchDetails, DDTR::PerlString) ) ;
+
+is($dump_6.lines.elems, 37, '37 lines of section parsing, roles via config') or diag $dump_6 ;
+
+#TODO: Add new(role) + dump(role)
 

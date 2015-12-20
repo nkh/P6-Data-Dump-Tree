@@ -13,7 +13,7 @@ has $.from_default = 'public' ;
 has $!from_default_private = 'private';
 }
 
-my $dump = $d.get_dump( UseDefault.new, Nil, {color => 0} ) ;
+my $dump = $d.get_dump( UseDefault.new, color => False ) ;
 like $dump, /from_default \s  \=/, 'Shy first role' or diag $dump ;
 like $dump, /from_default_private/, 'Shy first role' or diag $dump ;
 is $dump.lines.elems, 3, '3 lines dump' ;

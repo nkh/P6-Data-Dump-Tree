@@ -6,5 +6,5 @@ use Data::Dump::Tree ;
 plan 1 ;
 
 class C  { has $.in_object = 'in_object' }
-like get_dump( C.new, Nil, {color => 0}), /in_object/, 'access via sub' ;
+like get_dump( C.new, color => False), /in_object/, 'access via sub' ;
 

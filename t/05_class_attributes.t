@@ -11,7 +11,7 @@ class MyClass { has Int $.size ; has Str $.name }
 my $s =	MyClass.new(:size(6), :name('P6 class')),
 
 my $d = Data::Dump::Tree.new ;
-my $dump = get_dump $s, Nil, { color => 0 } ;
+my $dump = get_dump $s, color => False ;
 
 like $dump.lines[0], /'.MyClass'/, 'class name' ;
 like $dump.lines[1], /'$.size = 6.Int'/, 'Int attribute' ;
