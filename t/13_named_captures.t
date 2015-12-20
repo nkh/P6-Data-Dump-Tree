@@ -38,5 +38,3 @@ my $dump_6 = $d2.get_dump($m, title => 'roles via config', width => 115, does =>
 
 is($dump_6.lines.elems, 37, '37 lines of section parsing, roles via config') or diag $dump_6 ;
 
-#TODO: Add new(role) + dump(role)
-

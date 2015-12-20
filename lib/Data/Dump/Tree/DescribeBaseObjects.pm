@@ -2,7 +2,7 @@
 use lib '.' ;
 use Data::Dump::Tree::Enums ;
 
-role DescribeBaseObjects
+role Data::Dump::Tree::Role::DescribeBaseObjects
 {
 # get_headers: "final" objects returnf their value and type
 multi method get_header (Int $i) { ($i,  '.' ~ $i.^name, DDT_FINAL) }
@@ -33,6 +33,8 @@ multi method get_header (Hash $h) { ('', '{' ~ $h.elems ~ '}') }
 multi method get_elements (Hash $h) { [ $h.sort(*.key)>>.kv.map: -> ($k, $v) {"$k => ", $v} ] }
 
 }
+
+role DDTR::DescribeBaseObjects does Data::Dump::Tree::Role::DescribeBaseObjects {} 
 
 role Data::Dump::Tree::Role::MatchDetails 
 {
@@ -110,5 +112,20 @@ multi method get_glyphs
 }
 
 role DDTR::AsciiGlyphs does Data::Dump::Tree::Role::AsciiGlyphs {} 
+
+role Data::Dump::Tree::Role::AnsiGlyphs
+{
+
+multi method get_glyphs
+{
+	{ last => "\x1b(0\x6d \x1b(B", not_last => "\x1b(0\x74 \x1b(B",
+		last_continuation => '  ', not_last_continuation => "\x1b(0\x78 \x1b(B",
+		empty => '  ', max_depth => '...', }
+}
+
+#role
+}
+
+role DDTR::AnsiGlyphs does Data::Dump::Tree::Role::AnsiGlyphs {} 
 
 

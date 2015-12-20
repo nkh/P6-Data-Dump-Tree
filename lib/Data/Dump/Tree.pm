@@ -3,7 +3,7 @@ use Data::Dump::Tree::AnsiColor ;
 use Data::Dump::Tree::Enums ;
 use Data::Dump::Tree::DescribeBaseObjects ;
 
-class Data::Dump::Tree does DescribeBaseObjects 
+class Data::Dump::Tree does DDTR::DescribeBaseObjects
 {
 has $!colorizer = AnsiColor.new() ;
 
@@ -32,6 +32,12 @@ method new(:@does, *%attributes)
 {
 my $object = self.bless(|%attributes);
 for @does // () -> $role { $object does $role }
+
+if $object.is_ansi 
+	{ $object does DDTR::AnsiGlyphs } 
+else
+	{ $object does ddtr::AsciiGlyphs}
+
 $object 
 }
 
@@ -42,7 +48,7 @@ method dump($s, *%options) { say self.get_dump($s, %options) }
 
 method get_dump($s, *%options)
 {
-# roles can be passed in new() or as options
+# roles can be passed in new() or as options to dump
 # make a clone so we do not pollute the object
 
 my $clone = self.clone(|%options) ;
@@ -55,12 +61,12 @@ $clone!_get_dump($s)
 method !_get_dump($s)
 {
 $!colorizer.set_colors(%.colors, $.color) ;
-%!glyphs = $.get_glyphs() ; #colors must be set before (for ANSI checking)
+%!glyphs = $.get_glyphs() ; 
 
-$!address = 0 ;
 $.width //= %+(qx[stty size] ~~ /\d+ \s+ (\d+)/)[0] ; 
 $.width -= %!glyphs<last_continuation>.chars ;
 
+$!address = 0 ;
 $!current_depth = 0 ;
 
 my $glyphs = ('', '', %!glyphs<not_last_continuation>) ; # root's glyphs 
@@ -256,7 +262,7 @@ my $address = $.display_address
 $address, $rendered
 }
 
-method !get_level_glyphs(Bool $is_last)
+method !get_level_glyphs(Bool $is_last) # is: cached
 {
 $!colorizer.color(
 	$is_last
@@ -314,16 +320,6 @@ $!colorizer.color($t, 'title') ;
 }
 
 method is_ansi { $!colorizer.is_ansi }
-
-multi method get_glyphs
-{
-self.is_ansi
-	?? { last => "\x1b(0\x6d \x1b(B", not_last => "\x1b(0\x74 \x1b(B",
-		last_continuation => '  ', not_last_continuation => "\x1b(0\x78 \x1b(B",
-		empty => '  ', max_depth => '...', }
-	!! { last => "`- ", not_last => '|- ', last_continuation => '   ', not_last_continuation => '|  ',
-		empty => '   ', max_depth => '...', }
-}
 
 #class
 }
