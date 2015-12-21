@@ -14,16 +14,15 @@ has %!glyphs ;
 has $.color is rw = True ;
 has %.colors =
 	<
-	title yellow   glyph reset    perl_address yellow    ddt_address blue
-	link  green    key   cyan     value        reset     header      magenta 
-	wrap  cyan 
+	glyph reset    perl_address yellow    ddt_address blue	  link  green
+	key   cyan     value        reset     header      magenta wrap  yellow 
 	> ;
 
 has $!address = 0 ;
 has $.display_address is rw = True ;
 has $.display_perl_address is rw = False ; 
 
-has $.width is rw = 79 ; 
+has $.width is rw ; 
 
 has $!current_depth = 0 ;
 has $.max_depth is rw = -1 ;
@@ -41,10 +40,10 @@ else
 $object 
 }
 
-sub dump($s, *%options) is export { say get_dump($s, %options) }
-sub get_dump($s, *%options) is export {Data::Dump::Tree.new(|%options).get_dump($s)}
+sub dump($s, *%options) is export { say get_dump($s, |%options) }
+sub get_dump($s, *%options) is export { Data::Dump::Tree.new(|%options).get_dump($s)}
 
-method dump($s, *%options) { say self.get_dump($s, %options) }
+method dump($s, *%options) { say self.get_dump($s, |%options) }
 
 method get_dump($s, *%options)
 {
@@ -64,7 +63,7 @@ $!colorizer.set_colors(%.colors, $.color) ;
 %!glyphs = $.get_glyphs() ; 
 
 $.width //= %+(qx[stty size] ~~ /\d+ \s+ (\d+)/)[0] ; 
-$.width -= %!glyphs<last_continuation>.chars ;
+$.width -= %!glyphs<empty>.chars ;
 
 $!address = 0 ;
 $!current_depth = 0 ;
@@ -80,7 +79,7 @@ return ( %!glyphs<empty> ~ %!glyphs<max_depth> ~ " max depth($.max_depth)")
 	if $!current_depth + 1 == $.max_depth ;
 
 $!current_depth++ ;
-$!width -= %!glyphs<last_continuation>.chars ; # for mutiline text
+$!width -= %!glyphs<empty>.chars ; # for mutiline text
 
 my $elements = 
 	self!has_dumper_method('get_elements', $s.WHAT)
@@ -98,7 +97,7 @@ for $elements Z 0 .. * -> ($e, $index)
 	@renderings.append: self!render_element($e, $glyphs) ;
 	}
 
-$!width += %!glyphs<last_continuation>.chars ; # for mutiline text
+$!width += %!glyphs<empty>.chars ; # for mutiline text
 $!current_depth-- ;
 
 @renderings
@@ -121,7 +120,7 @@ $final = DDT_FINAL if $e.^name eq 'Any' ; # Any is final
 $wants_address //= $final ?? False !! True ;
 
 my ($address, $rendered) = self!get_address($e) ;
-$f ~= $wants_address ?? $address !! '' ;
+unless $wants_address { $address = ('', '', '',) } ;
 
 if $final 
 	{
@@ -131,7 +130,7 @@ if $final
 # perl stringy $v if role is on
 ($v, $, $) = self.get_header($v) if $v ~~ Str ;
 
-my ($kvf, @ks, @vs, @fs) := self!split_entry($k, $v, $f) ;
+my ($kvf, @ks, @vs, @fs) := self!split_entry($k, %!glyphs<empty>.chars, $v, $f, $address) ;
 
 if $kvf.defined
 	{
@@ -140,6 +139,7 @@ if $kvf.defined
 else
 	{
 	#@renderings.append: 'final: ' ~ $final ~ ' wants_addr: ' ~ $wants_address ~ ' rendered: ' ~ $rendered ;
+	#@renderings.append: 'width: ' ~ $.width ;
 
 	@renderings.append: $glyph ~ (@ks.shift if @ks) ; 
 	@renderings.append: @ks.map: { $continuation_glyph ~ $_} ; 
@@ -170,13 +170,34 @@ self!has_dumper_method('get_header', $e.WHAT)
 }
 
 
-method !split_entry(Cool $k, Cool $v, Cool $f)
+method !split_entry(Cool $k, Int $glyph_width, Cool $v, Cool $f is copy, $address)
 {
-my @ks = self!split_text($k) ;
-my @vs = self!split_text($v) ; 
-my @fs = self!split_text($f) ;
+my @ks = self!split_text($k, $.width + $glyph_width) ; # $k has a bit extra space
+my @vs = self!split_text($v, $.width) ; 
+my @fs = self!split_text($f, $.width) ;
 
-my $kvf = @ks.join('') ~ @vs.join('') ~ @fs.join('') ;
+my $kvf = @ks.join ~ @vs.join ~ @fs.join ~ $address.join ;
+
+# must manually handle chars as we are interested in the address char count
+# and we have an adress with color codes
+
+my $container := @fs[*-1] ;
+my $chars = $container.chars ;
+
+for $address Z ('ddt_address', 'perl_address', 'link') -> ($ae, $ac)
+	{
+	if $chars + $ae.chars < $.width
+		{
+		$container ~= $!colorizer.color($ae, $ac) ; 
+		$chars += $ae.chars
+		}
+	else
+		{
+		@fs.push: $!colorizer.color($ae, $ac) ; 
+		$container := @fs[*-1] ;
+		$chars = $ae.chars
+		}
+	}
 
 @ks = $!colorizer.color(@ks, 'key') ; 
 @vs = $!colorizer.color(@vs, 'value') ; 
@@ -196,11 +217,11 @@ else
 $kvf, @ks, @vs, @fs 
 }
 
-method !split_text(Cool $e)
+method !split_text(Cool $e, $width)
 {
 return ('type object') unless $e.defined ;
 
-return $e if $!width < 1 ;
+return $e if $width < 1 ;
 
 # given a, possibly empty, string, split the string on \n and width
 
@@ -214,8 +235,8 @@ for $e.lines -> $line
 	while $index < $line2.chars 
 		{
 
-		my $chunk = $line2.substr($index, $!width) ;
-		$index += $!width ;
+		my $chunk = $line2.substr($index, $width) ;
+		$index += $width ;
 		
 		if $index < $line2.chars && self.is_ansi
 			{
@@ -229,7 +250,6 @@ for $e.lines -> $line
 	}
 
 @lines
-
 }
 
 method !get_address($v)
@@ -254,10 +274,8 @@ else
 $perl_address = $.display_perl_address ?? ' ' ~ $perl_address !! '' ;
 
 my $address = $.display_address 
-	?? $!colorizer.color(' @' ~ $ddt_address, 'ddt_address') 
-		~ $!colorizer.color($perl_address, 'perl_address') 
-		~ $!colorizer.color($link, 'link') 
-	!! '' ;
+	?? (' @' ~ $ddt_address, $perl_address, $link,) 
+	!! ('', '', '',) ;
 
 $address, $rendered
 }
@@ -316,7 +334,7 @@ else
 	else                             { $t = '' }
 	}
 
-$!colorizer.color($t, 'title') ;
+$t
 }
 
 method is_ansi { $!colorizer.is_ansi }

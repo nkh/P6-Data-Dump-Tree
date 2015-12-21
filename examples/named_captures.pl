@@ -42,6 +42,6 @@ EOI
 
 $m = $contents ~~ /<section>*/ ;
 
-my $dump_5 = $d.get_dump($m, title => 'config', width => 115) ;
+my $dump_5 = $d.get_dump($m, title => 'config') ;
 $dump_5.say ;
 

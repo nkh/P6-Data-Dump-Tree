@@ -29,7 +29,6 @@ Q<<{
 my $parsed = JSON::Tiny::Grammar.parse($JSON) ;
 #$parsed.say ;
 
-my $d = get_dumper {does => (DDTR::MatchDetails, DDTR::PerlString, DDTR::UnicodeGlyphs), } ;
+dump( $parsed, title => 'Parsed JSON', does => (DDTR::MatchDetails, DDTR::PerlString, DDTR::UnicodeGlyphs) ) ;
 
-$d.dump( $parsed, 'Parsed JSON' );
 
