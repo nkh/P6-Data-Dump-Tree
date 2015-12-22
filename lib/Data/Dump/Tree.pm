@@ -41,7 +41,7 @@ my $object = self.bless(|%attributes);
 if $object.is_ansi 
 	{ $object does DDTR::AnsiGlyphs } 
 else
-	{ $object does ddtr::AsciiGlyphs}
+	{ $object does DDTR::AsciiGlyphs}
 
 for @does // () -> $role { $object does $role }
 

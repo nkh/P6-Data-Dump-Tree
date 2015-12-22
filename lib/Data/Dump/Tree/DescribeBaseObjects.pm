@@ -1,5 +1,4 @@
 
-use lib '.' ;
 use Data::Dump::Tree::Enums ;
 
 role Data::Dump::Tree::Role::DescribeBaseObjects
