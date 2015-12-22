@@ -17,7 +17,13 @@ multi method get_header (Routine $r) { ('', '.' ~ $r.^name, DDT_FINAL) }
 multi method get_header (Sub $s) { ($s.perl, '.' ~ $s.^name, DDT_FINAL) }
 
 # get_headers: containers return some information and their type
-multi method get_header (Any $a) { ('', self!get_class_and_parents($a)) }
+multi method get_header (Any $a) 
+{
+$a.^name eq 'Any' 
+	?? ('', '.' ~ $a.^name, DDT_FINAL) # real Any
+	!! ('', self!get_class_and_parents($a)) # some object
+}
+
 multi method get_elements (Any $a) { [ self!get_Any_attributes($a)] } 
 
 multi method get_header (Match $a) { ('[' ~ $a.from ~ '..' ~ $a.to ~ '|', '.' ~ $a.^name, DDT_FINAL) } 
@@ -89,8 +95,10 @@ role Data::Dump::Tree::Role::UnicodeGlyphs
 
 multi method get_glyphs
 {
-	{ last => '└', not_last => '├', last_continuation => ' ', not_last_continuation => '│',
-		empty => ' ', max_depth => '…'}
+	{ 
+	last => '└', not_last => '├', last_continuation => ' ', not_last_continuation => '│',
+	multi_line => '│', empty => ' ', max_depth => '…'
+	}
 }
 
 #role
@@ -104,8 +112,10 @@ role Data::Dump::Tree::Role::AsciiGlyphs
 
 multi method get_glyphs
 {
-	{ last => "`- ", not_last => '|- ', last_continuation => '   ', not_last_continuation => '|  ',
-		empty => '   ', max_depth => '...'}
+	{
+	last => "`- ", not_last => '|- ', last_continuation => '   ', not_last_continuation => '|  ',
+	multi_line => '|  ', empty => '   ', max_depth => '...'
+	}
 }
 
 #role
@@ -118,14 +128,34 @@ role Data::Dump::Tree::Role::AnsiGlyphs
 
 multi method get_glyphs
 {
-	{ last => "\x1b(0\x6d \x1b(B", not_last => "\x1b(0\x74 \x1b(B",
-		last_continuation => '  ', not_last_continuation => "\x1b(0\x78 \x1b(B",
-		empty => '  ', max_depth => '...', }
+	{
+	last => "\x1b(0\x6d \x1b(B", not_last => "\x1b(0\x74 \x1b(B",
+	last_continuation => '  ', not_last_continuation => "\x1b(0\x78 \x1b(B",
+	multi_line => "\x1b(0\x78 \x1b(B", empty => '  ', max_depth => '...', 
+	}
 }
 
 #role
 }
 
 role DDTR::AnsiGlyphs does Data::Dump::Tree::Role::AnsiGlyphs {} 
+
+role Data::Dump::Tree::Role::FixedGlyphs
+{
+has $.fixed_glyph ;
+
+multi method get_glyphs
+{
+	{
+	last => $.fixed_glyph, not_last => $.fixed_glyph,
+	last_continuation => $.fixed_glyph, not_last_continuation => $.fixed_glyph,
+	multi_line => $.fixed_glyph, empty => ' ' x $.fixed_glyph.chars, max_depth => '...', 
+	}
+}
+
+#role
+}
+
+role DDTR::FixedGlyphs does Data::Dump::Tree::Role::FixedGlyphs {} 
 
 

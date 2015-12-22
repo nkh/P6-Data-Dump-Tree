@@ -6,36 +6,44 @@ use Data::Dump::Tree::DescribeBaseObjects ;
 class Data::Dump::Tree does DDTR::DescribeBaseObjects
 {
 has $!colorizer = AnsiColor.new() ;
+method is_ansi { $!colorizer.is_ansi }
 
-has $.title is rw = '' ;
+has $.title ;
 has $.caller is rw = False ;
-has %!glyphs ;
 
 has $.color is rw = True ;
 has %.colors =
 	<
-	glyph reset    perl_address yellow    ddt_address blue	  link  green
-	key   cyan     value        reset     header      magenta wrap  yellow 
+	ddt_address blue     perl_address yellow     link  green
+	header      magenta  key         cyan        value reset
+	wrap        yellow
+
+	glyph_0 yellow   glyph_1 reset   glyph_2 green   glyph_3 red
 	> ;
 
-has $!address = 0 ;
+has @.glyph_colors = < glyph_1> ;
+has @!glyph_colors_cycle ; 
+
+has %!rendered ;
+has $!address ;
 has $.display_address is rw = True ;
 has $.display_perl_address is rw = False ; 
 
 has $.width is rw ; 
 
-has $!current_depth = 0 ;
+has $!current_depth ;
 has $.max_depth is rw = -1 ;
 
 method new(:@does, *%attributes)
 {
 my $object = self.bless(|%attributes);
-for @does // () -> $role { $object does $role }
 
 if $object.is_ansi 
 	{ $object does DDTR::AnsiGlyphs } 
 else
 	{ $object does ddtr::AsciiGlyphs}
+
+for @does // () -> $role { $object does $role }
 
 $object 
 }
@@ -54,50 +62,53 @@ my $clone = self.clone(|%options) ;
 
 for %options<does> // () -> $role { $clone does $role } 
 
-$clone!_get_dump($s)
+$clone!render_root($s)
 }
 
-method !_get_dump($s)
+method !render_root($s)
 {
-$!colorizer.set_colors(%.colors, $.color) ;
-%!glyphs = $.get_glyphs() ; 
-
-$.width //= %+(qx[stty size] ~~ /\d+ \s+ (\d+)/)[0] ; 
-$.width -= %!glyphs<empty>.chars ;
-
 $!address = 0 ;
 $!current_depth = 0 ;
+%!rendered = () ;
 
-my $glyphs = ('', '', %!glyphs<not_last_continuation>) ; # root's glyphs 
+$!colorizer.set_colors(%.colors, $.color) ;
+@!glyph_colors_cycle = |@.glyph_colors xx  * ; 
 
-self!render_element((self!get_title, $s), $glyphs).join("\n") ~ "\n"
+my (%glyphs, $glyph_width) := self!get_level_glyphs($!current_depth) ; 
+
+$.width //= %+(qx[stty size] ~~ /\d+ \s+ (\d+)/)[0] ; 
+$.width -= $glyph_width ;
+
+my @renderings = self!render_element((self!get_title, $s), self!get_root_glyphs(%glyphs)) ;
+
+@renderings.join("\n") ~ "\n"
 }
 
-method !render($s)
+method !render_non_final($s)
 {
-return ( %!glyphs<empty> ~ %!glyphs<max_depth> ~ " max depth($.max_depth)")
-	if $!current_depth + 1 == $.max_depth ;
-
 $!current_depth++ ;
-$!width -= %!glyphs<empty>.chars ; # for mutiline text
 
-my $elements = 
-	self!has_dumper_method('get_elements', $s.WHAT)
-	?? $.get_elements($s) # self is  $s specific 
-	!! $s.can('ddt_get_elements')
-		?? $s.ddt_get_elements() # $s class provided
-		!! $.get_elements($s) ;  # generic handler
+my (%glyphs, $glyph_width) := self!get_level_glyphs($!current_depth) ; 
+$!width -= $glyph_width ; # account for mutiline text shifted for readability
 
 my @renderings ;
 
-for $elements Z 0 .. * -> ($e, $index)
+if $!current_depth == $.max_depth 
 	{
-	my $glyphs = self!get_level_glyphs($index == $elements.end), # replace by multi or  lookup table
+	@renderings.append: ( %glyphs<empty> ~ %glyphs<max_depth> ~ " max depth($.max_depth)") ;
+	}
+else
+	{
+	my $sub_elements = self!get_sub_elements($s) ;
 
-	@renderings.append: self!render_element($e, $glyphs) ;
+	for $sub_elements Z 0 .. * -> ($sub_element, $index)
+		{
+		my @sub_element_glyphs = self!get_element_glyphs(%glyphs, $index == $sub_elements.end) ;
+		@renderings.append: self!render_element($sub_element, @sub_element_glyphs) ;
+		}
 	}
 
-$!width += %!glyphs<empty>.chars ; # for mutiline text
+$!width += $glyph_width ;
 $!current_depth-- ;
 
 @renderings
@@ -105,32 +116,24 @@ $!current_depth-- ;
 
 method !render_element($element, $glyphs)
 {
-
 my ($k, $e) = $element ;
-
-my ($glyph, $continuation_glyph, $multi_line_glyph) = $glyphs ;
+my ($glyph_width, $glyph, $continuation_glyph, $multi_line_glyph, $empty_glyph) = $glyphs ;
 
 my @renderings ;
 
-my ($v, $f, $final, $wants_address) = self!get_vf($e) ;
+my ($v, $f, $final, $wants_address) = self!get_element_header($e) ;
 $final //= DDT_NOT_FINAL ;
-
-$final = DDT_FINAL if $e.^name eq 'Any' ; # Any is final 
-
 $wants_address //= $final ?? False !! True ;
 
 my ($address, $rendered) = self!get_address($e) ;
 unless $wants_address { $address = ('', '', '',) } ;
 
-if $final 
-	{
-	$multi_line_glyph = %!glyphs<last_continuation> ;
-	}
+if $final { $multi_line_glyph = $empty_glyph }
 
 # perl stringy $v if role is on
 ($v, $, $) = self.get_header($v) if $v ~~ Str ;
 
-my ($kvf, @ks, @vs, @fs) := self!split_entry($k, %!glyphs<empty>.chars, $v, $f, $address) ;
+my ($kvf, @ks, @vs, @fs) := self!split_entry($k, $glyph_width, $v, $f, $address) ;
 
 if $kvf.defined
 	{
@@ -138,9 +141,6 @@ if $kvf.defined
 	}
 else
 	{
-	#@renderings.append: 'final: ' ~ $final ~ ' wants_addr: ' ~ $wants_address ~ ' rendered: ' ~ $rendered ;
-	#@renderings.append: 'width: ' ~ $.width ;
-
 	@renderings.append: $glyph ~ (@ks.shift if @ks) ; 
 	@renderings.append: @ks.map: { $continuation_glyph ~ $_} ; 
 	@renderings.append: @vs.map: { $continuation_glyph ~ $multi_line_glyph ~ $_} ; 
@@ -149,28 +149,36 @@ else
 
 if ! $final && ! $rendered
 	{
-	@renderings.append: self!render($e).map: { $continuation_glyph ~ $_} 
+	@renderings.append: self!render_non_final($e).map: { $continuation_glyph ~ $_} 
 	}
 
-return @renderings ;
+@renderings
 }
 
-method !has_dumper_method($method_name, $type --> Bool) #TODO:is cached
+method !has_method($method_name, $type --> Bool) #TODO:is cached
 {
 so self.can($method_name)[0].candidates.grep: {.signature.params[1].type ~~ $type} ;
 }
 
-method !get_vf($e) # :is cached
+method !get_element_header($e) # :is cached
 {
-self!has_dumper_method('get_header', $e.WHAT) 
+self!has_method('get_header', $e.WHAT) 
 	?? $.get_header($e) #specific to $e
 	!! $e.can('ddt_get_header') 
 		?? $e.ddt_get_header() # $e class provided
 		!! $.get_header($e) ;  # generic handler
 }
 
+method !get_sub_elements($s)
+{
+self!has_method('get_elements', $s.WHAT)
+	?? $.get_elements($s) # self is  $s specific 
+	!! $s.can('ddt_get_elements')
+		?? $s.ddt_get_elements() # $s class provided
+		!! $.get_elements($s) ;  # generic handler
+}
 
-method !split_entry(Cool $k, Int $glyph_width, Cool $v, Cool $f is copy, $address)
+method !split_entry(Cool $k, Int $glyph_width, Cool $v, Cool $f, $address)
 {
 my @ks = self!split_text($k, $.width + $glyph_width) ; # $k has a bit extra space
 my @vs = self!split_text($v, $.width) ; 
@@ -223,14 +231,14 @@ return ('type object') unless $e.defined ;
 
 return $e if $width < 1 ;
 
-# given a, possibly empty, string, split the string on \n and width
+# given a, possibly empty, string, split the string on \n and width, handle \t
 
 my ($index, @lines) ;
-for $e.lines -> $line
+for $e.lines  -> $line
 	{
 	my $index = 0 ;
-	
-	my $line2 = $line.subst(/\t/, '' x 8, :g) ;
+
+	my $line2 = $line.subst(/\t/, ' ' x 8, :g) ;
 	
 	while $index < $line2.chars 
 		{
@@ -245,30 +253,27 @@ for $e.lines -> $line
 			}
 
 		@lines.push: $chunk ;
-
 		}
 	}
 
-@lines
+@lines || $e 
 }
 
 method !get_address($v)
 {
-state %rendered ;
-
 my $ddt_address = $!address++ ;
 my $perl_address = $v.WHERE ;
 
 my ($link, $rendered) = ('', 0) ;
 
-if defined %rendered{$perl_address}
+if %!rendered{$perl_address}:exists
 	{
 	$rendered++ ;
-	$link = ' -> @' ~ %rendered{$perl_address} ;
+	$link = ' -> @' ~ %!rendered{$perl_address} ;
 	}
 else
 	{
-	%rendered{$perl_address} = $ddt_address ;
+	%!rendered{$perl_address} = $ddt_address ;
 	}
 
 $perl_address = $.display_perl_address ?? ' ' ~ $perl_address !! '' ;
@@ -280,14 +285,43 @@ my $address = $.display_address
 $address, $rendered
 }
 
-method !get_level_glyphs(Bool $is_last) # is: cached
+method !get_level_glyphs($level)
 {
-$!colorizer.color(
-	$is_last
-		?? (%!glyphs<last>, %!glyphs<last_continuation>, %!glyphs<not_last_continuation>)
-		!! (%!glyphs<not_last>, %!glyphs<not_last_continuation>, %!glyphs<not_last_continuation>)
-	, 'glyph'
-	) ;
+my %glyphs = $.get_glyphs() ; 
+my $glyph_width = %glyphs<empty>.chars ;
+
+# multiline glyph is on the next level, color accordingly
+my $multi_line = %glyphs<multi_line> ;
+
+my %colored_glyphs = $!colorizer.color(%glyphs, @!glyph_colors_cycle[$level]) ;
+%colored_glyphs<multi_line> = $!colorizer.color($multi_line, @!glyph_colors_cycle[$level + 1]) ;
+
+%colored_glyphs<__width> = $glyph_width ; #squirel in the width
+
+%colored_glyphs, $glyph_width
+}
+
+method !get_root_glyphs(%glyphs)
+{
+my @root_glyphs = self!get_element_glyphs(%glyphs, False) ;
+@root_glyphs[1, 2] = ('', '', ) ; 
+@root_glyphs ;
+}
+
+method !get_element_glyphs(%glyphs, Bool $is_last) # is: cached
+{
+# returns:
+# glyph introducing the element
+# glyph displayed while sub elements are added
+# glyph multi line text
+# glyph for multiline DDT_FINAL
+
+$is_last
+	?? (%glyphs<__width>, %glyphs<last>, %glyphs<last_continuation>,
+		 %glyphs<multi_line>, %glyphs<empty>)
+
+	!! (%glyphs<__width>, %glyphs<not_last>, %glyphs<not_last_continuation>,
+		 %glyphs<multi_line>, %glyphs<empty>) ;
 }
 
 method !get_class_and_parents ($a) { get_class_and_parents($a) }
@@ -323,21 +357,20 @@ method !get_title()
 {
 my Str $t = '' ;
 
-if $.title.defined
+if $.title // False
 	{
-	if $.caller.defined and $.caller { $t = $.title ~  ' @ ' ~ callframe(3).file ~ ':' ~ callframe(3).line ~ ' ' }
-	else                             { $t = $.title ~ ' ' }
+	if $.caller // False { $t = $.title ~  ' @ ' ~ callframe(3).file ~ ':' ~ callframe(3).line ~ ' ' }
+	else                 { $t = $.title ~ ' ' }
 	}
 else
 	{	
-	if $.caller.defined and $.caller { $t = '@ ' ~ callframe(3).file ~ ':' ~ callframe(3).line ~ ' ' }
-	else                             { $t = '' }
+	if $.caller // False { $t = '@ ' ~ callframe(3).file ~ ':' ~ callframe(3).line ~ ' ' }
+	else                 { $t = '' }
 	}
 
 $t
 }
 
-method is_ansi { $!colorizer.is_ansi }
 
 #class
 }

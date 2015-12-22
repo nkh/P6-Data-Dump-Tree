@@ -1,8 +1,5 @@
 #!/usr/bin/env perl6
 
-use Test ;
-plan 1 ;
-
 use Data::Dump::Tree ;
 
 class Strings
@@ -19,6 +16,7 @@ method ddt_get_elements
 
 	("12345678901234567890123456789012345" , [1, {a => 3}]),
 	("12345678901234567890123456789012345\nxxx" , 'test'),
+	("1234567890123456789012345678901234567890\nxxx" , 'x' x 50),
 
 	('coefficient = ', 1), 
 	] 
@@ -73,17 +71,17 @@ my @table = lol2table(@columns,@rows);
 my $d = Data::Dump::Tree.new ;
 $d does DescribeDog ;
 $d does DescribeShyFinal ;
+#$d does DDTR::FixedGlyphs('…') ;
 
-my $dump = $d.get_dump(
-		get_test_structure(),
-		title =>'test data',
-		caller => True,
-		max_depth => 3,
-		display_perl_address => True,
-		width => 75,
-		);
+$d.dump(
+	get_test_structure(),
+	title =>'test data',
+	caller => True,
+	max_depth => 3,
+	display_perl_address => True,
+	width => 75,
+	);
 
-is( $dump.lines.elems, 88, 'all lines') or diag $dump ;
 
 # ------------- helpers  -------------
 
@@ -92,7 +90,7 @@ sub get_test_structure
 my $nil is default(Nil) = Nil; 
 my @a = 1 ;
 my $b = [<a>] ;
-my $list = <a b> ;
+my $list = < a b > ;
 my $sub = sub (Int $a, Str $string) {}
 my Routine $routine ;
 use Data::Dump ;

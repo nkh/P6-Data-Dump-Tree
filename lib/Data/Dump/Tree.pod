@@ -157,15 +157,31 @@ Setting this option to False forced the output to be monochrome.
 
 =head4 %colors 
 You can pass your own colors. The default are:
-
-	my %default_colors =
+	%.colors =
 		<
-		title yellow   glyph reset    perl_address yellow    ddt_address blue
-		link  green    key   cyan     value        reset     header      magenta 
-		wrap  cyan
+		ddt_address blue     perl_address yellow     link  green
+		header      magenta  key         cyan        value reset
+		wrap        yellow
+
+		glyph_0 yellow   glyph_1 reset   glyph_2 green   glyph_3 red
 		> ;
 
+
 where colors are ANSI colors. reset meant default color.
+
+=head4 @glyph_colors
+By default the glyphs will not be colored. For certain renderings, with many
+and very long continuation lines, having colored glyphs (per level) helps 
+greatly, simply set the glyph_colors as in the example below.
+
+
+	my @s = [ ... ] ;
+
+	# monochrome glyphs
+	dump(@s) ;
+
+	# colored glyphs, will cycle (note that the colors must be defined)
+	dump(@s, glyph_colors => < glyph_0 glyph_1 glyph_2 glyph_3 >) ;
 
 =head3 $width = terminal width
 Note that the width you pass is reduced with the width of the glyps as we use

@@ -26,12 +26,19 @@ method set_colors(%lookup, Bool $do_ansi)
 $.is_ansi && $do_ansi 
 	?? self!set_lookup_table(%lookup, GLOBAL::Terminal::ANSIColor::EXPORT::DEFAULT::<&color>)
 	!! self!set_lookup_table(%lookup, sub (Str $s) {''}) ;
-
 }
 
+multi method color(Hash $h, Str $name --> Hash) 
+{
+my %colored_hash ;
 
-multi method color(List $l, Str $name --> Seq) { $l.map: { %!color_lookup{$name} ~ $_ ~ %!color_lookup<reset>} }
-multi method color(Str $string, Str $name --> Str) { %!color_lookup{$name} ~ $string ~ %!color_lookup<reset> }
+for $h.kv -> $k, $v { %colored_hash{$k} = (%!color_lookup{$name} // '') ~ $v ~ %!color_lookup<reset>} 
+
+%colored_hash ;
+}
+
+multi method color(List $l, Str $name --> Seq) { $l.map: { (%!color_lookup{$name} // '') ~ $_ ~ %!color_lookup<reset>} }
+multi method color(Str $string, Str $name --> Str) { (%!color_lookup{$name} // '') ~ $string ~ %!color_lookup<reset> }
 
 #class
 }
