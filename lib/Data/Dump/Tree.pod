@@ -226,8 +226,8 @@ Data::Dump::Tree uses two methods, you can define either one or both.
 
 	method ddt_get_header 
 	{
-	# some comment, usually blank  # class type
-	("something about this class", '.' ~ self.^name") 
+	# some comment, usually blank # class type
+	"something about this class", '.' ~ self.^name" 
 	}
 
 
@@ -236,14 +236,12 @@ Data::Dump::Tree uses two methods, you can define either one or both.
 	method ddt_get_elements
 	{
  
-	[ 
 	#key    #value
 	('1 =', 'has no name'), 
 	('3 =>', 'abc'), 
 	('attribute: ', ' ' ~ 1), 
 	('sub object --> ', [1 .. 3]),
 	('from sub', do_something()), 
-	] 
 
 	}
 
@@ -284,11 +282,11 @@ Both work in the same fashion.
 	#                        ||||
 	#                        vvvv
 	multi method get_header (Hash $h)
-		 { ('', '{' ~ $h.elems ~ '}') }
+		 { '', '{' ~ $h.elems ~ '}' }
 	
 	
 	multi method get_elements (Hash $h) 
-		{ [ $h.sort(*.key)>>.kv.map: -> ($k, $v) {"$k => ", $v} ] }
+		{ $h.sort(*.key)>>.kv.map: -> ($k, $v) {"$k => ", $v} }
 
 	}
 
@@ -322,7 +320,7 @@ show a floating number, as say $rat would, or render the Rat type with it's
 attributes, we display the Rat on a single line. Here is the handler:
  
 	multi method get_header (Rat $r)
-	{(
+	{
 	# the rendition of the Rat
 	'den: ' ~ $r.denominator ~ ' num: ' ~ $r.numerator,
 
@@ -334,8 +332,7 @@ attributes, we display the Rat on a single line. Here is the handler:
 
 	# optional hint to DDT that this is has an address or not
 	DDT_HAS_ADDRESS,
-	
-	)}
+	}
 
 =head2 Roles provided with Data::Dump::Tree
 
@@ -346,24 +343,29 @@ Please feel free to send me roles you think would be useful to other and that
 you belive fit well in the same bundle.
 
 You are welcome to make your own distribution too, I recomment using namespace
-Data::Dump::Tree::Role::YouRole and an alias in DDTR::YourRole.
+DDTR::YourRole.
 
-=item Data::Dump::Tree::Role::AsciiGlyphs or DDTR::AsciiGlyphs
+=item DDTR::AsciiGlyphs
 Uses ASCII codes rather than ANSI to render the tree.
 
-=item Data::Dump::Tree::Role::UnicodeGlyphs or DDTR::UnicodeGlyphs
-Uses Unicode to render the tree. this is hte tightes rendering as only one
+=item DDTR::UnicodeGlyphs
+Uses Unicode to render the tree. this is the tightes rendering as only one
 character is used to display the tree.
 
-=item Data::Dump::Tree::Role::MatchDetails or DDTR::MatchDetails
-Give a bit more details about a Match
+=item DDTR::MatchDetails
+Give details about a Match
 
-=item Data::Dump::Tree::Role::PerlString or DDTR::PerlString
+=item DDTR::PerlString
 Renders string containing control codes (eg: \n, ANSI, ...) with backslashed
 codes and hex values.
 
-=item Data::Dump::Tree::Role::SilentSub or DDTR::SilentSub
-Sub objects are rendered in a very succint way
+=item DDTR::SilentSub
+Sub objects will be rendered in a very succint way
+
+=item FixedGlyphs 
+Replace all the glyphs by a single glyph
+
+	my $d = Data::Dump::Tree.new does DDTR::FixedGlyphs(' . ') ;
 
 =head1 BUGS
 Submit bugs (preferably as executable tests) and feel free to make 

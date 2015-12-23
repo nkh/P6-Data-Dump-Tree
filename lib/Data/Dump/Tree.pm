@@ -99,11 +99,13 @@ if $!current_depth == $.max_depth
 	}
 else
 	{
-	my $sub_elements = self!get_sub_elements($s) ;
+	my $sub_elements = self!get_sub_elements($s) // () ;
+	my $last_index = $sub_elements.cache.end ;
 
-	for $sub_elements Z 0 .. * -> ($sub_element, $index)
+	for $sub_elements.cache Z 0 .. * -> ($sub_element, $index)
 		{
-		my @sub_element_glyphs = self!get_element_glyphs(%glyphs, $index == $sub_elements.end) ;
+		my @sub_element_glyphs = self!get_element_glyphs(%glyphs, $index == $last_index) ;
+
 		@renderings.append: self!render_element($sub_element, @sub_element_glyphs) ;
 		}
 	}
@@ -116,17 +118,17 @@ $!current_depth-- ;
 
 method !render_element($element, $glyphs)
 {
-my ($k, $e) = $element ;
+my ($k, $s) = $element ;
 my ($glyph_width, $glyph, $continuation_glyph, $multi_line_glyph, $empty_glyph) = $glyphs ;
 
 my @renderings ;
 
-my ($v, $f, $final, $wants_address) = self!get_element_header($e) ;
+my ($v, $f, $final, $wants_address) = self!get_element_header($s) ;
 $final //= DDT_NOT_FINAL ;
 $wants_address //= $final ?? False !! True ;
 
-my ($address, $rendered) = self!get_address($e) ;
-unless $wants_address { $address = ('', '', '',) } ;
+my ($address, $rendered) = self!get_address($s) ;
+$address = Nil unless $wants_address ;
 
 if $final { $multi_line_glyph = $empty_glyph }
 
@@ -149,7 +151,7 @@ else
 
 if ! $final && ! $rendered
 	{
-	@renderings.append: self!render_non_final($e).map: { $continuation_glyph ~ $_} 
+	@renderings.append: self!render_non_final($s).map: { $continuation_glyph ~ $_} 
 	}
 
 @renderings
@@ -184,26 +186,33 @@ my @ks = self!split_text($k, $.width + $glyph_width) ; # $k has a bit extra spac
 my @vs = self!split_text($v, $.width) ; 
 my @fs = self!split_text($f, $.width) ;
 
-my $kvf = @ks.join ~ @vs.join ~ @fs.join ~ $address.join ;
+my $kvf = @ks.join ~ @vs.join ~ @fs.join ;
 
-# must manually handle chars as we are interested in the address char count
-# and we have an adress with color codes
-
-my $container := @fs[*-1] ;
-my $chars = $container.chars ;
-
-for $address Z ('ddt_address', 'perl_address', 'link') -> ($ae, $ac)
+if $address.defined
 	{
-	if $chars + $ae.chars < $.width
+	# must manually handle chars as we are interested in the address char count
+	# and we have an adress with color codes
+
+	$kvf ~= $address.join ;
+
+	@fs = '' unless @fs ;
+
+	my $container := @fs[*-1] ;
+	my $chars = $container.chars ;
+
+	for $address.list Z ('ddt_address', 'perl_address', 'link') -> ($ae, $ac)
 		{
-		$container ~= $!colorizer.color($ae, $ac) ; 
-		$chars += $ae.chars
-		}
-	else
-		{
-		@fs.push: $!colorizer.color($ae, $ac) ; 
-		$container := @fs[*-1] ;
-		$chars = $ae.chars
+		if $chars + $ae.chars < $.width
+			{
+			$container ~= $!colorizer.color($ae, $ac) ; 
+			$chars += $ae.chars
+			}
+		else
+			{
+			@fs.push: $!colorizer.color($ae, $ac) ; 
+			$container := @fs[*-1] ;
+			$chars = $ae.chars
+			}
 		}
 	}
 
@@ -225,16 +234,16 @@ else
 $kvf, @ks, @vs, @fs 
 }
 
-method !split_text(Cool $e, $width)
+method !split_text(Cool $t, $width)
 {
-return ('type object') unless $e.defined ;
+return ('type object') unless $t.defined ;
 
-return $e if $width < 1 ;
+return $t if $width < 1 ;
 
 # given a, possibly empty, string, split the string on \n and width, handle \t
 
 my ($index, @lines) ;
-for $e.lines  -> $line
+for $t.lines -> $line
 	{
 	my $index = 0 ;
 
@@ -256,13 +265,13 @@ for $e.lines  -> $line
 		}
 	}
 
-@lines || $e 
+@lines 
 }
 
-method !get_address($v)
+method !get_address($e)
 {
 my $ddt_address = $!address++ ;
-my $perl_address = $v.WHERE ;
+my $perl_address = $e.WHERE ;
 
 my ($link, $rendered) = ('', 0) ;
 
@@ -341,7 +350,7 @@ multi sub get_Any_attributes (Any $a) is export
 $a.^attributes.grep({$_.^isa(Attribute)}).map:   #weeding out perl internal, thanks to moritz 
 	{
 	my $name = $_.name ;
-	$name ~~ s~^(.).~$0.~ if $_.has-accessor ;
+	$name ~~ s~^(.).~$0.~ if $_.has_accessor ;
 
 	my $value = $a.defined 
 		?? $_.get_value($a) // 'Nil'
