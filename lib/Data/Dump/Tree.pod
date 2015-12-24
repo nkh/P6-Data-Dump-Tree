@@ -120,7 +120,7 @@ Data::DumpTree will display
 the Data::Dump::Tree address is added to every container in the form of a '@'
 and an index that is incremented for heach container. If a container is
 multiple times in the output, it will be rendered once only then refered to 
-by '@current_address -> @first_time_seen' 
+by '@current_address = @first_time_seen' 
 
 =head2 Configuration and Overrides
 There are multiple ways to configure the Dumper. You can pass a configuration
@@ -355,12 +355,19 @@ character is used to display the tree.
 =item DDTR::MatchDetails
 Give details about a Match
 
+=item DDTR::NumberLevel
+The level index is displayed in front of the tree glyphs, usefull for very large 
+rendering with many level. 
+
+=item DDTR::Superscribe
+Display the address with Uniode superscripts
+
 =item DDTR::PerlString
 Renders string containing control codes (eg: \n, ANSI, ...) with backslashed
 codes and hex values.
 
-=item DDTR::SilentSub
-Sub objects will be rendered in a very succint way
+=item DDTR::PerlSub
+Sub objects will be rendered with .perl
 
 =item FixedGlyphs 
 Replace all the glyphs by a single glyph

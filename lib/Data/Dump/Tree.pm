@@ -5,7 +5,7 @@ use Data::Dump::Tree::DescribeBaseObjects ;
 
 class Data::Dump::Tree does DDTR::DescribeBaseObjects
 {
-has $!colorizer = AnsiColor.new() ;
+has $.colorizer = AnsiColor.new() ;
 method is_ansi { $!colorizer.is_ansi }
 
 has $.title ;
@@ -22,7 +22,9 @@ has %.colors =
 	> ;
 
 has @.glyph_colors = < glyph_1> ;
-has @!glyph_colors_cycle ; 
+has @.glyph_colors_cycle ; 
+
+has @.filters ;
 
 has %!rendered ;
 has $!address ;
@@ -74,7 +76,7 @@ $!current_depth = 0 ;
 $!colorizer.set_colors(%.colors, $.color) ;
 @!glyph_colors_cycle = |@.glyph_colors xx  * ; 
 
-my (%glyphs, $glyph_width) := self!get_level_glyphs($!current_depth) ; 
+my (%glyphs, $glyph_width) := $.get_level_glyphs($!current_depth) ; 
 
 $.width //= %+(qx[stty size] ~~ /\d+ \s+ (\d+)/)[0] ; 
 $.width -= $glyph_width ;
@@ -88,7 +90,7 @@ method !render_non_final($s)
 {
 $!current_depth++ ;
 
-my (%glyphs, $glyph_width) := self!get_level_glyphs($!current_depth) ; 
+my (%glyphs, $glyph_width) := $.get_level_glyphs($!current_depth) ; 
 $!width -= $glyph_width ; # account for mutiline text shifted for readability
 
 my @renderings ;
@@ -99,6 +101,8 @@ if $!current_depth == $.max_depth
 	}
 else
 	{
+	self!apply_filters(DDT_SUB_ELEMENTS, (%glyphs, @renderings), ($s))  ;
+
 	my $sub_elements = self!get_sub_elements($s) // () ;
 	my $last_index = $sub_elements.cache.end ;
 
@@ -121,9 +125,10 @@ method !render_element($element, $glyphs)
 my ($k, $s) = $element ;
 my ($glyph_width, $glyph, $continuation_glyph, $multi_line_glyph, $empty_glyph) = $glyphs ;
 
-my @renderings ;
-
 my ($v, $f, $final, $wants_address) = self!get_element_header($s) ;
+
+self!apply_filters(DDT_HEADER, ($glyphs, @renderings), ($s, $k, $v, $f, $final))  ;
+
 $final //= DDT_NOT_FINAL ;
 $wants_address //= $final ?? False !! True ;
 
@@ -133,9 +138,11 @@ $address = Nil unless $wants_address ;
 if $final { $multi_line_glyph = $empty_glyph }
 
 # perl stringy $v if role is on
-($v, $, $) = self.get_header($v) if $v ~~ Str ;
+($v, $, $) = self.get_header($v) if $s !~~ Str ;
 
 my ($kvf, @ks, @vs, @fs) := self!split_entry($k, $glyph_width, $v, $f, $address) ;
+
+my @renderings ;
 
 if $kvf.defined
 	{
@@ -154,8 +161,34 @@ if ! $final && ! $rendered
 	@renderings.append: self!render_non_final($s).map: { $continuation_glyph ~ $_} 
 	}
 
+self!apply_filters(DDT_FOOTER, ($glyphs, @renderings))  ;
+
 @renderings
 }
+
+method !apply_filters($phase, ($glyphs, @renderings), ($s, $k, $v, $f, $final))
+{
+for @.filters -> $filter
+	{
+	#TODO: find which filter to apply
+
+	$filter($phase, ($!level, $glyphs, @renderings), ($s, $k, $v, $f, $final))  ;
+
+	@renderings.append: @r ;
+	}
+}
+
+sub my_filter($phase, ($level, $glyphs, @renderings), ($s, $k, $v, $f, $final))
+{
+# $phase            $arguments
+# DDT_HEADER:       ($level, $glyphs, @renderings), ($s, $k, $v, $f, $final)
+# DDT_SUB_ELEMENTS: ($level, $glyphs, @renderings), ($s)
+# DDT_FOOTER:       ($level, $glyphs, @renderings)
+
+
+@renderings.append: "$level $phase" ;
+}
+
 
 method !has_method($method_name, $type --> Bool) #TODO:is cached
 {
@@ -200,8 +233,10 @@ if $address.defined
 	my $container := @fs[*-1] ;
 	my $chars = $container.chars ;
 
-	for $address.list Z ('ddt_address', 'perl_address', 'link') -> ($ae, $ac)
+	for $address.list Z ('ddt_address', 'perl_address', 'link') -> ($ae is copy, $ac)
 		{
+		$ae = $.superscribe($ae) ;
+
 		if $chars + $ae.chars < $.width
 			{
 			$container ~= $!colorizer.color($ae, $ac) ; 
@@ -268,6 +303,8 @@ for $t.lines -> $line
 @lines 
 }
 
+method superscribe($text) { $text }
+
 method !get_address($e)
 {
 my $ddt_address = $!address++ ;
@@ -278,14 +315,14 @@ my ($link, $rendered) = ('', 0) ;
 if %!rendered{$perl_address}:exists
 	{
 	$rendered++ ;
-	$link = ' -> @' ~ %!rendered{$perl_address} ;
+	$link = ' = @' ~ %!rendered{$perl_address} ;
 	}
 else
 	{
 	%!rendered{$perl_address} = $ddt_address ;
 	}
 
-$perl_address = $.display_perl_address ?? ' ' ~ $perl_address !! '' ;
+$perl_address = $.display_perl_address ?? ' (' ~ $perl_address ~ ')' !! '' ;
 
 my $address = $.display_address 
 	?? (' @' ~ $ddt_address, $perl_address, $link,) 
@@ -294,7 +331,7 @@ my $address = $.display_address
 $address, $rendered
 }
 
-method !get_level_glyphs($level)
+method get_level_glyphs($level)
 {
 my %glyphs = $.get_glyphs() ; 
 my $glyph_width = %glyphs<empty>.chars ;

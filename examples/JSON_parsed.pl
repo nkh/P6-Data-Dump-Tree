@@ -1,6 +1,7 @@
 
 use JSON::Tiny ;
 use Data::Dump::Tree ;
+use Data::Dump::Tree::ExtraRoles ;
 
 my $JSON =
 Q<<{
@@ -29,6 +30,12 @@ Q<<{
 my $parsed = JSON::Tiny::Grammar.parse($JSON) ;
 #$parsed.say ;
 
-dump( $parsed, title => 'Parsed JSON', does => (DDTR::MatchDetails, DDTR::PerlString, DDTR::UnicodeGlyphs) ) ;
+dump( $parsed, title => 'Parsed JSON',
+	 does => 
+		(
+		DDTR::MatchDetails, DDTR::PerlString,
+		DDTR::UnicodeGlyphs, DDTR::Superscribe,
+		)
+	 ) ;
 
 

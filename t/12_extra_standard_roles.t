@@ -19,13 +19,13 @@ is $dump_2.lines.elems, 1, '1 lines' or diag $dump_2 ;
 my $d_3 = Data::Dump::Tree.new ;
 my $dump_3 = $d_3.get_dump(sub{}) ;
 
-like $dump_3, /sub/, 'default sub dump' ;
+like $dump_3, /anon/, 'default sub dump' ;
 is $dump_3.lines.elems, 1, 'default sub lines' or diag get_dump $dump_3;
 
-$d_3 does DDTR::SilentSub ;
+$d_3 does DDTR::PerlSub ;
 $dump_3 = $d_3.get_dump(sub{}) ;
 
-unlike $dump_3, /sub/, 'silent sub dump' ;
+unlike $dump_3, /sub \(\)/, 'silent sub dump' ;
 is $dump_3.lines.elems, 1, 'silent sub lines' ;
 
 

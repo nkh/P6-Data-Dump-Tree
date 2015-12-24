@@ -12,8 +12,8 @@ multi method get_header (Rat $r) { 'den: ' ~ $r.denominator ~ ' num: ' ~ $r.nume
 # Block must be declare or it groaks when passed a Sub
 #TODO: report to P6P
 multi method get_header (Block $b) { $b.perl, '.' ~ $b.^name, DDT_FINAL }
-multi method get_header (Routine $r) { '', '.' ~ $r.^name, DDT_FINAL }
-multi method get_header (Sub $s) { $s.perl, '.' ~ $s.^name, DDT_FINAL }
+multi method get_header (Routine $r) { '' , '.' ~ $r.^name, DDT_FINAL }
+multi method get_header (Sub $s) { ( $s.name || '<anon>'), '.' ~ $s.^name, DDT_FINAL }
 
 # get_headers: containers return some information and their type
 multi method get_header (Any $a) 
@@ -30,7 +30,7 @@ multi method get_header (Match $m) { '[' ~ $m.from ~ '..' ~ $m.to ~ '|', '.' ~ $
 multi method get_header (Grammar $g) { $g.perl ~ ' ', '.Grammar', DDT_FINAL, } 
 
 multi method get_header (List $l) { '', '(' ~ $l.elems ~ ')' }
-multi method get_elements (List $l) { ($l.list Z 0 .. *).map: -> ($v, $i) {"$i = ", $v} }
+multi method get_elements (List $l) { ($l.list  Z 0 .. *).map: -> ($v, $i) {"$i = ", $v}}
 
 multi method get_header (Array $a) { '', '[' ~ $a.elems ~ ']' }
 
@@ -64,15 +64,20 @@ multi method get_elements (Match $m)
 #role MatchDetails
 }
 
+role DDTR::QuotedString 
+{
+multi method get_header (Str:D $s) { "'$s'", '.' ~ $s.^name, DDT_FINAL } 
+}
+
 role DDTR::PerlString 
 {
 multi method get_header (Str:D $s) { $s.perl, '.' ~ $s.^name, DDT_FINAL } 
 }
 
-role DDTR::SilentSub
+role DDTR::PerlSub
 {
-multi method get_header (Routine $r) { '', '.' ~ $r.^name, DDT_FINAL }
-multi method get_header (Sub $s) { '', '.' ~ $s.^name, DDT_FINAL }
+multi method get_header (Routine $r) { $r.perl, '.' ~ $r.^name, DDT_FINAL }
+multi method get_header (Sub $s) { $s.perl, '.' ~ $s.^name, DDT_FINAL }
 }
 
 class Data::Dump::Tree::Type::Nothing
@@ -117,22 +122,6 @@ multi method get_glyphs
 	last => "\x1b(0\x6d \x1b(B", not_last => "\x1b(0\x74 \x1b(B",
 	last_continuation => '  ', not_last_continuation => "\x1b(0\x78 \x1b(B",
 	multi_line => "\x1b(0\x78 \x1b(B", empty => '  ', max_depth => '...', 
-	}
-}
-
-#role
-}
-
-role DDTR::FixedGlyphs
-{
-has $.fixed_glyph ;
-
-multi method get_glyphs
-{
-	{
-	last => $.fixed_glyph, not_last => $.fixed_glyph,
-	last_continuation => $.fixed_glyph, not_last_continuation => $.fixed_glyph,
-	multi_line => $.fixed_glyph, empty => ' ' x $.fixed_glyph.chars, max_depth => '...', 
 	}
 }
 
