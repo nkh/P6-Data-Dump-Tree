@@ -81,7 +81,7 @@ my (%glyphs, $glyph_width) := $.get_level_glyphs($!current_depth) ;
 $.width //= %+(qx[stty size] ~~ /\d+ \s+ (\d+)/)[0] ; 
 $.width -= $glyph_width ;
 
-my @renderings = self!render_element((self!get_title, $s), self!get_root_glyphs(%glyphs)) ;
+my @renderings = self!render_element((self!get_title, $s), (0, '', '', '', '')) ;
 
 @renderings.join("\n") ~ "\n"
 }
@@ -91,6 +91,8 @@ method !render_non_final($s)
 $!current_depth++ ;
 
 my (%glyphs, $glyph_width) := $.get_level_glyphs($!current_depth) ; 
+
+#TODO: what if glyphs are changed by filter?
 $!width -= $glyph_width ; # account for mutiline text shifted for readability
 
 my @renderings ;
@@ -101,12 +103,13 @@ if $!current_depth == $.max_depth
 	}
 else
 	{
-	self!apply_filters(DDT_SUB_ELEMENTS, (%glyphs, @renderings), ($s))  ;
+	my @sub_elements = |self!get_sub_elements($s) // () ;
 
-	my $sub_elements = self!get_sub_elements($s) // () ;
-	my $last_index = $sub_elements.cache.end ;
+	$.apply_filters($s, DDT_SUB_ELEMENTS, (%glyphs, @renderings), (@sub_elements,))  ;
 
-	for $sub_elements.cache Z 0 .. * -> ($sub_element, $index)
+	my $last_index = @sub_elements.end ;
+
+	for @sub_elements Z 0 .. * -> ($sub_element, $index)
 		{
 		my @sub_element_glyphs = self!get_element_glyphs(%glyphs, $index == $last_index) ;
 
@@ -120,14 +123,14 @@ $!current_depth-- ;
 @renderings
 }
 
-method !render_element($element, $glyphs)
+method !render_element($element, @glyphs)
 {
 my ($k, $s) = $element ;
-my ($glyph_width, $glyph, $continuation_glyph, $multi_line_glyph, $empty_glyph) = $glyphs ;
+my ($glyph_width, $glyph, $continuation_glyph, $multi_line_glyph, $empty_glyph) = @glyphs ;
+
+my @renderings ;
 
 my ($v, $f, $final, $wants_address) = self!get_element_header($s) ;
-
-self!apply_filters(DDT_HEADER, ($glyphs, @renderings), ($s, $k, $v, $f, $final))  ;
 
 $final //= DDT_NOT_FINAL ;
 $wants_address //= $final ?? False !! True ;
@@ -135,14 +138,16 @@ $wants_address //= $final ?? False !! True ;
 my ($address, $rendered) = self!get_address($s) ;
 $address = Nil unless $wants_address ;
 
-if $final { $multi_line_glyph = $empty_glyph }
+if $final { @glyphs[3] = $multi_line_glyph = $empty_glyph }
+
+$.apply_filters($s, DDT_HEADER, (@glyphs, @renderings), ($k, $v, $f, $final))  ;
+#TODO: do we need to check if it is finall again? and get the element_header, in case $s was changed 
+# or replaced by nothing? IE makes object type vanish
 
 # perl stringy $v if role is on
 ($v, $, $) = self.get_header($v) if $s !~~ Str ;
 
 my ($kvf, @ks, @vs, @fs) := self!split_entry($k, $glyph_width, $v, $f, $address) ;
-
-my @renderings ;
 
 if $kvf.defined
 	{
@@ -161,34 +166,52 @@ if ! $final && ! $rendered
 	@renderings.append: self!render_non_final($s).map: { $continuation_glyph ~ $_} 
 	}
 
-self!apply_filters(DDT_FOOTER, ($glyphs, @renderings))  ;
+$.apply_filters($s, DDT_FOOTER, (@glyphs, @renderings))  ;
 
 @renderings
 }
 
-method !apply_filters($phase, ($glyphs, @renderings), ($s, $k, $v, $f, $final))
+multi method apply_filters($s, DDT_HEADER, ($glyphs, @renderings), (\k, \v, \f, $final))
 {
 for @.filters -> $filter
 	{
-	#TODO: find which filter to apply
-
-	$filter($phase, ($!level, $glyphs, @renderings), ($s, $k, $v, $f, $final))  ;
-
-	@renderings.append: @r ;
+	$filter($s, DDT_HEADER, ($!current_depth, $glyphs, @renderings), (k, v, f, $final)) ;
+	
+	CATCH 
+		{
+		when X::Multi::NoMatch { } #no match
+		default                { .rethrow }
+		}
 	}
 }
 
-sub my_filter($phase, ($level, $glyphs, @renderings), ($s, $k, $v, $f, $final))
+multi method apply_filters($s, DDT_SUB_ELEMENTS, (%glyphs, @renderings), (@sub_elements))
 {
-# $phase            $arguments
-# DDT_HEADER:       ($level, $glyphs, @renderings), ($s, $k, $v, $f, $final)
-# DDT_SUB_ELEMENTS: ($level, $glyphs, @renderings), ($s)
-# DDT_FOOTER:       ($level, $glyphs, @renderings)
-
-
-@renderings.append: "$level $phase" ;
+for @.filters -> $filter
+	{
+	$filter($s, DDT_SUB_ELEMENTS, ($!current_depth, %glyphs, @renderings), (@sub_elements,)) ;
+	
+	CATCH 
+		{
+		when X::Multi::NoMatch { } #no match
+		default                { .rethrow }
+		}
+	}
 }
 
+multi method apply_filters($s, DDT_FOOTER, ($glyphs, @renderings))
+{
+for @.filters -> $filter
+	{
+	$filter($s, DDT_FOOTER, ($!current_depth, $glyphs, @renderings)) ;
+	
+	CATCH 
+		{
+		when X::Multi::NoMatch { } #no match
+		default                { .rethrow }
+		}
+	}
+}
 
 method !has_method($method_name, $type --> Bool) #TODO:is cached
 {
@@ -345,13 +368,6 @@ my %colored_glyphs = $!colorizer.color(%glyphs, @!glyph_colors_cycle[$level]) ;
 %colored_glyphs<__width> = $glyph_width ; #squirel in the width
 
 %colored_glyphs, $glyph_width
-}
-
-method !get_root_glyphs(%glyphs)
-{
-my @root_glyphs = self!get_element_glyphs(%glyphs, False) ;
-@root_glyphs[1, 2] = ('', '', ) ; 
-@root_glyphs ;
 }
 
 method !get_element_glyphs(%glyphs, Bool $is_last) # is: cached

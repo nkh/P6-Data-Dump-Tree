@@ -7,7 +7,7 @@ role DDTR::DescribeBaseObjects
 multi method get_header (Int $i) { $i,  '.' ~ $i.^name, DDT_FINAL }
 multi method get_header (Str:U $s) { 'type object', '.' ~ $s.^name, DDT_FINAL }
 multi method get_header (Str:D $s) { $s, '.' ~ $s.^name, DDT_FINAL } 
-multi method get_header (Rat $r) { 'den: ' ~ $r.denominator ~ ' num: ' ~ $r.numerator, '.' ~ $r.^name, DDT_FINAL }
+multi method get_header (Rat $r) { $r  ~ ' (' ~ $r.numerator ~ '/' ~ $r.denominator ~ ')', '.' ~ $r.^name, DDT_FINAL }
 
 # Block must be declare or it groaks when passed a Sub
 #TODO: report to P6P
@@ -30,7 +30,7 @@ multi method get_header (Match $m) { '[' ~ $m.from ~ '..' ~ $m.to ~ '|', '.' ~ $
 multi method get_header (Grammar $g) { $g.perl ~ ' ', '.Grammar', DDT_FINAL, } 
 
 multi method get_header (List $l) { '', '(' ~ $l.elems ~ ')' }
-multi method get_elements (List $l) { ($l.list  Z 0 .. *).map: -> ($v, $i) {"$i = ", $v}}
+multi method get_elements (List $l) { ($l.list Z 0 .. *).map: -> ($v, $i) {"$i = ", $v} }
 
 multi method get_header (Array $a) { '', '[' ~ $a.elems ~ ']' }
 
