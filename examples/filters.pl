@@ -14,38 +14,64 @@ my $s =
 	1.234,
 	] ;
 
+class Tomatoe{}
+class Potatoe{}
+
+my $s2 =
+	[
+	Tomatoe,
+	123,
+	Tomatoe,
+	Potatoe,
+	{
+		third => { a => 1},
+	},
+	0.5,
+	Tomatoe,
+	] ;
+
 
 my $d = Data::Dump::Tree.new ;
 $d does DDTR::QuotedString ;
 
-multi sub my_filter(Int $s, DDT_HEADER, ($depth, $glyph, @renderings), (\k, \v, \f, \final, \want_address))
+multi sub my_filter(\s_replacement, Int $s, DDT_HEADER, ($depth, $glyph, @renderings), (\k, \v, \f, \final, \want_address))
 {
-@renderings.append:
-	$glyph ~
-	#color('bold white on_yellow') ~
-	"Int HEADER " ~ k ~ " - " ~ (v // v.^name) ~ " - " ~ f ~ ' - @depth' ~ $depth ;
+#@renderings.append: $glyph ~ color('bold white on_yellow') ~ "Int HEADER " ~ $depth ;
 
-#k = 'filter key' ;
-#v = 'filter value' ;
-#f = 'filter type'
+if $depth < 3 
+	{
+	s_replacement = {a => 'str', nothing => Data::Dump::Tree::Type::Nothing, b => 1 }  ;
+
+	k = k ~ ' wil be replaced by Hash ' ;
+	#v = 'filter value '  ;
+	#f = 'filter type ' ;
+	final = DDT_NOT_FINAL ;
+	want_address = True ;
+	}
 }
 
-multi sub my_filter($s, DDT_HEADER, ($depth, $glyph, @renderings), ($k, $v, $f, $final, $want_address))
+multi sub my_filter($r, $s, DDT_HEADER, ($depth, $glyph, @renderings), ($k, $v, $f, $final, $want_address))
 {
-@renderings.append: $glyph ~ "HEADER " ~ $k ~ " - " ~ ($v // $v.^name) ~ " - " ~ $f ~ ' - @depth' ~ $depth ;
+#@renderings.append: $glyph ~ "HEADER " ~ $k ~ " - " ~ ($v // $v.^name) ~ " - " ~ $f ~ ' - @depth' ~ $depth ;
+}
+
+multi sub my_filter(\r, Tomatoe $s, DDT_HEADER, $, $)
+{
+r = Data::Dump::Tree::Type::Nothing ;
 }
 
 multi sub my_filter(Hash $s, DDT_SUB_ELEMENTS, ($depth, $glyph, @renderings), (@sub_elements))
 {
-@renderings.append: $glyph ~ "SUB ELEMENTS" ;
-#@sub_elements = (('key', 'value'),) ;
+#@renderings.append: $glyph ~ "SUB ELEMENTS" ;
+@sub_elements = (('key ', 'value'), ('other_key ', 1)) ; 
 }
 
 multi sub my_filter($s, DDT_FOOTER, ($depth, $filter_glyph, @renderings))
 {
-@renderings.append: $filter_glyph ~ "FOOTER for {$s.^name}" ;
+#@renderings.append: $filter_glyph ~ "FOOTER for {$s.^name}" ;
 }
 
-$d.dump($s, filters => (&my_filter)) ;
+#$d.dump($s, filters => (&my_filter)) ;
+$d.dump($s2, filters => (&my_filter)) ;
 
 

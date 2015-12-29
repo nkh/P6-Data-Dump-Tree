@@ -1,3 +1,4 @@
+
 =begin pod
 
 =NAME
@@ -61,7 +62,7 @@ returns a string containing the dump of the data structure
 	
 	A complex structure [5] @0
 	|- 0 = text.Str
-	|- 1 = den: 10 num: 31.Rat
+	|- 1 = 3.1 (31/10).Rat
 	|- 2 = {2} @1
 	|  |- a => 1.Int
 	|  `- b => string.Str
@@ -91,7 +92,7 @@ or render specific types with your how handlers.
 
 =head3 tree (glyphs)
 The tree portion of the output shows the relationship between the data elements.
-The datata is indented under it container, ....
+The data is indented under it container, ....
 
 You can control the color of the tree portion as well as if it is rendered with
 ASCII, ANSI code or Unicode.
@@ -99,11 +100,11 @@ ASCII, ANSI code or Unicode.
 =head3 key
 The key is the name of the element being displayed, in the examples above, the
 container is an array; Data:Dump::Tree gives the index of the element as the 
-key of the elenet. IE: '0 =', '3 =', '4 ='
+key of the element. IE: '0 =', '3 =', '4 ='
 
 =head3 value
 The value of the element being displayed, Data::Dump::Tree displays the value of
-"terminaö" variables, eg: Str, Int, Rat. For containers, nothing is displayed.
+"terminal" variables, eg: Str, Int, Rat. For containers, nothing is displayed.
 
 =head3 Types
 The type of the variable with a '.' prepended. IE: '.Str', '.MyClass'
@@ -119,7 +120,7 @@ Data::DumpTree will display
 =head3 address
 the Data::Dump::Tree address is added to every container in the form of a '@'
 and an index that is incremented for heach container. If a container is
-multiple times in the output, it will be rendered once only then refered to 
+multiple times in the output, it will be rendered once only then referred to 
 by '@current_address = @first_time_seen' 
 
 =head2 Configuration and Overrides
@@ -211,11 +212,11 @@ is not under your control.
 =head4 you own classes
 
 When Data::Dump::Tree renders an object, it first checks if it has an internal
-handler for that type; if not handler is found, the object is quesried and its
+handler for that type; if not handler is found, the object is queried and its
 handler is used, if any; finally, Data::Dump::Tree uses a generic handler.
 
 It is important to understand that you precisely control how your class is 
-rendered, You can even return comlpletely different data than the one contained
+rendered, You can even return completely different data than the one contained
 in your class.
 
 Data::Dump::Tree uses two methods, you can define either one or both.
@@ -322,7 +323,7 @@ attributes, we display the Rat on a single line. Here is the handler:
 	multi method get_header (Rat $r)
 	{
 	# the rendition of the Rat
-	'den: ' ~ $r.denominator ~ ' num: ' ~ $r.numerator,
+	$r ~ ' (' ~ $r.numerator ~ '/' ~ $r.denominator ~ ')',
 
 	#its type
 	'.' ~ $r.^name,
@@ -334,33 +335,160 @@ attributes, we display the Rat on a single line. Here is the handler:
 	DDT_HAS_ADDRESS,
 	}
 
+=head3 handling specific objects
+In the previous section we discussed rendering types with specific handler.
+The handlers apply to all the objects of the type. Sometimes you want to 
+handle objects differently. An example would be having three Hashes,
+the Hash handler will display each key and it's value; If you want to handle 
+the first Hash and the third Hash differently, you can write a filter.
+
+To pass a filter to the dumper:
+
+	dump($s, filters => (&my_filter, ...)) ;
+
+
+Filters are called three times during the rendering of each object. We
+use Perl6 multi sub to cleanly define the filters.
+
+=item DDT_HEADER
+This is called just after the type's U<get_header> is called, this allows you to
+insert something in the tree rendering
+
+	multi sub my_filter(
+		$r,                                 # replacement, see below
+		$s,                                 # "read only" object
+		DDT_HEADER,                         # 
+		($depth, $glyph, @renderings),      # info about tree
+		($k, $v, $f, $final, $want_address) # results of get_header
+		)
+	{
+	# Add something to the tree
+	@renderings.append: $glyph ~ "HEADER" ;
+	}
+
+or change the B<rendering> of the object
+
+	multi sub my_filter(
+		\r,                                 # replacement
+		Int $s,                             # filter specific for Ints
+		DDT_HEADER,                         # 
+		($depth, $glyph, @renderings),      # info about the tree
+		(\k, \v, \f, \final, \want_address) # reference we can change
+		)
+	{
+	@renderings.append: $glyph ~ "Int HEADER " ~ $depth ;
+
+	# in this trivial example we are replacing Ints by Hashes
+	# since the Hash we use also contains an Int, we make sure we don't
+	# recurs infinitely
+
+	if $depth < 3 
+		{
+		r = {a => 'str', b => 1 }  ;
+
+		# k, v, f are text
+
+		k = k ~ ' will be replaced by Hash ' ;
+		#v = ''  ;
+		#f = '' ;
+
+		final = DDT_NOT_FINAL ;
+		want_address = True ;
+		}
+	}
+
+=item DDT_SUB_ELEMENTS
+Called after the type's U<get_elements> ; you can change the elements.
+
+	multi sub my_filter(
+		Hash $s,
+		DDT_SUB_ELEMENTS,
+		($depth, $glyph, @renderings),
+		(@sub_elements)
+		)
+	{
+	@renderings.append: $glyph ~ "SUB ELEMENTS" ;
+	@sub_elements = (('key ', 'value'), ('other_key ', 1)) ; 
+	}
+
+=item DDT_FOOTER
+Called when the element rendering is done.
+	
+	multi sub my_filter($s, DDT_FOOTER, ($depth, $filter_glyph, @renderings))
+	{
+	@renderings.append: $filter_glyph ~ "FOOTER for {$s.^name}" ;
+	}
+
+=head2 Data::Dump::Tree::Type::Nothing
+You can use this type to make DDT "vanish" some parts of a rendering
+
+=head3 Type element with only a name  
+If you return a Data::Dump::Tree::Type::Nothing in a type handler, then only
+the key will be displayed.
+ 
+
+	method ddt_get_elements 
+	{ 
+		[
+		... 
+		('your key', Data::Dump::Tree::Type::Nothing),
+		...
+		]
+	}
+
+=head3 Filtering an element away 
+If you return a Data::Dump::Tree::Type::Nothing replacement in your filter,
+the element will not be displayed at all.
+
+	multi sub my_filter(\r, Tomatoe $s, DDT_HEADER, $, $)
+	{
+	r = Data::Dump::Tree::Type::Nothing ;
+	}
+
+As DDT streams the rendering, it can not go back to fix the glyphs when an 
+element is filtered away, this will probably show as slightly wrong glyph
+lines. Nevertheless, when duping big structures which contains elements you
+don't want to see, this is an easy an effective manner; the other, better,
+ways are
+
+=item Create a type handler
+You can minimize the rendering of the type.
+
+See I<Type element with only a name> above.
+
+=item Create a filter for containers
+if the element you don't want to see only appears in some containers, you can
+create a type handler, or filter, for that container type and weed out any 
+reference to the element you don't want to see. This will draw proper glyph
+lines as the element, you don't want to see, is never seen by DDT.
+
 =head2 Roles provided with Data::Dump::Tree
 
 Data::Dump::Tree comes with a few extra roles that are not "played" by the
 object returned by new()
 
 Please feel free to send me roles you think would be useful to other and that
-you belive fit well in the same bundle.
+you believe fit well in the same bundle.
 
-You are welcome to make your own distribution too, I recomment using namespace
+You are welcome to make your own distribution too, I recommend using namespace
 DDTR::YourRole.
 
 =item DDTR::AsciiGlyphs
 Uses ASCII codes rather than ANSI to render the tree.
 
 =item DDTR::UnicodeGlyphs
-Uses Unicode to render the tree. this is the tightes rendering as only one
+Uses Unicode to render the tree. this is the tightest rendering as only one
 character is used to display the tree.
 
 =item DDTR::MatchDetails
 Give details about a Match
 
 =item DDTR::NumberLevel
-The level index is displayed in front of the tree glyphs, usefull for very large 
+The level index is displayed in front of the tree glyphs, useful for very large 
 rendering with many level. 
 
 =item DDTR::Superscribe
-Display the address with Uniode superscripts
+Display the address with Unicode superscripts
 
 =item DDTR::PerlString
 Renders string containing control codes (eg: \n, ANSI, ...) with backslashed
@@ -369,10 +497,22 @@ codes and hex values.
 =item DDTR::PerlSub
 Sub objects will be rendered with .perl
 
-=item FixedGlyphs 
+=item DDTR::FixedGlyphs 
 Replace all the glyphs by a single glyph
 
 	my $d = Data::Dump::Tree.new does DDTR::FixedGlyphs(' . ') ;
+
+=item DDTR::NumberedLevel
+Will add the level of the elements to the tree glyphs, useful with huge trees.
+If a Superscribe role is on, the level umber will also be superscribed
+
+=item DDTR::SuperscribeType
+Use this role to display the type in Unicode superscript letters.
+
+=item DDTR::SuperscribeAddress
+Use this role to display the address in Unicode superscript letters.
+
+You can also use the method it provides in your type handlers and filters. 
 
 =head1 BUGS
 Submit bugs (preferably as executable tests) and feel free to make 
@@ -389,9 +529,9 @@ An example is Grammar that I tried to dump and got an exception about a class
 that I didn't even know existed. 
 
 Those exception are caught and displayed by the dumper as 
-	"DDT Exception: the_caugt_excaption_class"
+	"DDT Exception: the_caught_exception_class"
 
-Please le me know about them so I can add the necessary handlers to the 
+Please let me know about them so I can add the necessary handlers to the 
 distribution.
  
 =AUTHOR
@@ -410,8 +550,5 @@ Data::Dump
 
 =end pod
 
-
 DOC INIT {use Pod::To::Text ; pod2text($=pod) ; }
-
-
 

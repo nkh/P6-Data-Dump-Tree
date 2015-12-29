@@ -34,7 +34,7 @@ dump( $parsed, title => 'Parsed JSON',
 	 does => 
 		(
 		DDTR::MatchDetails, DDTR::PerlString,
-		DDTR::UnicodeGlyphs, DDTR::Superscribe,
+		DDTR::UnicodeGlyphs, DDTR::SuperscribeType, DDTR::SuperscribeAddress,
 		)
 	 ) ;
 

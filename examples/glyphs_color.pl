@@ -25,15 +25,14 @@ my $contents = q:to/EOI/;
 EOI
 
 my $d = Data::Dump::Tree.new(display_perl_address => True) ;
-
-
 $d does DDTR::MatchDetails ;
+$d does DDTR::NumberedLevel ;
 
 my $m = $contents ~~ /<section>*/ ;
 $d.dump($m) ;
 
-$d does DDTR::NumberedLevel ;
-$d does DDTR::Superscribe ;
+$d does DDTR::SuperscribeType ;
+$d does DDTR::SuperscribeAddress ;
 
 $m = $contents ~~ /<section>*/ ;
 $d.dump($m, glyph_colors => < glyph_0 glyph_1 glyph_2 glyph_3 >) ;

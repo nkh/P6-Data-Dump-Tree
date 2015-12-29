@@ -41,23 +41,34 @@ my %colored_glyphs = $.colorizer.color(%glyphs, @.glyph_colors_cycle[$level]) ;
 %colored_glyphs, $glyph_width
 }
 
-
-}
-
-role DDTR::Superscribe
-{
-
-my @ssl ;
-@ssl[32] = ' ';
-@ssl[40, 41, 43, 45, 61, 64] = < ⁽ ⁾ ⁺ ⁻ ⁼ ᶝ > ;
-@ssl[48..57] = <⁰ ¹ ² ³ ⁴ ⁵ ⁶ ⁷ ⁸ ⁹> ;
-@ssl[97..123] = <ᵃ ᵇ ᶜ ᵈ ᵉ ᶠ ᵍ ʰ ⁱ ʲ ᵏ ˡ ᵐ ⁿ ᵒ ᵖ ᵠ ʳ ˢ ᵗ ᵘ ᵛ ʷ ˣ ʸ ᶻ> ;
-
-method superscribe($text is copy)
-{
-($text.comb.map: { @ssl[$_.ord] // $_}).join ; 
-}
-
 #role
 }
 
+
+# scope for @ssl
+{
+
+my @ssl ;
+
+for 	(
+	< . ( ) + - = @ > , < · ⁽ ⁾ ⁺ ⁻ ⁼ ᶝ >,
+	('0'..'9')        , < ⁰ ¹ ² ³ ⁴ ⁵ ⁶ ⁷ ⁸ ⁹ >,
+	('a'..'z')        , < ᵃ ᵇ ᶜ ᵈ ᵉ ᶠ ᵍ ʰ ⁱ ʲ ᵏ ˡ ᵐ ⁿ ᵒ ᵖ ᵠ ʳ ˢ ᵗ ᵘ ᵛ ʷ ˣ ʸ ᶻ >,
+	('A'..'Z')        , < ᴬ ᴮ ᶜ ᴰ ᴱ ᶠ ᴳ ᴴ ᴵ ᴶ ᴷ ᴸ ᴹ ᴺ ᴼ ᴾ ᵠ ᴿ ˢ ᵀ ᵁ ⱽ ᵂ ˣ ʸ ᶻ >, 
+	)
+	-> $A, $s { @ssl[|$A.map: {.ord}] = |$s	}
+
+role DDTR::SuperscribeAddress
+{
+method superscribe($text) { ($text.comb.map: { @ssl[$_.ord] // $_}).join }
+method superscribe_address($text) { ($text.comb.map: { @ssl[$_.ord] // $_}).join }
+}
+
+role DDTR::SuperscribeType
+{
+method superscribe($text) { ($text.comb.map: { @ssl[$_.ord] // $_}).join }
+method superscribe_type($text) { ($text.comb.map: { @ssl[$_.ord] // $_}).join }
+}
+
+# scope for @ssl
+}

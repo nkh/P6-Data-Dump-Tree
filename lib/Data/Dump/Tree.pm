@@ -97,18 +97,20 @@ my ($v, $f, $final, $want_address) = self!get_element_header($s) ;
 $final //= DDT_NOT_FINAL ;
 $want_address //= $final ?? False !! True ;
 
-my ($address, $rendered) = self!get_address($s) ;
-$address = Nil unless $want_address ;
+my $s_replacement ;
+$.filter_header($s_replacement, $s, ($filter_glyph, @renderings), ($k, $v, $f, $final, $want_address))  ;
+
+$s_replacement ~~ Data::Dump::Tree::Type::Nothing and return @renderings ;
+$s = $s_replacement.defined ?? $s_replacement !! $s ;
 
 if $final { $multi_line_glyph = $empty_glyph }
 
-$.apply_filters($s, DDT_HEADER, ($filter_glyph, @renderings), ($k, $v, $f, $final, $want_address))  ;
-#TODO: what if object is replaced by nothing? EG: makes object type vanish
+my ($address, $rendered) = self!get_address($s) ;
+$address = Nil unless $want_address ;
 
 # perl stringy $v if role is on
 ($v, $, $) = self.get_header($v) if $s !~~ Str ;
 
-#say $k.perl ~ ' ' ~ $v  ~ ' ' ~ $f ;
 my ($kvf, @ks, @vs, @fs) := self!split_entry($k, $glyph_width, $v, $f, $address) ;
 
 if $kvf.defined
@@ -128,7 +130,7 @@ if ! $final && ! $rendered
 	@renderings.append: self!render_non_final($s).map: { $continuation_glyph ~ $_} 
 	}
 
-$.apply_filters($s, DDT_FOOTER, ($continuation_glyph, @renderings))  ;
+$.filter_footer($s, ($continuation_glyph, @renderings))  ;
 
 @renderings
 }
@@ -151,7 +153,7 @@ else
 	{
 	my @sub_elements = |(self!get_sub_elements($s) // ()) ;
 
-	$.apply_filters($s, DDT_SUB_ELEMENTS, (%glyphs<filter>, @renderings), (@sub_elements,))  ;
+	$.filter_sub_elements($s, (%glyphs<filter>, @renderings), (@sub_elements,))  ;
 
 	my $last_index = @sub_elements.end ;
 	for @sub_elements Z 0 .. * -> ($sub_element, $index)
@@ -170,11 +172,11 @@ $!current_depth-- ;
 @renderings
 }
 
-multi method apply_filters($s, DDT_HEADER, ($glyph, @renderings), (\k, \v, \f, \final, \want_address))
+method filter_header(\s_replacement, $s, ($glyph, @renderings), (\k, \v, \f, \final, \want_address))
 {
 for @.filters -> $filter
 	{
-	$filter($s, DDT_HEADER, ($!current_depth, $glyph, @renderings), (k, v, f, final, want_address)) ;
+	$filter(s_replacement, $s, DDT_HEADER, ($!current_depth, $glyph, @renderings), (k, v, f, final, want_address)) ;
 	
 	CATCH 
 		{
@@ -184,7 +186,7 @@ for @.filters -> $filter
 	}
 }
 
-multi method apply_filters($s, DDT_SUB_ELEMENTS, ($glyph, @renderings), (@sub_elements))
+method filter_sub_elements($s, ($glyph, @renderings), (@sub_elements))
 {
 for @.filters -> $filter
 	{
@@ -198,7 +200,7 @@ for @.filters -> $filter
 	}
 }
 
-multi method apply_filters($s, DDT_FOOTER, ($glyph, @renderings))
+method filter_footer($s, ($glyph, @renderings))
 {
 for @.filters -> $filter
 	{
@@ -235,8 +237,10 @@ self!has_method('get_elements', $s.WHAT)
 		!! $.get_elements($s) ;  # generic handler
 }
 
-method !split_entry(Cool $k, Int $glyph_width, Cool $v, Cool $f, $address)
+method !split_entry(Cool $k, Int $glyph_width, Cool $v, Cool $f is copy, $address)
 {
+$f = $.superscribe_type($f) ;
+
 my @ks = self!split_text($k, $.width + $glyph_width) ; # $k has a bit extra space
 my @vs = self!split_text($v, $.width) ; 
 my @fs = self!split_text($f, $.width) ;
@@ -257,7 +261,7 @@ if $address.defined
 
 	for $address.list Z ('ddt_address', 'perl_address', 'link') -> ($ae is copy, $ac)
 		{
-		$ae = $.superscribe($ae) ;
+		$ae = $.superscribe_address($ae) ;
 
 		if $chars + $ae.chars < $.width
 			{
@@ -326,6 +330,8 @@ for $t.lines -> $line
 }
 
 method superscribe($text) { $text }
+method superscribe_type($text) { $text }
+method superscribe_address($text) { $text }
 
 method !get_address($e)
 {
