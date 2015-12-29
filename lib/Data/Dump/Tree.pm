@@ -76,77 +76,39 @@ $!current_depth = 0 ;
 $!colorizer.set_colors(%.colors, $.color) ;
 @!glyph_colors_cycle = |@.glyph_colors xx  * ; 
 
-my (%glyphs, $glyph_width) := $.get_level_glyphs($!current_depth) ; 
+my ($, $glyph_width) := $.get_level_glyphs($!current_depth) ; 
 
 $.width //= %+(qx[stty size] ~~ /\d+ \s+ (\d+)/)[0] ; 
 $.width -= $glyph_width ;
 
-my @renderings = self!render_element((self!get_title, $s), (0, '', '', '', '')) ;
+my @renderings = self!render_element((self!get_title, $s), (0, '', '', '', '', '')) ;
 
 @renderings.join("\n") ~ "\n"
-}
-
-method !render_non_final($s)
-{
-$!current_depth++ ;
-
-my (%glyphs, $glyph_width) := $.get_level_glyphs($!current_depth) ; 
-
-#TODO: what if glyphs are changed by filter?
-$!width -= $glyph_width ; # account for mutiline text shifted for readability
-
-my @renderings ;
-
-if $!current_depth == $.max_depth 
-	{
-	@renderings.append: ( %glyphs<empty> ~ %glyphs<max_depth> ~ " max depth($.max_depth)") ;
-	}
-else
-	{
-	my @sub_elements = |self!get_sub_elements($s) // () ;
-
-	$.apply_filters($s, DDT_SUB_ELEMENTS, (%glyphs, @renderings), (@sub_elements,))  ;
-
-	my $last_index = @sub_elements.end ;
-
-	for @sub_elements Z 0 .. * -> ($sub_element, $index)
-		{
-		my @sub_element_glyphs = self!get_element_glyphs(%glyphs, $index == $last_index) ;
-
-		@renderings.append: self!render_element($sub_element, @sub_element_glyphs) ;
-		}
-	}
-
-$!width += $glyph_width ;
-$!current_depth-- ;
-
-@renderings
 }
 
 method !render_element($element, @glyphs)
 {
 my ($k, $s) = $element ;
-my ($glyph_width, $glyph, $continuation_glyph, $multi_line_glyph, $empty_glyph) = @glyphs ;
+my ($glyph_width, $glyph, $continuation_glyph, $multi_line_glyph, $empty_glyph, $filter_glyph) = @glyphs ;
 
 my @renderings ;
 
-my ($v, $f, $final, $wants_address) = self!get_element_header($s) ;
-
+my ($v, $f, $final, $want_address) = self!get_element_header($s) ;
 $final //= DDT_NOT_FINAL ;
-$wants_address //= $final ?? False !! True ;
+$want_address //= $final ?? False !! True ;
 
 my ($address, $rendered) = self!get_address($s) ;
-$address = Nil unless $wants_address ;
+$address = Nil unless $want_address ;
 
-if $final { @glyphs[3] = $multi_line_glyph = $empty_glyph }
+if $final { $multi_line_glyph = $empty_glyph }
 
-$.apply_filters($s, DDT_HEADER, (@glyphs, @renderings), ($k, $v, $f, $final))  ;
-#TODO: do we need to check if it is finall again? and get the element_header, in case $s was changed 
-# or replaced by nothing? IE makes object type vanish
+$.apply_filters($s, DDT_HEADER, ($filter_glyph, @renderings), ($k, $v, $f, $final, $want_address))  ;
+#TODO: what if object is replaced by nothing? EG: makes object type vanish
 
 # perl stringy $v if role is on
 ($v, $, $) = self.get_header($v) if $s !~~ Str ;
 
+#say $k.perl ~ ' ' ~ $v  ~ ' ' ~ $f ;
 my ($kvf, @ks, @vs, @fs) := self!split_entry($k, $glyph_width, $v, $f, $address) ;
 
 if $kvf.defined
@@ -166,16 +128,53 @@ if ! $final && ! $rendered
 	@renderings.append: self!render_non_final($s).map: { $continuation_glyph ~ $_} 
 	}
 
-$.apply_filters($s, DDT_FOOTER, (@glyphs, @renderings))  ;
+$.apply_filters($s, DDT_FOOTER, ($continuation_glyph, @renderings))  ;
 
 @renderings
 }
 
-multi method apply_filters($s, DDT_HEADER, ($glyphs, @renderings), (\k, \v, \f, $final))
+method !render_non_final($s)
+{
+$!current_depth++ ;
+
+my (%glyphs, $glyph_width) := $.get_level_glyphs($!current_depth) ; 
+
+$!width -= $glyph_width ; # account for mutiline text shifted for readability
+
+my @renderings ;
+
+if $!current_depth == $.max_depth 
+	{
+	@renderings.append: %glyphs<max_depth> ~ " max depth($.max_depth)" ;
+	}
+else
+	{
+	my @sub_elements = |(self!get_sub_elements($s) // ()) ;
+
+	$.apply_filters($s, DDT_SUB_ELEMENTS, (%glyphs<filter>, @renderings), (@sub_elements,))  ;
+
+	my $last_index = @sub_elements.end ;
+	for @sub_elements Z 0 .. * -> ($sub_element, $index)
+		{
+		@renderings.append: 
+			self!render_element(
+				$sub_element,
+				self!get_element_glyphs(%glyphs, $index == $last_index)
+				) ;
+		}
+	}
+
+$!width += $glyph_width ;
+$!current_depth-- ;
+
+@renderings
+}
+
+multi method apply_filters($s, DDT_HEADER, ($glyph, @renderings), (\k, \v, \f, \final, \want_address))
 {
 for @.filters -> $filter
 	{
-	$filter($s, DDT_HEADER, ($!current_depth, $glyphs, @renderings), (k, v, f, $final)) ;
+	$filter($s, DDT_HEADER, ($!current_depth, $glyph, @renderings), (k, v, f, final, want_address)) ;
 	
 	CATCH 
 		{
@@ -185,11 +184,11 @@ for @.filters -> $filter
 	}
 }
 
-multi method apply_filters($s, DDT_SUB_ELEMENTS, (%glyphs, @renderings), (@sub_elements))
+multi method apply_filters($s, DDT_SUB_ELEMENTS, ($glyph, @renderings), (@sub_elements))
 {
 for @.filters -> $filter
 	{
-	$filter($s, DDT_SUB_ELEMENTS, ($!current_depth, %glyphs, @renderings), (@sub_elements,)) ;
+	$filter($s, DDT_SUB_ELEMENTS, ($!current_depth, $glyph, @renderings), (@sub_elements,)) ;
 	
 	CATCH 
 		{
@@ -199,11 +198,11 @@ for @.filters -> $filter
 	}
 }
 
-multi method apply_filters($s, DDT_FOOTER, ($glyphs, @renderings))
+multi method apply_filters($s, DDT_FOOTER, ($glyph, @renderings))
 {
 for @.filters -> $filter
 	{
-	$filter($s, DDT_FOOTER, ($!current_depth, $glyphs, @renderings)) ;
+	$filter($s, DDT_FOOTER, ($!current_depth, $glyph, @renderings)) ;
 	
 	CATCH 
 		{
@@ -377,13 +376,11 @@ method !get_element_glyphs(%glyphs, Bool $is_last) # is: cached
 # glyph displayed while sub elements are added
 # glyph multi line text
 # glyph for multiline DDT_FINAL
+# glyph to display in front of comment in filters
 
 $is_last
-	?? (%glyphs<__width>, %glyphs<last>, %glyphs<last_continuation>,
-		 %glyphs<multi_line>, %glyphs<empty>)
-
-	!! (%glyphs<__width>, %glyphs<not_last>, %glyphs<not_last_continuation>,
-		 %glyphs<multi_line>, %glyphs<empty>) ;
+	?? %glyphs<__width last     last_continuation     multi_line empty filter>
+	!! %glyphs<__width not_last not_last_continuation multi_line empty filter> ;
 }
 
 method !get_class_and_parents ($a) { get_class_and_parents($a) }

@@ -60,16 +60,20 @@ has $!int = 1 ;
 
 method ddt_get_elements 
 {
+my @e ;
+
 try 
 	{
-	require Text::Table::Simple  <&ilol2table> ;
+	require Text::Table::Simple <&lol2table> ;
 
 	my @columns = <id name email>;
 	my @rows    = ([1,"John Doe",'johndoe@cpan.org'], [2,'Jane Doe','mrsjanedoe@hushmail.com'],);
-	my @table = GLOBAL::Text::Table::Simple::lol2table(@columns,@rows);
+	my @table = lol2table(@columns,@rows);
 
-	($!title, @table.join("\n")), |get_Any_attributes(self),  ;
+	@e = ($!title, @table.join("\n")), |get_Any_attributes(self),  ;
 	}
+
+$! ?? (('DDT exception: ', "$!"),)  !! @e ;
 }
 
 #class

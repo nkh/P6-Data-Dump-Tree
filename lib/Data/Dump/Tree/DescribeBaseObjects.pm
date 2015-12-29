@@ -30,7 +30,11 @@ multi method get_header (Match $m) { '[' ~ $m.from ~ '..' ~ $m.to ~ '|', '.' ~ $
 multi method get_header (Grammar $g) { $g.perl ~ ' ', '.Grammar', DDT_FINAL, } 
 
 multi method get_header (List $l) { '', '(' ~ $l.elems ~ ')' }
-multi method get_elements (List $l) { ($l.list Z 0 .. *).map: -> ($v, $i) {"$i = ", $v} }
+
+# can't use: ($l.list Z 0 .. *).map: -> ($v, $i)
+# the signature binding wants to bind the Pair to a named argument,
+# not a positional (nine:)
+multi method get_elements (List $l) { my $i = -1 ; $l.list.map: -> $v {$i++ ; "$i = ", $v} }
 
 multi method get_header (Array $a) { '', '[' ~ $a.elems ~ ']' }
 
@@ -92,7 +96,8 @@ multi method get_glyphs
 {
 	{ 
 	last => '└', not_last => '├', last_continuation => ' ', not_last_continuation => '│',
-	multi_line => '│', empty => ' ', max_depth => '…'
+	multi_line => '│', empty => ' ', max_depth => ' …',
+	filter => '│', # not last continuation
 	}
 }
 
@@ -106,7 +111,8 @@ multi method get_glyphs
 {
 	{
 	last => "`- ", not_last => '|- ', last_continuation => '   ', not_last_continuation => '|  ',
-	multi_line => '|  ', empty => '   ', max_depth => '...'
+	multi_line => '|  ', empty => '   ', max_depth => '   ...',
+	filter => '|  ', # not last continuation 
 	}
 }
 
@@ -121,7 +127,8 @@ multi method get_glyphs
 	{
 	last => "\x1b(0\x6d \x1b(B", not_last => "\x1b(0\x74 \x1b(B",
 	last_continuation => '  ', not_last_continuation => "\x1b(0\x78 \x1b(B",
-	multi_line => "\x1b(0\x78 \x1b(B", empty => '  ', max_depth => '...', 
+	multi_line => "\x1b(0\x78 \x1b(B", empty => '  ', max_depth => '  ...', 
+	filter => "\x1b(0\x78 \x1b(B" , # not last continuation
 	}
 }
 
