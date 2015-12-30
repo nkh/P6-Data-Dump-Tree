@@ -11,15 +11,15 @@ class Strings
 method ddt_get_header { "say something about this class\nmultiline", '.' ~ self.^name ~ "\n multiline classes" }
 method ddt_get_elements 
 { 
-	('', 'has no name'), 
-	("very very long\nexplanation on multiple lines\n", "many lines\n" x 5), 
-	('single-long: ', 'x' x 300), 
-	('multiple-long: ', 'x' x 300 ~ "\n" ~ 'y' x 200), 
+	('', '', 'has no name'), 
+	("very very long\nexplanation on multiple lines\n", '', "many lines\n" x 5), 
+	('single-long', ': ', 'x' x 300), 
+	('multiple-long', ': ', 'x' x 300 ~ "\n" ~ 'y' x 200), 
 
-	("12345678901234567890123456789012345" , [1, {a => 3}]),
-	("12345678901234567890123456789012345\nxxx" , 'test'),
+	('12345678901234567890123456789012345', '', [ 1, {a => 3} ]),
+	("12345678901234567890123456789012345\nxxx", '', 'test'),
 
-	('coefficient = ', 1), 
+	('coefficient', ' = ', 1), 
 }
 
 #class
@@ -36,7 +36,7 @@ multi method get_header (Dog $d)
 'Woof! ', '.Dog (but this one is vagrant, no address)', DDT_NOT_FINAL, DDT_HAS_NO_ADDRESS 
 }
 
-multi method get_elements (Dog $d) { (q/the dog's name is: /, $d.name), }
+multi method get_elements (Dog $d) { (q/the dog's name is/, ': ', $d.name), }
 
 }
 
@@ -44,12 +44,12 @@ class Hermit {}
 class LivesUnderRock {}
 
 class Shy is Hermit is LivesUnderRock { has $.in_object }
-role DescribeShy { multi method get_elements (Shy $d) { ('Role{DescribeShy} ',  1), } }
+role DescribeShy { multi method get_elements (Shy $d) { ('Role{DescribeShy} ', '',  1), } }
 role DescribeShyFinal { multi method get_header (Shy $d) { 'Role{DescribeShyFinal} ', '.' ~ $d.^name, DDT_FINAL } }
 
 class Mangled
 {
-method ddt_get_elements { ('inner structure => ', [123, 456]),  }
+method ddt_get_elements { ('inner structure', ' => ', [123, 456]),  }
 }
 
 class Table
@@ -70,10 +70,10 @@ try
 	my @rows    = ([1,"John Doe",'johndoe@cpan.org'], [2,'Jane Doe','mrsjanedoe@hushmail.com'],);
 	my @table = lol2table(@columns,@rows);
 
-	@e = ($!title, @table.join("\n")), |get_Any_attributes(self),  ;
+	@e = ($!title, '', @table.join("\n")), |get_Any_attributes(self),  ;
 	}
 
-$! ?? (('DDT exception: ', "$!"),)  !! @e ;
+$! ?? (('DDT exception', ': ', "$!"),)  !! @e ;
 }
 
 #class

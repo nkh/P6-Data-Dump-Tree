@@ -237,12 +237,12 @@ Data::Dump::Tree uses two methods, you can define either one or both.
 	method ddt_get_elements
 	{
  
-	#key    #value
-	('1 =', 'has no name'), 
-	('3 =>', 'abc'), 
-	('attribute: ', ' ' ~ 1), 
-	('sub object --> ', [1 .. 3]),
-	('from sub', do_something()), 
+	#key           #binder   #value
+	(1,            ' = ',    'has no name'), 
+	(3,            ' => ',   'abc'), 
+	('attribute',  ': ',     '' ~ 1), 
+	('sub object', '--> ',   [1 .. 3]),
+	('from sub',   '',       something()), 
 
 	}
 
@@ -280,7 +280,7 @@ Both work in the same fashion.
 	
 	
 	multi method get_elements (Hash $h) 
-		{ $h.sort(*.key)>>.kv.map: -> ($k, $v) {"$k => ", $v} }
+		{ $h.sort(*.key)>>.kv.map: -> ($k, $v) {$k, ' => ', $v} }
 
 	}
 
@@ -348,11 +348,11 @@ This is called just after the type's U<get_header> is called, this allows you to
 insert something in the tree rendering
 
 	multi sub my_filter(
-		$r,                                 # replacement, see below
-		$s,                                 # "read only" object
-		DDT_HEADER,                         # 
-		($depth, $glyph, @renderings),      # info about tree
-		($k, $v, $f, $final, $want_address) # results of get_header
+		$r,                                     # replacement
+		$s,                                     # "read only" object
+		DDT_HEADER,                             # 
+		($depth, $glyph, @renderings),          # info about tree
+		($k, $b, $v, $f, $final, $want_address) # element info
 		)
 	{
 	# Add something to the tree
@@ -362,11 +362,11 @@ insert something in the tree rendering
 or change the B<rendering> of the object
 
 	multi sub my_filter(
-		\r,                                 # replacement
-		Int $s,                             # filter specific for Ints
-		DDT_HEADER,                         # 
-		($depth, $glyph, @renderings),      # info about the tree
-		(\k, \v, \f, \final, \want_address) # reference we can change
+		\r,                                     # replacement
+		Int $s,                                 # filter Ints
+		DDT_HEADER,                             # 
+		($depth, $glyph, @renderings),          # info about the tree
+		(\k, \b, \v, \f, \final, \want_address) # reference, can change
 		)
 	{
 	@renderings.append: $glyph ~ "Int HEADER " ~ $depth ;
@@ -379,10 +379,11 @@ or change the B<rendering> of the object
 		{
 		r = {a => 'str', b => 1 }  ;
 
-		# k, v, f are text
+		# k, b, v, f are text
 
 		k = k ~ ' will be replaced by Hash ' ;
-		#v = ''  ;
+		#b = '' ;
+		#v = '' ;
 		#f = '' ;
 
 		final = DDT_NOT_FINAL ;
@@ -401,7 +402,7 @@ Called after the type's U<get_elements> ; you can change the elements.
 		)
 	{
 	@renderings.append: $glyph ~ "SUB ELEMENTS" ;
-	@sub_elements = (('key ', 'value'), ('other_key ', 1)) ; 
+	@sub_elements = (('key', ' => ', 'value'), ('other_key', ': ', 1)) ; 
 	}
 
 =item DDT_FOOTER
@@ -424,7 +425,7 @@ the key will be displayed.
 	{ 
 		[
 		... 
-		('your key', Data::Dump::Tree::Type::Nothing),
+		('your key', '', Data::Dump::Tree::Type::Nothing),
 		...
 		]
 	}

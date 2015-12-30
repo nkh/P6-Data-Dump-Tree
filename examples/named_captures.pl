@@ -42,6 +42,6 @@ EOI
 
 $m = $contents ~~ /<section>*/ ;
 
-my $dump_5 = $d.get_dump($m, title => 'config') ;
+my $dump_5 = $d.get_dump($m, title => 'config', display_perl_address => True) ;
 $dump_5.say ;
 

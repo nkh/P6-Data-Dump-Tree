@@ -81,14 +81,14 @@ my ($, $glyph_width) := $.get_level_glyphs($!current_depth) ;
 $.width //= %+(qx[stty size] ~~ /\d+ \s+ (\d+)/)[0] ; 
 $.width -= $glyph_width ;
 
-my @renderings = self!render_element((self!get_title, $s), (0, '', '', '', '', '')) ;
+my @renderings = self!render_element((self!get_title, '', $s), (0, '', '', '', '', '')) ;
 
 @renderings.join("\n") ~ "\n"
 }
 
 method !render_element($element, @glyphs)
 {
-my ($k, $s) = $element ;
+my ($k, $b, $s) = $element ;
 my ($glyph_width, $glyph, $continuation_glyph, $multi_line_glyph, $empty_glyph, $filter_glyph) = @glyphs ;
 
 my @renderings ;
@@ -98,7 +98,7 @@ $final //= DDT_NOT_FINAL ;
 $want_address //= $final ?? False !! True ;
 
 my $s_replacement ;
-$.filter_header($s_replacement, $s, ($filter_glyph, @renderings), ($k, $v, $f, $final, $want_address))  ;
+$.filter_header($s_replacement, $s, ($filter_glyph, @renderings), ($k, $b, $v, $f, $final, $want_address))  ;
 
 $s_replacement ~~ Data::Dump::Tree::Type::Nothing and return @renderings ;
 $s = $s_replacement.defined ?? $s_replacement !! $s ;
@@ -111,7 +111,7 @@ $address = Nil unless $want_address ;
 # perl stringy $v if role is on
 ($v, $, $) = self.get_header($v) if $s !~~ Str ;
 
-my ($kvf, @ks, @vs, @fs) := self!split_entry($k, $glyph_width, $v, $f, $address) ;
+my ($kvf, @ks, @vs, @fs) := self!split_entry($k~$b, $glyph_width, $v, $f, $address) ;
 
 if $kvf.defined
 	{
@@ -172,11 +172,11 @@ $!current_depth-- ;
 @renderings
 }
 
-method filter_header(\s_replacement, $s, ($glyph, @renderings), (\k, \v, \f, \final, \want_address))
+method filter_header(\s_replacement, $s, ($glyph, @renderings), (\k, \b, \v, \f, \final, \want_address))
 {
 for @.filters -> $filter
 	{
-	$filter(s_replacement, $s, DDT_HEADER, ($!current_depth, $glyph, @renderings), (k, v, f, final, want_address)) ;
+	$filter(s_replacement, $s, DDT_HEADER, ($!current_depth, $glyph, @renderings), (k, b, v, f, final, want_address)) ;
 	
 	CATCH 
 		{
@@ -398,7 +398,7 @@ sub get_Any_parents_list(Any $a) is export { $a.^parents.map({ $_.^name }) }
 method !get_Any_attributes (Any $a)
 {
 my @a = try { @a = get_Any_attributes($a) }  ;
-$! ?? (('DDT exception: ', "$!"),)  !! @a ;
+$! ?? (('DDT exception', ': ', "$!"),)  !! @a ;
 }
 
 multi sub get_Any_attributes (Any $a) is export 
@@ -414,7 +414,7 @@ $a.^attributes.grep({$_.^isa(Attribute)}).map:   #weeding out perl internal, tha
 
 	#my $type = $_.type.^name ;
 
-	("$name = ", $value)
+	($name, ' = ', $value)
 	}
 }
 

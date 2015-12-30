@@ -1,15 +1,15 @@
-use Data::Dump::Tree ;
-use Data::Dump::Tree::ExtraRoles ;
-use Terminal::ANSIColor ;
+#!/usr/bin/env perl6
 
+use Test ;
+use Data::Dump::Tree ;
+
+plan 4 ;
 
 # this is a small example of a filter. I was curious about how DDT would
 # render itself. After a few try runs, wit different options, I got tired of
-# seing a long list which consists of a lot of colors so i decided to filter
+# seing a long list which consists of a lot of colors so I decided to filter
 # them out 
 
-
-my $d = Data::Dump::Tree.new does DDTR::QuotedString ;
 
 # remove the Hashes
 multi sub my_filter(\r, Hash $s, DDT_HEADER, ($depth, $glyph, @renderings), (\k, \b, \v, \f, \final, \want_address))
@@ -20,12 +20,12 @@ multi sub my_filter(\r, Hash $s, DDT_HEADER, ($depth, $glyph, @renderings), (\k,
 
 if k ~~ /color/
 	{
-	@renderings.append: $glyph ~ color('red') ~ 'removing ' ~ k ;
+	@renderings.append: $glyph ~ 'removing ' ~ k ;
 	r = Data::Dump::Tree::Type::Nothing ;
 	}
 else
 	{
-	@renderings.append: $glyph ~ color('green') ~ 'not removing ' ~ k ;
+	@renderings.append: $glyph ~ 'not removing ' ~ k ;
 	}
 }
 
@@ -41,7 +41,11 @@ multi sub my_filter( Data::Dump::Tree $s, DDT_SUB_ELEMENTS, ($depth, $glyph, @re
 # added some elements
 }
 
-$d.dump($d) ;
-$d.dump($d, filters => (&my_filter,)) ;
+my $d = Data::Dump::Tree.new(color => False) ;
+my $dump = $d.get_dump($d, filters => (&my_filter,)) ;
 
+is $dump.lines.elems, 21, 'lines output' ;
+like $dump, /removing/, 'removing' ;
+like $dump, /'not removing'/, 'not removing' ;
+like $dump, /'SUB ELEMENTS'/, 'sub elements filter' ;
 

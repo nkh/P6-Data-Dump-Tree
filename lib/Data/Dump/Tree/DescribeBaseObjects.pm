@@ -30,12 +30,12 @@ multi method get_header (Match $m) { '[' ~ $m.from ~ '..' ~ $m.to ~ '|', '.' ~ $
 multi method get_header (Grammar $g) { $g.perl ~ ' ', '.Grammar', DDT_FINAL, } 
 
 multi method get_header (List $l) { '', '(' ~ $l.elems ~ ')' }
-multi method get_elements (List $l) { my $i = -1 ; $l.list.map: -> $v {$i++ ; "$i = ", $v} }
+multi method get_elements (List $l) { my $i = 0 ; $l.list.map: -> $v {$i++, ' = ', $v} }
 
 multi method get_header (Array $a) { '', '[' ~ $a.elems ~ ']' }
 
 multi method get_header (Hash $h) { '', '{' ~ $h.elems ~ '}' }
-multi method get_elements (Hash $h) { $h.sort(*.key)>>.kv.map: -> ($k, $v) {"$k => ", $v} }
+multi method get_elements (Hash $h) { $h.sort(*.key)>>.kv.map: -> ($k, $v) {$k, ' => ', $v} }
 
 }
 
@@ -56,7 +56,7 @@ multi method get_elements (Match $m)
 ($m.hash.keys.sort: { ($m{$^a}.from // 0) <=> ($m{$^b}.from // 0)} )
 	.map: 
 		{
-		( $_ ~ ' [' ~ ($m{$_}.from // '?') ~ '..' ~ ($m{$_}.to // '?') ~ '|: ', $m{$_})
+		( $_, ' [' ~ ($m{$_}.from // '?') ~ '..' ~ ($m{$_}.to // '?') ~ '|: ', $m{$_})
 		} 
 
 }

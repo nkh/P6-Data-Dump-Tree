@@ -12,8 +12,8 @@ class HasNothing
 method ddt_get_elements 
 { 
 	[ 
-	("nothing", Data::Dump::Tree::Type::Nothing),
-	("text ", "text"),
+	('nothing', '', Data::Dump::Tree::Type::Nothing),
+	('text', ' ', 'text'),
 	]
 }
 
