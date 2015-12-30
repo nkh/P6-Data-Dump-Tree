@@ -5,26 +5,26 @@ plan 10 ;
 
 use Data::Dump::Tree;
 
-my $dump = get_dump '1234567890' x 6, color => False ;
+my $dump = get_dump '1234567890' x 6, color => False, does => (DDTR::AsciiGlyphs,) ;
 is $dump.lines.elems, 1, '1 line, default width setting' or diag $dump ;
 
-$dump = get_dump '1234567890' x 8, color => False, width => 79 ;
+$dump = get_dump '1234567890' x 8, color => False, width => 79, does => (DDTR::AsciiGlyphs,) ;
 is $dump.lines.elems, 4, '4 lines, default width setting' or diag $dump ;
 
-$dump = get_dump '1234567890' x 8, color => False, width => 20 ;
+$dump = get_dump '1234567890' x 8, color => False, width => 20, does => (DDTR::AsciiGlyphs,) ;
 is $dump.lines.elems, 7, '7 lines, width set to 20' or diag $dump ;
 is all($dump.lines>>.chars) <= 20,  True, 'all lines under 20 chars' or do { diag $dump.lines>>.chars ;diag $dump ; }
 
-$dump = get_dump ['1234567890' x 8], color => False, width => 20 ;
-is $dump.lines.elems, 8, '8 lines, width set to 20' or diag $dump ;
-is all($dump.lines>>.chars) <= 20,  True, 'all lines under 20 chars' or do { diag $dump.lines>>.chars ;diag $dump ; }
+$dump = get_dump ['1234567890' x 8], color => False, width => 20, does => (DDTR::AsciiGlyphs,) ;
+is $dump.lines.elems, 9, '9 lines, width set to 20' or diag $dump ;
+is all($dump.lines>>.chars) <= 20,  True, 'all lines under 20 chars' or do { diag $dump.lines>>.chars ; diag $dump ; }
 
-$dump = get_dump '1234567890' x 5, title => '12345' x 5, color => False, width => 20 ;
+$dump = get_dump '1234567890' x 5, title => '12345' x 5, color => False, width => 20, does => (DDTR::AsciiGlyphs,) ;
 is $dump.lines.elems, 6, '6 lines, width set to 20' or diag $dump ;
 is all($dump.lines>>.chars) <= 70,  True, 'all lines under 70 chars' or do { diag $dump.lines>>.chars ;diag $dump ; }
 
-$dump = get_dump "12345678901234567890\n" x 3, title => '12345' x 5, color => False, width => 15 ;
-is $dump.lines.elems, 9, '9 lines, width set to 15, embedded \n' or diag $dump ;
+$dump = get_dump "12345678901234567890\n" x 3, title => '12345' x 5, color => False, width => 15, does => (DDTR::AsciiGlyphs,) ;
+is $dump.lines.elems, 10, '10 lines, width set to 15, embedded \n' or diag $dump ;
 is all($dump.lines>>.chars) <= 15,  True, 'all lines under 15 chars' or do { diag $dump.lines>>.chars ;diag $dump ; }
 
 

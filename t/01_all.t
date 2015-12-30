@@ -107,7 +107,7 @@ my $b = [< a >] ;
 my $list = < a b > ;
 my $sub = sub (Int $a, Str $string) {}
 my Routine $routine ;
-use Data::Dump ;
+
 my $s = [
 	'text',
 	Str,

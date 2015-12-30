@@ -246,23 +246,16 @@ Data::Dump::Tree uses two methods, you can define either one or both.
 
 	}
 
-You can:
+In the type handler, you can:
 
 =item Remove/add elements
 
-=item Change the keys
-
-=item Replace some elements or the whole class
-
-=item call method/subs that return elements, keys, or values
-
-Data::Dump::Tree will iterate over the elements you pass it, call their
-handlers, add their types, ...
+=item Change the keys, values description
 
 If your keys or values are text string and they contain embedded "\n", 
 Data::Dump::Tree will display them on multiple lines. See the Role section.
 
-The module tests and Data::Dump::Tree::DescribeBaseobjects are a good place to
+The module tests, examples diretory, and Data::Dump::Tree::DescribeBaseobjects are a good place to
 look at for more examples.
 
 =head4 classes defined by someone else and base types
