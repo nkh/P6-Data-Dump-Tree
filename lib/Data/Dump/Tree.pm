@@ -98,7 +98,8 @@ $final //= DDT_NOT_FINAL ;
 $want_address //= $final ?? False !! True ;
 
 my $s_replacement ;
-$.filter_header($s_replacement, $s, ($filter_glyph, @renderings), ($k, $b, $v, $f, $final, $want_address))  ;
+
+@!filters and $.filter_header($s_replacement, $s, ($filter_glyph, @renderings), ($k, $b, $v, $f, $final, $want_address))  ;
 
 $s_replacement ~~ Data::Dump::Tree::Type::Nothing and return @renderings ;
 $s = $s_replacement.defined ?? $s_replacement !! $s ;
@@ -130,7 +131,7 @@ if ! $final && ! $rendered
 	@renderings.append: self!render_non_final($s).map: { $continuation_glyph ~ $_} 
 	}
 
-$.filter_footer($s, ($continuation_glyph, @renderings))  ;
+@!filters and $.filter_footer($s, ($continuation_glyph, @renderings))  ;
 
 @renderings
 }
@@ -153,7 +154,7 @@ else
 	{
 	my @sub_elements = |(self!get_sub_elements($s) // ()) ;
 
-	$.filter_sub_elements($s, (%glyphs<filter>, @renderings), (@sub_elements,))  ;
+	@!filters and $.filter_sub_elements($s, (%glyphs<filter>, @renderings), (@sub_elements,))  ;
 
 	my $last_index = @sub_elements.end ;
 	for @sub_elements Z 0 .. * -> ($sub_element, $index)
