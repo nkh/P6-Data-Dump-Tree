@@ -31,6 +31,10 @@ Says the dump of the data structure
 
 returns a string containing the dump of the data structure
 
+=item sub get_dump_lines($structure_to_dump, named_argument, ...)
+
+returns an array containing the dump of the data structure
+
 =item method dump(($structure_to_dump, named_argument, ...)
 
 Says the dump of the data structure
@@ -38,6 +42,10 @@ Says the dump of the data structure
 =item method  get_dump($structure_to_dump, named_argument, ...)
 
 returns a string containing the dump of the data structure
+
+=item method get_dump_lines($structure_to_dump, named_argument, ...)
+
+returns an array containing the dump of the data structure
 
 =USAGE
 
@@ -192,6 +200,10 @@ When using ANSI colors, the last character of each wrapped line is colored.
 
 =head3 $max_depth 
 Limit the depth of a dump to the option. by default there is no limit.
+
+=head3 $max_depth_message = True
+A line showing that you have reached the $max_depth limit, setting this flag
+to false disable the message.
 
 =head3 $display_address = True
 By default this option is set.

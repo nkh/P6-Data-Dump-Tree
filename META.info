@@ -3,7 +3,7 @@
 "perl" : "6.c",
 
 "name" : "Data::Dump::Tree",
-"version" : "1.0.0",
+"version" : "1.0.1",
 "authors" : ["Nadim Khemir"],
 
 "description" : "Render data structures as trees; user definable filters",

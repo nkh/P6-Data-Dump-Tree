@@ -35,6 +35,7 @@ has $.width is rw ;
 
 has $!current_depth ;
 has $.max_depth is rw = -1 ;
+has $.max_depth_message is rw = True ;
 
 method new(:@does, *%attributes)
 {
@@ -52,10 +53,16 @@ $object
 
 sub dump($s, *%options) is export { say get_dump($s, |%options) }
 sub get_dump($s, *%options) is export { Data::Dump::Tree.new(|%options).get_dump($s)}
+sub get_dump_lines($s, *%options) is export { Data::Dump::Tree.new(|%options).get_dump_lines($s)}
 
 method dump($s, *%options) { say self.get_dump($s, |%options) }
 
 method get_dump($s, *%options)
+{
+self.get_dump_lines($s, |%options).join("\n") ~ "\n"
+}
+
+method get_dump_lines($s, *%options)
 {
 # roles can be passed in new() or as options to dump
 # make a clone so we do not pollute the object
@@ -83,7 +90,7 @@ $.width -= $glyph_width ;
 
 my @renderings = self!render_element((self!get_title, '', $s), (0, '', '', '', '', '')) ;
 
-@renderings.join("\n") ~ "\n"
+@renderings
 }
 
 method !render_element($element, @glyphs)
@@ -148,7 +155,10 @@ my @renderings ;
 
 if $!current_depth == $.max_depth 
 	{
-	@renderings.append: %glyphs<max_depth> ~ " max depth($.max_depth)" ;
+	if $.max_depth_message
+		{
+		@renderings.append: %glyphs<max_depth> ~ " max depth($.max_depth)" ;
+		}
 	}
 else
 	{
