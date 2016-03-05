@@ -3,11 +3,15 @@ use Data::Dump::Tree::Enums ;
 
 role DDTR::DescribeBaseObjects
 {
+method get_P6_internal { ('!UNIT_MARKER', 'GLOBAL', 'EXPORT') }
+
 # get_headers: "final" objects returnf their value and type
 multi method get_header (Int $i) { $i,  '.' ~ $i.^name, DDT_FINAL }
 multi method get_header (Str:U $s) { 'type object', '.' ~ $s.^name, DDT_FINAL }
 multi method get_header (Str:D $s) { $s, '.' ~ $s.^name, DDT_FINAL } 
 multi method get_header (Rat $r) { $r  ~ ' (' ~ $r.numerator ~ '/' ~ $r.denominator ~ ')', '.' ~ $r.^name, DDT_FINAL }
+multi method get_header (Match $m) { '[' ~ $m.from ~ '..' ~ $m.to ~ '|', '.' ~ $m.^name, DDT_FINAL } 
+multi method get_header (Grammar $g) { $g.perl ~ ' ',  '.' ~ $g.^name, DDT_FINAL, } 
 
 # Block must be declare or it groaks when passed a Sub
 #TODO: report to P6P
@@ -18,16 +22,17 @@ multi method get_header (Sub $s) { ( $s.name || '<anon>'), '.' ~ $s.^name, DDT_F
 # get_headers: containers return some information and their type
 multi method get_header (Any $a) 
 {
-$a.^name eq 'Any' 
-	?? ( '', '.' ~ $a.^name, DDT_FINAL ) # real Any
-	!! ( '', self!get_class_and_parents($a) ) # some object
+#$a.^name.say ;
+#$.get_P6_internal().say ;
+
+given $a.^name 
+	{
+	when 'any' { ( '', '.' ~ $a.^name, DDT_FINAL ) }
+	when any(self.get_P6_internal()) { ( '', '.' ~ $a.^name, DDT_FINAL ) }
+	default { ( '', self!get_class_and_parents($a) ) } # some object 
+	}
 }
-
 multi method get_elements (Any $a) { self!get_Any_attributes($a) } 
-
-multi method get_header (Match $m) { '[' ~ $m.from ~ '..' ~ $m.to ~ '|', '.' ~ $m.^name, DDT_FINAL } 
-
-multi method get_header (Grammar $g) { $g.perl ~ ' ', '.Grammar', DDT_FINAL, } 
 
 multi method get_header (List $l) { '', '(' ~ $l.elems ~ ')' }
 multi method get_elements (List $l) { my $i = 0 ; $l.list.map: -> $v {$i++, ' = ', $v} }
@@ -36,6 +41,12 @@ multi method get_header (Array $a) { '', '[' ~ $a.elems ~ ']' }
 
 multi method get_header (Hash $h) { '', '{' ~ $h.elems ~ '}' }
 multi method get_elements (Hash $h) { $h.sort(*.key)>>.kv.map: -> ($k, $v) {$k, ' => ', $v} }
+
+multi method get_header (Stash $s) { '', '.' ~ $s.^name ~ ' {' ~ ($s.keys.flat.elems) ~ '}' }
+multi method get_elements (Stash $s) { $s.sort(*.key)>>.kv.map: -> ($k, $v) {$k, ' => ', $v} }
+
+multi method get_header (Map $m) { '', '.' ~ $m.^name } 
+multi method get_elements (Map $m) { $m.sort(*.key)>>.kv.map: -> ($k, $v) {$k, ' => ', $v} }
 
 }
 

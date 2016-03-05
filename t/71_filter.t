@@ -44,8 +44,8 @@ multi sub my_filter( Data::Dump::Tree $s, DDT_SUB_ELEMENTS, ($depth, $glyph, @re
 my $d = Data::Dump::Tree.new(color => False) ;
 my $dump = $d.get_dump($d, filters => (&my_filter,)) ;
 
-is $dump.lines.elems, 21, 'lines output' ;
-like $dump, /removing/, 'removing' ;
-like $dump, /'not removing'/, 'not removing' ;
-like $dump, /'SUB ELEMENTS'/, 'sub elements filter' ;
+is $dump.lines.elems, 22, 'lines output' or diag $dump ;
+like $dump, /removing/, 'removing' or diag $dump ;
+like $dump, /'not removing'/, 'not removing' or diag $dump ;
+like $dump, /'SUB ELEMENTS'/, 'sub elements filter' or diag $dump ;
 

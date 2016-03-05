@@ -42,6 +42,11 @@ EOI
 
 $m = $contents ~~ /<section>*/ ;
 
-my $dump_5 = $d.get_dump($m, title => 'config', display_perl_address => True) ;
+#Todo: parse bareword regex
+#my $dump_5 = $d.get_dump([ section, $m ], title => 'config', display_perl_address => True) ;
+
+
+my $header = regex { \s* '[' (\w+) ']' \h* \n+ }
+my $dump_5 = $d.get_dump([ $header, $m ], title => 'config', display_perl_address => True) ;
 $dump_5.say ;
 

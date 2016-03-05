@@ -70,7 +70,7 @@ multi sub my_filter(Hash $s, DDT_SUB_ELEMENTS, ($depth, $glyph, @renderings), (@
 
 multi sub my_filter($s, DDT_FOOTER, ($depth, $filter_glyph, @renderings))
 {
-#@renderings.append: $filter_glyph ~ "FOOTER for {$s.^name}" ;
+@renderings.append: $filter_glyph ~ "FOOTER for {$s.^name}" ;
 }
 
 #$d.dump($s, filters => (&my_filter)) ;

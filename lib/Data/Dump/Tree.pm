@@ -95,26 +95,51 @@ my @renderings = self!render_element((self!get_title, '', $s), (0, '', '', '', '
 
 method !render_element($element, @glyphs)
 {
+#("render element :" ~ $element.perl).say ;
+
 my ($k, $b, $s) = $element ;
+
+
 my ($glyph_width, $glyph, $continuation_glyph, $multi_line_glyph, $empty_glyph, $filter_glyph) = @glyphs ;
 
 my @renderings ;
 
-my ($v, $f, $final, $want_address) = self!get_element_header($s) ;
+my ($v, $f, $final, $want_address) ;
+
+if $s.perl eq 'Mu'
+	{
+	($v, $f, $final, $want_address) = ('', '.Mu', DDT_FINAL ) ;
+	}
+else
+	{
+	($v, $f, $final, $want_address) = self.get_element_header($s) ;
+	}
+
 $final //= DDT_NOT_FINAL ;
 $want_address //= $final ?? False !! True ;
 
 my $s_replacement ;
 
-@!filters and $.filter_header($s_replacement, $s, ($filter_glyph, @renderings), ($k, $b, $v, $f, $final, $want_address))  ;
+if $s.perl ne 'Mu'
+	{
+	@!filters and $.filter_header($s_replacement, $s, ($filter_glyph, @renderings), ($k, $b, $v, $f, $final, $want_address))  ;
+	}
 
 $s_replacement ~~ Data::Dump::Tree::Type::Nothing and return @renderings ;
 $s = $s_replacement.defined ?? $s_replacement !! $s ;
 
 if $final { $multi_line_glyph = $empty_glyph }
 
-my ($address, $rendered) = self!get_address($s) ;
-$address = Nil unless $want_address ;
+my ($address, $rendered) ;
+if $s.perl eq 'Mu'
+	{
+	($address, $rendered) = ('', True) ;
+	}
+else
+	{
+	($address, $rendered) = self!get_address($s) ;
+	$address = Nil unless $want_address ;
+	}
 
 # perl stringy $v if role is on
 ($v, $, $) = self.get_header($v) if $s !~~ Str ;
@@ -138,7 +163,10 @@ if ! $final && ! $rendered
 	@renderings.append: self!render_non_final($s).map: { $continuation_glyph ~ $_} 
 	}
 
-@!filters and $.filter_footer($s, ($continuation_glyph, @renderings))  ;
+if $s.perl ne 'Mu'
+	{
+	@!filters and $.filter_footer($s, ($continuation_glyph, @renderings))  ;
+	}
 
 @renderings
 }
@@ -164,7 +192,10 @@ else
 	{
 	my @sub_elements = |(self!get_sub_elements($s) // ()) ;
 
-	@!filters and $.filter_sub_elements($s, (%glyphs<filter>, @renderings), (@sub_elements,))  ;
+	if $s.perl ne 'Mu'
+		{
+		@!filters and $.filter_sub_elements($s, (%glyphs<filter>, @renderings), (@sub_elements,))  ;
+		}
 
 	my $last_index = @sub_elements.end ;
 	for @sub_elements Z 0 .. * -> ($sub_element, $index)
@@ -230,11 +261,15 @@ method !has_method($method_name, $type --> Bool) #TODO:is cached
 so self.can($method_name)[0].candidates.grep: {.signature.params[1].type ~~ $type} ;
 }
 
-method !get_element_header($e) # :is cached
+multi method get_element_header($e) # :is cached
 {
+#"in get_element_header".say ;
+#$e.perl.say ;
+#say $e.WHAT ;
+
 self!has_method('get_header', $e.WHAT) 
 	?? $.get_header($e) #specific to $e
-	!! $e.can('ddt_get_header') 
+	!! $e.^name ~~ none(self.get_P6_internal()) && $e.can('ddt_get_header') 
 		?? $e.ddt_get_header() # $e class provided
 		!! $.get_header($e) ;  # generic handler
 }
@@ -243,7 +278,7 @@ method !get_sub_elements($s)
 {
 self!has_method('get_elements', $s.WHAT)
 	?? $.get_elements($s) # self is  $s specific 
-	!! $s.can('ddt_get_elements')
+	!! $s.^name ~~ none(self.get_P6_internal()) && $s.can('ddt_get_elements')
 		?? $s.ddt_get_elements() # $s class provided
 		!! $.get_elements($s) ;  # generic handler
 }
@@ -404,7 +439,11 @@ method !get_class_and_parents ($a) { get_class_and_parents($a) }
 sub get_class_and_parents (Any $a) is export { (($a.^name, |get_Any_parents_list($a)).map: {'.' ~ $_}).join(' ') }
  
 method !get_Any_parents_list(Any $a) { get_Any_parents_list($a) }
-sub get_Any_parents_list(Any $a) is export { $a.^parents.map({ $_.^name }) }
+sub get_Any_parents_list(Any $a) is export 
+{
+my @a = try { @a = $a.^parents.map({ $_.^name }) }  ;
+$! ?? (('DDT exception', ': ', "$!"),)  !! @a ;
+}
 
 method !get_Any_attributes (Any $a)
 {
