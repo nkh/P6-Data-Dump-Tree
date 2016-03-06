@@ -100,18 +100,18 @@ or render specific types with your how handlers.
 
 =head3 tree (glyphs)
 The tree portion of the output shows the relationship between the data elements.
-The data is indented under it container, ....
+The data is indented under its container.
 
-You can control the color of the tree portion as well as if it is rendered with
+You can control the color of the tree portion and if it is rendered with
 ASCII, ANSI code or Unicode.
 
 =head3 key
-The key is the name of the element being displayed, in the examples above, the
+The key is the name of the element being displayed; in the examples above, the
 container is an array; Data:Dump::Tree gives the index of the element as the 
 key of the element. IE: '0 =', '3 =', '4 ='
 
 =head3 value
-The value of the element being displayed, Data::Dump::Tree displays the value of
+The value of the element being displayed; Data::Dump::Tree displays the value of
 "terminal" variables, eg: Str, Int, Rat. For containers, nothing is displayed.
 
 =head3 Types
@@ -160,7 +160,7 @@ creation time.
 =head3 colors
 
 =head4 $color = True 
-By default coloring is on, if Term::ANSIColor is installed.
+By default coloring is on if Term::ANSIColor is installed.
 
 Setting this option to False forced the output to be monochrome. 
 
@@ -176,7 +176,7 @@ You can pass your own colors. The default are:
 		> ;
 
 
-where colors are ANSI colors. reset meant default color.
+where colors are ANSI colors. reset means default color.
 
 =head4 @glyph_colors
 By default the glyphs will not be colored. For certain renderings, with many
@@ -224,7 +224,7 @@ is not under your control.
 =head4 you own classes
 
 When Data::Dump::Tree renders an object, it first checks if it has an internal
-handler for that type; if not handler is found, the object is queried and its
+handler for that type; if no handler is found, the object is queried and its
 handler is used, if any; finally, Data::Dump::Tree uses a generic handler.
 
 It is important to understand that you precisely control how your class is 
@@ -282,7 +282,7 @@ you pass to dump(). You can override those handler and add new handlers.
 
 Both work in the same fashion.
 
-	role some_role_name
+	role your_hash_handler
 	{
 	# ..................... Type you want to handle is Hash
 	#                        ||||
@@ -300,19 +300,19 @@ To make that handler active, make your dumper do the role
 
 	# using 'does'
 	my $d = Data::Dump::Tree.new(width => 80) ;
-	$d does some_role ;
+	$d does your_hash_handler ;
 
 	$d.dump(@your_data) ;
 
 	# by passing roles to the constructor
-	my $d = Data::Dump::Tree.new(does => (DDTR::MatchDetails, DDTR::PerlString)) ;
+	my $d = Data::Dump::Tree.new(does => (DDTR::MatchDetails, your_hash_handler)) ;
 
 	# by passing roles to dump() method
 	my $d = Data::Dump::Tree.new ;
-	$d.dump($m, does => ( DDTR::MatchDetails, DDTR::PerlString) ) ;
+	$d.dump($m, does => ( DDTR::MatchDetails, your_hash_handler) ) ;
 
 	# by passing roles to dump() sub 
-	dump($m, does => ( DDTR::MatchDetails, DDTR::PerlString) ) ;
+	dump($m, does => ( DDTR::MatchDetails, your_hash_handler) ) ;
 
 =head4 FINAL elements
 So far we have seen how to render containers but sometimes we want to handle a
@@ -322,7 +322,7 @@ display it on a single line.
 You can, in a handler, tell Data::Dump::Tree that a type rendering is DDT_FINAL.
  
 The default role has a handler that is specific for the Rat class. Rather than
-show a floating number, as say $rat would, or render the Rat type with it's 
+show a floating number, as "say $rat;" would, or render the Rat type with it's 
 attributes, we display the Rat on a single line. Here is the handler:
  
 	multi method get_header (Rat $r)
@@ -491,13 +491,6 @@ character is used to display the tree.
 
 =item DDTR::MatchDetails
 Give details about a Match
-
-=item DDTR::NumberLevel
-The level index is displayed in front of the tree glyphs, useful for very large 
-rendering with many level. 
-
-=item DDTR::Superscribe
-Display the address with Unicode superscripts
 
 =item DDTR::PerlString
 Renders string containing control codes (eg: \n, ANSI, ...) with backslashed
