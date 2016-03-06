@@ -57,8 +57,8 @@ multi method get_header (Match:U $m) { 'type object', '.' ~ $m.^name, DDT_FINAL 
 multi method get_header (Match:D $m) 
 {
 $m.hash.elems
-	?? ( $m ~ ' '  ~ ' [' ~ $m.from ~ '..' ~ $m.to ~ '| ', '.' ~ $m.^name ) 
-	!! ( $m ~ ' ', '.' ~ $m.^name, DDT_FINAL, DDT_HAS_ADDRESS ) #final with address
+	?? ( Q/'/ ~ $m ~ Q/'/  ~ ' [' ~ $m.from ~ '..' ~ $m.to ~ '| ', '.' ~ $m.^name ) 
+	!! ( Q/'/ ~ $m ~ Q/'/, '.' ~ $m.^name, DDT_FINAL, DDT_HAS_ADDRESS ) #final with address
 }
 
 multi method get_elements (Match $m)
