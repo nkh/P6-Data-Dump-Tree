@@ -30,10 +30,6 @@ like $dump, /'%.my'/, '%.my element' or diag $dump ;
 like $dump, /Mu/, 'Mu element' or diag $dump ;
 like $dump, /'Data::Dump::Tree'/, 'Data::Dump::Tree element' or diag $dump ;
 
-# Failed test 'dump of callframe'
-# at t/41_type_callframe.t line 27
-# expected: ''
-#      got: '[1] @0
 # └ 0 = .CallFrame @1
 #   ├ $.level = 2.Int
 #   ├ %.annotations = {2} @3

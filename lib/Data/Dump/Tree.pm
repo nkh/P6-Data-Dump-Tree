@@ -112,7 +112,7 @@ my @renderings ;
 
 my ($v, $f, $final, $want_address) ;
 
-if $s.perl eq 'Mu'
+if $s.WHAT =:= Mu
 	{
 	($v, $f, $final, $want_address) = ('', '.Mu', DDT_FINAL ) ;
 	}
@@ -128,7 +128,7 @@ $want_address //= $final ?? False !! True ;
 
 my $s_replacement ;
 
-if $s.perl ne 'Mu'
+if $s.WHAT !=:= Mu
 	{
 	@!filters and $.filter_header($s_replacement, $s, ($filter_glyph, @renderings), ($k, $b, $v, $f, $final, $want_address))  ;
 	}
@@ -139,7 +139,7 @@ $s = $s_replacement.defined ?? $s_replacement !! $s ;
 if $final { $multi_line_glyph = $empty_glyph }
 
 my ($address, $rendered) ;
-if $s.perl eq 'Mu'
+if $s.WHAT =:= Mu
 	{
 	($address, $rendered) = ('', True) ;
 	}
@@ -171,7 +171,7 @@ if ! $final && ! $rendered
 	@renderings.append: self!render_non_final($s).map: { $continuation_glyph ~ $_} 
 	}
 
-if $s.perl ne 'Mu'
+if $s.WHAT !=:= Mu
 	{
 	@!filters and $.filter_footer($s, ($continuation_glyph, @renderings))  ;
 	}
@@ -200,7 +200,7 @@ else
 	{
 	my @sub_elements = |(self!get_sub_elements($s) // ()) ;
 
-	if $s.perl ne 'Mu'
+	if $s.WHAT !=:= Mu
 		{
 		@!filters and $.filter_sub_elements($s, (%glyphs<filter>, @renderings), (@sub_elements,))  ;
 		}

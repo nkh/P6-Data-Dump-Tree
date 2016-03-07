@@ -5,7 +5,7 @@ plan 2 ;
 
 use Data::Dump::Tree;
 
-my regex header { \s* '[' (\w+) ']' \h* \n+ }
+my regex header { \s* '[' \w+ ']' \h* \n+ }
 my regex identifier  { \w+ }
 my regex kvpair { \s* <key=identifier> '=' <value=identifier> \n+ }
 my regex section {
