@@ -205,6 +205,13 @@ Limit the depth of a dump to the option. by default there is no limit.
 A line showing that you have reached the $max_depth limit, setting this flag
 to false disable the message.
 
+=head3 $display_info = True
+By default this option is set. When set to false, neither the type not the 
+address are displayed. 
+
+=head3 $display_type = True
+By default this option is set.
+
 =head3 $display_address = True
 By default this option is set.
 
@@ -515,6 +522,9 @@ Use this role to display the type in Unicode superscript letters.
 Use this role to display the address in Unicode superscript letters.
 
 You can also use the method it provides in your type handlers and filters. 
+
+=item DDTR::Superscribe
+Use this role to display the type and address in Unicode superscript letters.
 
 =head1 BUGS
 Submit bugs (preferably as executable tests) and feel free to make 

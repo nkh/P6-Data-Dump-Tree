@@ -70,5 +70,12 @@ method superscribe($text) { ($text.comb.map: { @ssl[$_.ord] // $_}).join }
 method superscribe_type($text) { ($text.comb.map: { @ssl[$_.ord] // $_}).join }
 }
 
+role DDTR::Superscribe
+{
+method superscribe($text) { ($text.comb.map: { @ssl[$_.ord] // $_}).join }
+method superscribe_address($text) { ($text.comb.map: { @ssl[$_.ord] // $_}).join }
+method superscribe_type($text) { ($text.comb.map: { @ssl[$_.ord] // $_}).join }
+}
+
 # scope for @ssl
 }

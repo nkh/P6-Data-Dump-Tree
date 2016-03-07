@@ -12,6 +12,7 @@ multi method get_header (Str:D $s) { $s, '.' ~ $s.^name, DDT_FINAL }
 multi method get_header (Rat $r) { $r  ~ ' (' ~ $r.numerator ~ '/' ~ $r.denominator ~ ')', '.' ~ $r.^name, DDT_FINAL }
 multi method get_header (Match $m) { '[' ~ $m.from ~ '..' ~ $m.to ~ '|', '.' ~ $m.^name, DDT_FINAL } 
 multi method get_header (Grammar $g) { $g.perl ~ ' ',  '.' ~ $g.^name, DDT_FINAL, } 
+multi method get_header (Regex $r) { $r.perl.substr(6) ,  '.' ~ $r.^name, DDT_FINAL, } 
 
 # Block must be declare or it groaks when passed a Sub
 #TODO: report to P6P
@@ -58,18 +59,16 @@ multi method get_header (Match:D $m)
 {
 $m.hash.elems
 	?? ( Q/'/ ~ $m ~ Q/'/  ~ ' [' ~ $m.from ~ '..' ~ $m.to ~ '| ', '.' ~ $m.^name ) 
-	!! ( Q/'/ ~ $m ~ Q/'/, '.' ~ $m.^name, DDT_FINAL, DDT_HAS_ADDRESS ) #final with address
+	!! ( Q/'/ ~ $m ~ Q/'/  ~ ' [' ~ $m.from ~ '..' ~ $m.to ~ '| ', '.' ~ $m.^name , DDT_FINAL, DDT_HAS_ADDRESS ) 
 }
 
 multi method get_elements (Match $m)
 {
-
-($m.hash.keys.sort: { ($m{$^a}.from // 0) <=> ($m{$^b}.from // 0)} )
-	.map: 
-		{
-		( $_, ' [' ~ ($m{$_}.from // '?') ~ '..' ~ ($m{$_}.to // '?') ~ '|: ', $m{$_})
-		} 
-
+$m.caps.map: -> $p
+	{
+	my ($k, $v) = $p.kv ;
+	( $k, ' => ', $v )
+	} 
 }
 
 #role MatchDetails

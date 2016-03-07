@@ -28,6 +28,8 @@ has @.filters ;
 
 has %!rendered ;
 has $!address ;
+has $.display_info is rw = True ;
+has $.display_type is rw = True ;
 has $.display_address is rw = True ;
 has $.display_perl_address is rw = False ; 
 
@@ -47,6 +49,8 @@ else
 	{ $object does DDTR::AsciiGlyphs}
 
 for @does // () -> $role { $object does $role }
+
+if $object.display_info == False { $object.display_type = $object.display_address = False ; };
 
 $object 
 }
@@ -70,6 +74,8 @@ method get_dump_lines($s, *%options)
 my $clone = self.clone(|%options) ;
 
 for %options<does> // () -> $role { $clone does $role } 
+
+if %options<display_info>.defined && %options<display_info> == False { $clone.display_type = $clone.display_address = False ; };
 
 $clone!render_root($s)
 }
@@ -114,6 +120,8 @@ else
 	{
 	($v, $f, $final, $want_address) = self.get_element_header($s) ;
 	}
+
+$f = '' unless $.display_type ; 
 
 $final //= DDT_NOT_FINAL ;
 $want_address //= $final ?? False !! True ;
