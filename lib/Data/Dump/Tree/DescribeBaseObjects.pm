@@ -6,6 +6,7 @@ role DDTR::DescribeBaseObjects
 method get_P6_internal { ('!UNIT_MARKER', 'GLOBAL', 'EXPORT') }
 
 # get_headers: "final" objects returnf their value and type
+multi method get_header (IntStr $i) { $i.Int ~ ' / "' ~ $i.Str ~ '"',  '.' ~ $i.^name, DDT_FINAL }
 multi method get_header (Int $i) { $i,  '.' ~ $i.^name, DDT_FINAL }
 multi method get_header (Str:U $s) { 'type object', '.' ~ $s.^name, DDT_FINAL }
 multi method get_header (Str:D $s) { $s, '.' ~ $s.^name, DDT_FINAL } 
