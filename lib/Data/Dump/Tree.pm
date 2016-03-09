@@ -264,18 +264,13 @@ for @.filters -> $filter
 	}
 }
 
-method !has_method($method_name, $type --> Bool) #TODO:is cached
-{
-so self.can($method_name)[0].candidates.grep: {.signature.params[1].type ~~ $type} ;
-}
-
-multi method get_element_header($e) # :is cached
+multi method get_element_header($e) 
 {
 #"in get_element_header".say ;
 #$e.perl.say ;
 #say $e.WHAT ;
 
-self!has_method('get_header', $e.WHAT) 
+(self.can('get_header')[0].candidates.grep: {.signature.params[1].type ~~ $e.WHAT}) 
 	?? $.get_header($e) #specific to $e
 	!! $e.^name ~~ none(self.get_P6_internal()) && $e.can('ddt_get_header') 
 		?? $e.ddt_get_header() # $e class provided
@@ -284,7 +279,7 @@ self!has_method('get_header', $e.WHAT)
 
 method !get_sub_elements($s)
 {
-self!has_method('get_elements', $s.WHAT)
+(self.can('get_elements')[0].candidates.grep: {.signature.params[1].type ~~ $s.WHAT}) 
 	?? $.get_elements($s) # self is  $s specific 
 	!! $s.^name ~~ none(self.get_P6_internal()) && $s.can('ddt_get_elements')
 		?? $s.ddt_get_elements() # $s class provided
@@ -293,11 +288,9 @@ self!has_method('get_elements', $s.WHAT)
 
 method !split_entry(Cool $k, Int $glyph_width, Cool $v, Cool $f is copy, $address)
 {
-$f = $.superscribe_type($f) ;
-
 my @ks = self.split_text($k, $.width + $glyph_width) ; # $k has a bit extra space
 my @vs = self.split_text($v, $.width) ; 
-my @fs = self.split_text($f, $.width) ;
+my @fs = self.split_text($.superscribe_type($f), $.width) ;
 
 my ($ddt_address, $perl_address, $link) =
 	$address.defined
@@ -382,11 +375,15 @@ else
 	%!rendered{$perl_address} = $ddt_address ;
 	}
 
-$perl_address = $.display_perl_address ?? ' (' ~ $perl_address ~ ')' !! '' ;
+my $address = 
+	$.display_address
+	??	(
+		' @' ~ $ddt_address,
+		$.display_perl_address ?? ' (' ~ $perl_address ~ ')' !! '',
+		$link, 
+		) 
+	!!	('', '', '',) ;
 
-my $address = $.display_address 
-	?? (' @' ~ $ddt_address, $perl_address, $link,) 
-	!! ('', '', '',) ;
 
 $address, $rendered
 }
