@@ -28,13 +28,14 @@ Q<<{
 }>> ;
 
 my $parsed = JSON::Tiny::Grammar.parse($JSON) ;
-#$parsed.say ;
+#$parsed.gist.say ;
 
-dump( $parsed, title => 'Parsed JSON',
+dump( $parsed, title => 'Parsed JSON', 
+	#color => False, width => 100, display_info => False, 
 	 does => 
 		(
 		DDTR::MatchDetails, DDTR::PerlString,
-		DDTR::UnicodeGlyphs, DDTR::SuperscribeType, DDTR::SuperscribeAddress,
+		DDTR::UnicodeGlyphs, DDTR::Superscribe,
 		)
 	 ) ;
 

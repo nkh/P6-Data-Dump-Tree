@@ -141,7 +141,7 @@ if $final { $multi_line_glyph = $empty_glyph }
 my ($address, $rendered) ;
 if $s.WHAT =:= Mu
 	{
-	($address, $rendered) = ('', True) ;
+	($address, $rendered) = (('', '', ''), True) ;
 	}
 else
 	{
@@ -295,92 +295,70 @@ method !split_entry(Cool $k, Int $glyph_width, Cool $v, Cool $f is copy, $addres
 {
 $f = $.superscribe_type($f) ;
 
-my @ks = self!split_text($k, $.width + $glyph_width) ; # $k has a bit extra space
-my @vs = self!split_text($v, $.width) ; 
-my @fs = self!split_text($f, $.width) ;
+my @ks = self.split_text($k, $.width + $glyph_width) ; # $k has a bit extra space
+my @vs = self.split_text($v, $.width) ; 
+my @fs = self.split_text($f, $.width) ;
 
-my $kvf = @ks.join ~ @vs.join ~ @fs.join ;
+my ($ddt_address, $perl_address, $link) =
+	$address.defined
+		?? $address.list.map: { $.superscribe_address($_) } 
+		!! ('', '', '') ;
 
-if $address.defined
+my $kvf ;
+
+if +@ks < 2 && +@vs < 2 && +@fs < 2
+	&& (@ks.join ~ @vs.join ~ @fs.join ~ $ddt_address ~ $perl_address ~ $link).chars <= $!width 
 	{
-	# must manually handle chars as we are interested in the address char count
-	# and we have an adress with color codes
-
-	$kvf ~= $address.join ;
-
-	@fs = '' unless @fs ;
-
-	my $container := @fs[*-1] ;
-	my $chars = $container.chars ;
-
-	for $address.list Z ('ddt_address', 'perl_address', 'link') -> ($ae is copy, $ac)
-		{
-		$ae = $.superscribe_address($ae) ;
-
-		if $chars + $ae.chars < $.width
-			{
-			$container ~= $!colorizer.color($ae, $ac) ; 
-			$chars += $ae.chars
-			}
-		else
-			{
-			@fs.push: $!colorizer.color($ae, $ac) ; 
-			$container := @fs[*-1] ;
-			$chars = $ae.chars
-			}
-		}
-	}
-
-@ks = $!colorizer.color(@ks, 'key') ; 
-@vs = $!colorizer.color(@vs, 'value') ; 
-@fs = $!colorizer.color(@fs, 'header') ;
-
-if +@ks > 1 || +@vs >1 || +@fs > 1
-	{
-	$kvf = Nil ;
+	$kvf = $!colorizer.color(@ks.join, 'key') 
+		~ $!colorizer.color(@vs.join, 'value') 
+		~ $!colorizer.color(@fs.join, 'header')
+		~ $!colorizer.color($ddt_address, 'ddt_address')
+		~ $!colorizer.color($perl_address, 'perl_address')
+		~ $!colorizer.color($link, 'link') ;
 	}
 else
 	{
-	$kvf = $kvf.chars <= $!width
-		?? @ks.join('') ~ @vs.join('') ~ @fs.join('')
-		!! Nil ;
+	@ks = $!colorizer.color(@ks, 'key') ; 
+	@vs = $!colorizer.color(@vs, 'value') ; 
+	
+	if (@fs.join ~ $ddt_address ~ $perl_address ~ $link).chars <= $!width 
+		{
+		@fs[*-1] ~= $!colorizer.color($ddt_address, 'ddt_address')
+				~ $!colorizer.color($perl_address, 'perl_address')
+				~ $!colorizer.color($link, 'link') ;
+		}
+	else
+		{
+		@fs.append: 
+			$!colorizer.color($ddt_address, 'ddt_address')
+			~ $!colorizer.color($perl_address, 'perl_address')
+			~ $!colorizer.color($link, 'link') ;
+		}
+
+	@fs = $!colorizer.color(@fs, 'header') ;
 	}
 
 $kvf, @ks, @vs, @fs 
 }
 
-method !split_text(Cool $t, $width)
+multi method split_text(Cool:U $text, $width) { 'type object' }
+
+multi method split_text(Cool:D $text, $width)
 {
-return ('type object') unless $t.defined ;
-
-return $t if $width < 1 ;
-
 # given a, possibly empty, string, split the string on \n and width, handle \t
+# colorize last letter of wrapped lines
 
-my ($index, @lines) ;
-for $t.lines -> $line
+return $text if $width < 1 ;
+
+$text.subst(/\t/, ' ' x 8, :g).lines.flatmap:
 	{
-	my $index = 0 ;
-
-	my $line2 = $line.subst(/\t/, ' ' x 8, :g) ;
-	
-	while $index < $line2.chars 
-		{
-
-		my $chunk = $line2.substr($index, $width) ;
-		$index += $width ;
-		
-		if $index < $line2.chars && self.is_ansi
-			{
-			# colorize last letter of wrapped lines
-			$chunk = $chunk.substr(0, *-1) ~ $!colorizer.color($chunk.substr(*-1), 'wrap') ;
-			}
-
-		@lines.push: $chunk ;
-		}
+	$_.comb($width).map: 
+		{	
+		$_.chars == $width
+			?? $_.substr(0, *-1) ~ $!colorizer.color($_.substr(*-1), 'wrap') 
+			!! $_ ;
+		} ;
 	}
-
-@lines 
 }
 
 method superscribe($text) { $text }
