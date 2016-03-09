@@ -54,7 +54,7 @@ multi method get_elements (Map $m) { $m.sort(*.key)>>.kv.map: -> ($k, $v) {$k, '
 role DDTR::MatchDetails 
 {
 
-#multi method get_header (Match:U $m) { 'type object', '.' ~ $m.^name, DDT_FINAL }
+multi method get_header (Match:U $m) { 'type object', '.' ~ $m.^name, DDT_FINAL }
 multi method get_header (Match:D $m) 
 {
 $m.caps.elems

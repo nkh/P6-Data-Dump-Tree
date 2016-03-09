@@ -94,60 +94,46 @@ my ($, $glyph_width) := $.get_level_glyphs($!current_depth) ;
 $.width //= %+(qx[stty size] ~~ /\d+ \s+ (\d+)/)[0] ; 
 $.width -= $glyph_width ;
 
-my @renderings = self!render_element((self!get_title, '', $s), (0, '', '', '', '', '')) ;
+my @renderings ;
+
+self!render_element((self!get_title, '', $s), (0, '', '', '', '', ''), @renderings, '') ;
 
 @renderings
 }
 
-method !render_element($element, @glyphs)
+method !render_element($element, @glyphs, @renderings, $head_glyph)
 {
-#("render element :" ~ $element.perl).say ;
-
 my ($k, $b, $s) = $element ;
 
-
 my ($glyph_width, $glyph, $continuation_glyph, $multi_line_glyph, $empty_glyph, $filter_glyph) = @glyphs ;
-
-my @renderings ;
+($glyph, $continuation_glyph, $filter_glyph).map: { $_ = $head_glyph ~ $_ } ; 
 
 my ($v, $f, $final, $want_address) ;
 
-if $s.WHAT =:= Mu
-	{
-	($v, $f, $final, $want_address) = ('', '.Mu', DDT_FINAL ) ;
-	}
-else
-	{
-	($v, $f, $final, $want_address) = self.get_element_header($s) ;
-	}
+($v, $f, $final, $want_address) = 
+	$s.WHAT =:= Mu
+		?? ('', '.Mu', DDT_FINAL ) 
+		!! self.get_element_header($s) ;
 
 $f = '' unless $.display_type ; 
 
 $final //= DDT_NOT_FINAL ;
 $want_address //= $final ?? False !! True ;
 
+my ($address, $rendered) =
+	$s.WHAT !=:= Mu
+		?? $want_address ?? self!get_address($s) !! (Nil, True)
+		!! (('', '', ''), True) ;
+
 my $s_replacement ;
 
-if $s.WHAT !=:= Mu
-	{
-	@!filters and $.filter_header($s_replacement, $s, ($filter_glyph, @renderings), ($k, $b, $v, $f, $final, $want_address))  ;
-	}
+@!filters and $s.WHAT !=:= Mu and  
+	$.filter_header($s_replacement, $s, ($filter_glyph, @renderings), ($k, $b, $v, $f, $final, $want_address)) ;
 
-$s_replacement ~~ Data::Dump::Tree::Type::Nothing and return @renderings ;
+$s_replacement ~~ Data::Dump::Tree::Type::Nothing and return ;
 $s = $s_replacement.defined ?? $s_replacement !! $s ;
 
 if $final { $multi_line_glyph = $empty_glyph }
-
-my ($address, $rendered) ;
-if $s.WHAT =:= Mu
-	{
-	($address, $rendered) = (('', '', ''), True) ;
-	}
-else
-	{
-	($address, $rendered) = self!get_address($s) ;
-	$address = Nil unless $want_address ;
-	}
 
 # perl stringy $v if role is on
 ($v, $, $) = self.get_header($v) if $s !~~ Str ;
@@ -168,18 +154,14 @@ else
 
 if ! $final && ! $rendered
 	{
-	@renderings.append: self!render_non_final($s).map: { $continuation_glyph ~ $_} 
+	self!render_non_final($s, @renderings, $continuation_glyph) ;
 	}
 
-if $s.WHAT !=:= Mu
-	{
-	@!filters and $.filter_footer($s, ($continuation_glyph, @renderings))  ;
-	}
-
-@renderings
+@!filters and $s.WHAT !=:= Mu and 
+	$.filter_footer($s, ($continuation_glyph, @renderings))  ;
 }
 
-method !render_non_final($s)
+method !render_non_final($s, @renderings, $continuation_glyph)
 {
 $!current_depth++ ;
 
@@ -187,39 +169,33 @@ my (%glyphs, $glyph_width) := $.get_level_glyphs($!current_depth) ;
 
 $!width -= $glyph_width ; # account for mutiline text shifted for readability
 
-my @renderings ;
-
 if $!current_depth == $.max_depth 
 	{
 	if $.max_depth_message
 		{
-		@renderings.append: %glyphs<max_depth> ~ " max depth($.max_depth)" ;
+		@renderings.append: $continuation_glyph ~ %glyphs<max_depth> ~ " max depth($.max_depth)" ;
 		}
 	}
 else
 	{
 	my @sub_elements = |(self!get_sub_elements($s) // ()) ;
 
-	if $s.WHAT !=:= Mu
-		{
-		@!filters and $.filter_sub_elements($s, (%glyphs<filter>, @renderings), (@sub_elements,))  ;
-		}
+	@!filters and $s.WHAT !=:= Mu and
+		$.filter_sub_elements($s, (%glyphs<filter>, @renderings), (@sub_elements,))  ;
 
-	my $last_index = @sub_elements.end ;
 	for @sub_elements Z 0 .. * -> ($sub_element, $index)
 		{
-		@renderings.append: 
-			self!render_element(
-				$sub_element,
-				self!get_element_glyphs(%glyphs, $index == $last_index)
-				) ;
+		self!render_element(
+			$sub_element,
+			self!get_element_glyphs(%glyphs, $index == @sub_elements.end),
+			@renderings,
+			$continuation_glyph,
+			) ;
 		}
 	}
 
 $!width += $glyph_width ;
 $!current_depth-- ;
-
-@renderings
 }
 
 method filter_header(\s_replacement, $s, ($glyph, @renderings), (\k, \b, \v, \f, \final, \want_address))
@@ -266,10 +242,6 @@ for @.filters -> $filter
 
 multi method get_element_header($e) 
 {
-#"in get_element_header".say ;
-#$e.perl.say ;
-#say $e.WHAT ;
-
 (self.can('get_header')[0].candidates.grep: {.signature.params[1].type ~~ $e.WHAT}) 
 	?? $.get_header($e) #specific to $e
 	!! $e.^name ~~ none(self.get_P6_internal()) && $e.can('ddt_get_header') 
@@ -363,7 +335,7 @@ method !get_address($e)
 my $ddt_address = $!address++ ;
 my $perl_address = $e.WHERE ;
 
-my ($link, $rendered) = ('', 0) ;
+my ($link, $rendered) = ('', False) ;
 
 if %!rendered{$perl_address}:exists
 	{
