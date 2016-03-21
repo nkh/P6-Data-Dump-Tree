@@ -11,8 +11,8 @@ class LivesUnderRock {}
 class Shy is Hermit is LivesUnderRock { has $.in_object }
 
 my $dump = get_dump( Hermit.new , color => False, display_address => False) ;
-like $dump, /\.Hermit\n/, '1 class' ;
+like $dump, /\.Hermit/, '1 class' ;
 
 $dump = get_dump( Shy.new , color => False, display_address => False) ;
-like $dump, /\.Shy \s  \.Hermit \s \.LivesUnderRock\n/, '3 classes' ;
+like $dump, /\.Shy \s  \.Hermit \s \.LivesUnderRock/, '3 classes' ;
 

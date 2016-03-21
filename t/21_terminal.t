@@ -18,6 +18,6 @@ $d does role { multi method get_header (C $l) { ('value_final', '.type_final', D
 
 $dump = $d.get_dump( C.new, color => False) ;
 
-like $dump, /value_final\.type_final\n/, 'DDT_FINAL' ;
+like $dump, /value_final\.type_final/, 'DDT_FINAL' ;
 is $dump.lines.elems, 1, '1 line dump' ;
 

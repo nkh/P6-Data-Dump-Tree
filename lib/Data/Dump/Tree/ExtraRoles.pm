@@ -1,4 +1,62 @@
 
+use Data::Dump::Tree::Enums ;
+
+role DDTR::StringLimiter
+{
+
+method limit_string(Str $s, $limit)
+{
+if $limit.defined && ~$s.chars > $limit
+	{
+	Q/'/ ~ $s.substr(0, $limit) ~ Q/'/ ~ '(+' ~ ~$s.chars - $limit ~ Q/)/,
+	}
+else
+	{
+	Q/'/ ~ $s ~ Q/'/ 
+	}	
+}
+
+
+}
+
+role DDTR::MatchStringLimit does DDTR::StringLimiter
+{
+has $.match_string_limit is rw = 10 ;
+
+multi method get_header (Match:D $m) 
+{
+	( $.limit_string(~$m, $.match_string_limit) ~ Q/ [/ ~ $m.from ~ '..' ~ $m.to ~ '|', '.' ~ $m.^name , DDT_FINAL) 
+}
+
+} #role
+
+
+role DDTR::MatchDetails does DDTR::StringLimiter 
+{
+
+has $.match_string_limit is rw ;
+
+multi method get_header (Match:U $m) { 'type object', '.' ~ $m.^name, DDT_FINAL }
+multi method get_header (Match:D $m) 
+{
+$m.caps.elems
+	?? ( $.limit_string(~$m, $.match_string_limit) ~ Q/ [/ ~ $m.from ~ '..' ~ $m.to ~ '|', '.' ~ $m.^name ) 
+	!! ( $.limit_string(~$m, $.match_string_limit) ~ Q/ [/ ~ $m.from ~ '..' ~ $m.to ~ '|', '.' ~ $m.^name , DDT_FINAL, DDT_HAS_ADDRESS ) 
+}
+
+multi method get_elements (Match $m)
+{
+$m.caps.map: -> $p
+	{
+	my ($k, $v) = $p.kv ;
+	( $k, ' => ', $v )
+	} 
+}
+
+
+#role MatchDetails
+}
+
 role DDTR::FixedGlyphs
 {
 has $.fixed_glyph ;

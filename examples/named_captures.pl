@@ -1,9 +1,10 @@
 #!/usr/bin/env perl6
 
-use Data::Dump::Tree;
+use Data::Dump::Tree ;
+use Data::Dump::Tree::ExtraRoles ;
 
 
-my $d = Data::Dump::Tree.new does DDTR::MatchDetails ;
+my $d = Data::Dump::Tree.new does DDTR::MatchDetails(40) ;
 $d does DDTR::PerlString ;
 
 my $dump_1 = $d.get_dump('aaaaa' ~~ m:g/ $<token> = a $<T2> = a/);
@@ -42,11 +43,7 @@ EOI
 
 $m = $contents ~~ /<section>*/ ;
 
-#Todo: parse bareword regex
-#my $dump_5 = $d.get_dump([ section, $m ], title => 'config', display_perl_address => True) ;
-
-
 my $header = regex { \s* '[' (\w+) ']' \h* \n+ }
-my $dump_5 = $d.get_dump([ $header, $m ], title => 'config', display_perl_address => True) ;
+my $dump_5 = $d.get_dump([ $header, $m ], title => 'config', display_info => False, does => (DDTR::AsciiGlyphs,)) ;
 $dump_5.say ;
 

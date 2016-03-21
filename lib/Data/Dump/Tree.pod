@@ -17,7 +17,15 @@ Date::Dump::Tree - Renders data structures in a tree fashion
 	
 =DESCRIPTION
 
-Data::Dump::Tree renders your data structures in a tree fashion. 
+Data::Dump::Tree renders your data structures in a tree fashion.
+
+It also
+
+=item can display two data structures side by side
+
+=item can display the difference between two data structures
+
+=item can be used "visit" a data structure and call callbacks you define
 
 If you have Term::ANSIColor installed, the output will be so colored.
 
@@ -78,25 +86,21 @@ returns an array containing the dump of the data structure
 	|  |- $.size = 6.Str
 	|  `- $.name = P6 class.Str
 	`- 4 = (3) @3
-	   |- 0 = [0 .. 1].Match
-	   |- 1 = [1 .. 2].Match
-	   `- 2 = [2 .. 3].Match
+	   |- 0 = 'a' [0 .. 1].Match
+	   |- 1 = 'a' [1 .. 2].Match
+	   `- 2 = 'a' [2 .. 3].Match
 
 =head1 DUMP 
 Each line of output consists 5 elements, 2 elements, the tree and the address,
 are under the control of Data::Dump::Tree, The three remaining elements can
-be under your control but Data::Dump::Tree will provide default rendering.	
+be under your control but Data::Dump::Tree provides defaults.	
 
 Refer to section 'handling specific types' to learn how to add your own types
 or render specific types with your how handlers.
 
 =head2 Elements of the dump
 
-	|- 0 = text.Str
-
-	|- 3 = .MyClass @2
-
-	`- 4 = (3) @3
+	|- key = value .MyClass @2
 
 =head3 tree (glyphs)
 The tree portion of the output shows the relationship between the data elements.
@@ -162,7 +166,7 @@ creation time.
 =head4 $color = True 
 By default coloring is on if Term::ANSIColor is installed.
 
-Setting this option to False forced the output to be monochrome. 
+Setting this option to False forces the output to be monochrome. 
 
 =head4 %colors 
 You can pass your own colors. The default are:
@@ -176,14 +180,25 @@ You can pass your own colors. The default are:
 		> ;
 
 
-where colors are ANSI colors. reset means default color.
+where colors are ANSI colors. I<reset> means default color.
 
-=head4 @glyph_colors
 By default the glyphs will not be colored. For certain renderings, with many
 and very long continuation lines, having colored glyphs (per level) helps 
-greatly, simply set the glyph_colors as in the example below.
+greatly.
 
+=head4 $color_glyphs
+Will set a default glyph color cycle. you can also define your own with 
+B<@glyph_colors>.
+ 
+	my @s = [ ... ] ;
 
+	# monochrome glyphs
+	dump(@s) ;
+
+	# colored glyphs, will cycle 
+	dump(@s, color_glyphs => True) ; #uses < glyph_0 glyph_1 glyph_2 glyph_3 >
+
+=head4 @glyph_colors
 	my @s = [ ... ] ;
 
 	# monochrome glyphs
@@ -206,7 +221,7 @@ A line showing that you have reached the $max_depth limit, setting this flag
 to false disable the message.
 
 =head3 $display_info = True
-By default this option is set. When set to false, neither the type not the 
+By default, this option is set. When set to false, neither the type not the 
 address are displayed. 
 
 =head3 $display_type = True
@@ -496,9 +511,6 @@ Uses ASCII codes rather than ANSI to render the tree.
 Uses Unicode to render the tree. this is the tightest rendering as only one
 character is used to display the tree.
 
-=item DDTR::MatchDetails
-Give details about a Match
-
 =item DDTR::PerlString
 Renders string containing control codes (eg: \n, ANSI, ...) with backslashed
 codes and hex values.
@@ -525,6 +537,70 @@ You can also use the method it provides in your type handlers and filters.
 
 =item DDTR::Superscribe
 Use this role to display the type and address in Unicode superscript letters.
+
+=head3 Match objects
+U<Match> objects are displayed as the string that it matched as well as the
+match start and end position.
+
+	# multiline match
+	'aaaaa
+	aaaaa
+	aaaaa
+	aaaaa
+	' [0..24|
+	.Match  
+	
+	# same match with PerlString role
+	"'aaaaa\naaaaa\naaaaa\naaaaa\n' [0..24|".Match  
+
+Some Roles are provided to allows you to change how Match object are displayed.
+
+=item DDTR::MatchLimitString
+Limits the length of the match string.
+
+	# default max length of 10 characters
+	"'aaaaa\naaaa'(+14)' [0..24|".Match  
+
+You can set the maximum string length either by specifying a length when the 
+role is added to the dumper.
+
+	$dumper does DDTR::MatchLimit(15) ;
+	
+	"'aaaaa\naaaaa\n'(+12)' [0..24|".Match  
+
+or by setting the U<$.match_string_limit> member variable
+
+	$dumper does DDTR::MatchLimit ;
+	...
+	$dumper.match_string_limit = 15 ;
+	
+	"'aaaaa\naaaaa\n'(+12)' [0..24|".Match  
+
+The specified length is displayed, the length of the remaining part is
+displayed within parenthesis.
+
+=item DDTR::MatchDetails
+Give complete details about a Match. The match string is displayed as well as
+the match start and end position.
+
+You can set the maximum string length either by specifying a length when the 
+role is added to the dumper or by setting the U<$.match_string_limit> member
+variable.
+
+	$dumper does DDTR::MatchDetails ;
+	
+	 "'    [passwords]\n        jack=password1\n '(+74) [0..114|".Match @1 
+	   |- section => "'    [passwords]\n        jack=password1\n '(+29) [0..69|".Match @2 
+	   |  |- header => "'    [passwords]\n' [0..16|".Match @3 
+	   |  |  `- 0 => "'passwords' [5..14|".Match @4 
+	   |  |- kvpair => "'        jack=password1\n' [16..39|".Match @5 
+	   |  |  |- identifier => "'jack' [24..28|".Match @6 
+	   |  |  |- key => "'jack' [24..28|".Match @7 = @6 
+	   |  |  |- identifier => "'password1' [29..38|".Match @8 
+	   |  |  `- value => "'password1' [29..38|".Match @9 = @8 
+	   |  `- kvpair => "'        joy=muchmoresecure123\n' [39..69|".Match @10 
+	   |     |- identifier => "'joy' [47..50|".Match @11 
+	   ...
 
 =head1 BUGS
 Submit bugs (preferably as executable tests) and feel free to make 

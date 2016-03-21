@@ -24,7 +24,7 @@ my $d = Data::Dump::Tree.new(color => False) ;
 my $dump = $d.get_dump(HasNothing.new()) ;
 
 is $dump.lines.elems, 3, '3 lines output' ;
-like $dump, /nothing\n/, 'nothing as no value' ;
-like $dump, /\.Str\n/, 'something has value' ;
+like $dump, /nothing/, 'nothing as no value' ;
+like $dump, /\.Str/, 'something has value' ;
 
 

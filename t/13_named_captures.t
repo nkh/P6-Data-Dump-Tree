@@ -3,7 +3,8 @@
 use Test ;
 plan 2 ;
 
-use Data::Dump::Tree;
+use Data::Dump::Tree ;
+use Data::Dump::Tree::ExtraRoles ;
 
 my regex header { \s* '[' \w+ ']' \h* \n+ }
 my regex identifier  { \w+ }

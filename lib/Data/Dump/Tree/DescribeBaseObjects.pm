@@ -11,7 +11,7 @@ multi method get_header (Int $i) { $i,  '.' ~ $i.^name, DDT_FINAL }
 multi method get_header (Str:U $s) { 'type object', '.' ~ $s.^name, DDT_FINAL }
 multi method get_header (Str:D $s) { $s, '.' ~ $s.^name, DDT_FINAL } 
 multi method get_header (Rat $r) { $r  ~ ' (' ~ $r.numerator ~ '/' ~ $r.denominator ~ ')', '.' ~ $r.^name, DDT_FINAL }
-multi method get_header (Match $m) { '[' ~ $m.from ~ '..' ~ $m.to ~ '|', '.' ~ $m.^name, DDT_FINAL } 
+multi method get_header (Match $m) { Q/'/ ~ $m ~ Q/' [/ ~ $m.from ~ '..' ~ $m.to ~ '|', '.' ~ $m.^name, DDT_FINAL } 
 multi method get_header (Grammar $g) { $g.perl ~ ' ',  '.' ~ $g.^name, DDT_FINAL, } 
 multi method get_header (Regex $r) { $r.perl.substr(6) ,  '.' ~ $r.^name, DDT_FINAL, } 
 
@@ -52,31 +52,6 @@ multi method get_elements (Map $m) { $m.sort(*.key)>>.kv.map: -> ($k, $v) {$k, '
 
 }
 
-role DDTR::MatchDetails 
-{
-
-multi method get_header (Match:U $m) { 'type object', '.' ~ $m.^name, DDT_FINAL }
-multi method get_header (Match:D $m) 
-{
-$m.caps.elems
-	?? ( Q/'/ ~ $m ~ Q/'/  ~ ' [' ~ $m.from ~ '..' ~ $m.to ~ '| ', '.' ~ $m.^name ) 
-	!! ( Q/'/ ~ $m ~ Q/'/  ~ ' [' ~ $m.from ~ '..' ~ $m.to ~ '| ', '.' ~ $m.^name , DDT_FINAL, DDT_HAS_ADDRESS ) 
-}
-
-multi method get_elements (Match $m)
-{
-$m.caps.map: -> $p
-	{
-	my ($k, $v) = $p.kv ;
-	( $k, ' => ', $v )
-	} 
-}
-
-
-
-#role MatchDetails
-}
-
 role DDTR::QuotedString 
 {
 multi method get_header (Str:D $s) { "'$s'", '.' ~ $s.^name, DDT_FINAL } 
@@ -93,6 +68,14 @@ multi method get_header (Routine $r) { $r.perl, '.' ~ $r.^name, DDT_FINAL }
 multi method get_header (Sub $s) { $s.perl, '.' ~ $s.^name, DDT_FINAL }
 }
 
+class Data::Dump::Tree::Type::MaxDepth
+{
+has $.glyph ;
+has $.depth ;
+
+multi method ddt_get_header { $.glyph ~ "max depth($.depth)", '', DDT_FINAL }
+}
+
 class Data::Dump::Tree::Type::Nothing
 {
 multi method ddt_get_header { '', '', DDT_FINAL }
@@ -105,7 +88,7 @@ multi method get_glyphs
 {
 	{ 
 	last => '└', not_last => '├', last_continuation => ' ', not_last_continuation => '│',
-	multi_line => '│', empty => ' ', max_depth => ' …',
+	multi_line => '│', empty => ' ', max_depth => '…',
 	filter => '│', # not last continuation
 	}
 }
@@ -120,7 +103,7 @@ multi method get_glyphs
 {
 	{
 	last => "`- ", not_last => '|- ', last_continuation => '   ', not_last_continuation => '|  ',
-	multi_line => '|  ', empty => '   ', max_depth => '   ...',
+	multi_line => '|  ', empty => '   ', max_depth => '...',
 	filter => '|  ', # not last continuation 
 	}
 }
@@ -136,7 +119,7 @@ multi method get_glyphs
 	{
 	last => "\x1b(0\x6d \x1b(B", not_last => "\x1b(0\x74 \x1b(B",
 	last_continuation => '  ', not_last_continuation => "\x1b(0\x78 \x1b(B",
-	multi_line => "\x1b(0\x78 \x1b(B", empty => '  ', max_depth => '  ...', 
+	multi_line => "\x1b(0\x78 \x1b(B", empty => '  ', max_depth => '...', 
 	filter => "\x1b(0\x78 \x1b(B" , # not last continuation
 	}
 }

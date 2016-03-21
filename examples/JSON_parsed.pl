@@ -30,13 +30,17 @@ Q<<{
 my $parsed = JSON::Tiny::Grammar.parse($JSON) ;
 #$parsed.gist.say ;
 
-dump( $parsed, title => 'Parsed JSON', 
-	#color => False, width => 100, display_info => False, 
-	 does => 
-		(
-		DDTR::MatchDetails, DDTR::PerlString,
-		DDTR::UnicodeGlyphs, DDTR::Superscribe,
-		)
-	 ) ;
 
+my $d = Data::Dump::Tree.new(
+		title => 'Parsed JSON', 
+		#color => False, width => 100, display_info => False, 
+		does => 
+			(
+			DDTR::MatchDetails, DDTR::PerlString,
+			DDTR::UnicodeGlyphs, DDTR::Superscribe,
+			)
+		) ;
+	
+$d.match_string_limit = 40 ;
+$d.dump($parsed) ;
 

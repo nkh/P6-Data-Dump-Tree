@@ -1,7 +1,8 @@
 #!/usr/bin/env perl6
 
 use Test;
-use Data::Dump::Tree;
+use Data::Dump::Tree ;
+use Data::Dump::Tree::ExtraRoles ;
 
 plan 9 ;
 

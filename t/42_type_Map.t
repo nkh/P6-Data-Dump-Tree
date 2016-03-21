@@ -6,7 +6,7 @@ plan 8 ;
 use Data::Dump::Tree ;
 use Data::Dump::Tree::ExtraRoles ;
 
-my $d = Data::Dump::Tree.new does DDTR::MatchDetails ;
+my $d = Data::Dump::Tree.new(display_perl_address => True)  does DDTR::MatchDetails ;
 
 my $string = 'aaaaaaaa' ;
 my regex xxx  { $<t1> = aa  $<t2> = a  a } ;
