@@ -374,7 +374,7 @@ method !get_address($e)
 {
 my $ddt_address = $!address++ ;
 my $perl_address = $e.WHICH ;
-$perl_address ~= ':DDT:' ~ $e.WHERE unless $perl_address ~~ /\d 0 .. 9/ ;
+$perl_address ~= ':DDT:' ~ $e.WHERE unless $perl_address ~~ /\d ** 0..7/ ;
 
 my ($link, $rendered) = ('', False) ;
 

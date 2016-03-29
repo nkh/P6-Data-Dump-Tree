@@ -33,13 +33,13 @@ my $diff_glyph_width = max(%diff_glyphs.values>>.chars) + 2 ;
 
 my $width = Int(((%options<width> // $.width) - ($diff_glyph_width + 1)) / 2) ;
 
-my $d1 = Data::Dump::Tree.new(|%options, width => $width) ; 
+my $d1 = Data::Dump::Tree.new(|%options, width => $width, filters => %options<filters lhs_filters>:v) ; 
 $d1.reset ; #setup object
 
-my $d2 = Data::Dump::Tree.new(|%options, width => $width) ; 
+my $d2 = Data::Dump::Tree.new(|%options, width => $width, filters => %options<filters rhs_filters>:v) ; 
 $d2.reset ; # setup object
 
-($diff_synch_filter, $remove_eqv, $remove_eq) = %options<diff_filter remove_eqv remove_eq> ;
+($diff_synch_filter, $remove_eqv, $remove_eq) = %options<diff_synch_filter remove_eqv remove_eq> ;
 
 my (@renderings1, @diff_glyphs, @renderings2) ;
 
@@ -125,8 +125,8 @@ elsif $final1 && $final2
 				?? %diff_glyphs<same_object> 
 				!! $s1 eqv $s2
 					?? %diff_glyphs<same_type_same_value>
-					!! %diff_glyphs<same_type_diff_value>
-			!! %diff_glyphs<different_type> ;	
+					!! do { $is_different++ ; %diff_glyphs<same_type_diff_value> }
+			!! do { $is_different++ ; %diff_glyphs<different_type> } ;	
 	}
 else
 	{
@@ -210,10 +210,21 @@ else
 		}
 	else
 		{
-		$diff_glyph = %diff_glyphs<diff_container> ;
-		$d1.render_non_final($s1, $cd1, @renderings1, $cont_glyph1) unless $rendered1 ;
-		$d2.render_non_final($s2, $cd2, @renderings2, $cont_glyph2) unless $rendered2 ;
-		$is_different++ ;
+		# different type but equivalent
+		if $s1 eqv $s2
+			{
+			$diff_glyph = %diff_glyphs<same_type_same_value> ;
+
+			$d1.render_non_final($s1, $cd1, @renderings1, $cont_glyph1) unless $rendered1 ;
+			$d2.render_non_final($s2, $cd2, @renderings2, $cont_glyph2) unless $rendered2 ;
+			}
+		else
+			{
+				$diff_glyph = %diff_glyphs<diff_container> ;
+				$d1.render_non_final($s1, $cd1, @renderings1, $cont_glyph1) unless $rendered1 ;
+				$d2.render_non_final($s2, $cd2, @renderings2, $cont_glyph2) unless $rendered2 ;
+				$is_different++ ;
+			}
 		}
 	}
 
