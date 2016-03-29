@@ -33,10 +33,22 @@ my $diff_glyph_width = max(%diff_glyphs.values>>.chars) + 2 ;
 
 my $width = Int(((%options<width> // $.width) - ($diff_glyph_width + 1)) / 2) ;
 
-my $d1 = Data::Dump::Tree.new(|%options, width => $width, filters => %options<filters lhs_filters>:v) ; 
+my $d1 = Data::Dump::Tree.new(
+		|%options, width => $width, 
+		header_filters => %options<header_filters lhs_header_filters>:v,
+		elements_filters => %options<elements_filters lhs_elements_filters>:v,
+		footer_filters => %options<footer_filters lhs_footer_filters>:v,
+		) ;
+ 
 $d1.reset ; #setup object
 
-my $d2 = Data::Dump::Tree.new(|%options, width => $width, filters => %options<filters rhs_filters>:v) ; 
+my $d2 = Data::Dump::Tree.new(
+		|%options, width => $width,
+		header_filters => %options<header_filters rhs_header_filters>:v,
+		elements_filters => %options<elements_filters rhs_elements_filters>:v,
+		footer_filters => %options<footer_filters rhs_footer_filters>:v,
+		) ;
+ 
 $d2.reset ; # setup object
 
 ($diff_synch_filter, $remove_eqv, $remove_eq) = %options<diff_synch_filter remove_eqv remove_eq> ;
@@ -229,10 +241,10 @@ else
 	}
 
 # footer filter 
-$d1.filters and $s1.WHAT !=:= Mu and 
+$d1.footer_filters and $s1.WHAT !=:= Mu and 
 	$d1.filter_footer($s1, ($cd1, $cont_glyph1, @renderings1))  ;
 
-$d2.filters and $s2.WHAT !=:= Mu and 
+$d2.footer_filters and $s2.WHAT !=:= Mu and 
 	$d2.filter_footer($s2, ($cd2, $cont_glyph2, @renderings2))  ;
 
 synch_renderings(

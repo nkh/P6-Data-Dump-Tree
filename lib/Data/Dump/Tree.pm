@@ -25,7 +25,9 @@ has $.color_glyphs ;
 has @.glyph_colors = < glyph_1> ;
 has @!glyph_colors_cycle ; 
 
-has @.filters ;
+has @.header_filters ;
+has @.elements_filters ;
+has @.footer_filters ;
 
 has %!rendered ;
 has $!address ;
@@ -110,7 +112,7 @@ my ($final, $rendered, $s, $continuation_glyph) :=
 
 self.render_non_final($s, $current_depth, @renderings, $continuation_glyph) unless ($final || $rendered) ;
 
-@!filters and $s.WHAT !=:= Mu and 
+@!footer_filters and $s.WHAT !=:= Mu and 
 	$.filter_footer($s, ($current_depth, $continuation_glyph, @renderings))  ;
 }
 
@@ -159,7 +161,7 @@ my ($address, $rendered) =
 
 my $s_replacement ;
 
-@!filters and $s.WHAT !=:= Mu and  
+@!header_filters and $s.WHAT !=:= Mu and  
 	$.filter_header($s_replacement, $s, ($current_depth, $filter_glyph, @renderings), ($k, $b, $v, $f, $final, $want_address)) ;
 
 $s_replacement ~~ Data::Dump::Tree::Type::Nothing and return(True, True, $s, $continuation_glyph) ;
@@ -215,7 +217,7 @@ else
 	@sub_elements = |(self!get_element_subs($s) // ()) ;
 	}
 
-@!filters and $s.WHAT !=:= Mu and
+@!elements_filters and $s.WHAT !=:= Mu and
 	$.filter_sub_elements($s, ($current_depth, %glyphs<filter>, @renderings), (@sub_elements,))  ;
 
 
@@ -223,11 +225,12 @@ else
 }
 
 
-method filter_header(\s_replacement, $s, ($current_depth, $glyph, @renderings), (\k, \b, \v, \f, \final, \want_address))
+method filter_header(\s_replacement, $s, @rend, @ref)
 {
-for @.filters -> $filter
+for @.header_filters -> $filter
 	{
-	$filter(s_replacement, $s, DDT_HEADER, ($current_depth, $glyph, @renderings), (k, b, v, f, final, want_address)) ;
+	#$filter(s_replacement, $s, ($current_depth, $glyph, @renderings), (k, b, v, f, final, want_address)) ;
+	$filter(s_replacement, $s, @rend, @ref) ;
 	
 	CATCH 
 		{
@@ -239,9 +242,9 @@ for @.filters -> $filter
 
 method filter_sub_elements($s, ($current_depth, $glyph, @renderings), (@sub_elements))
 {
-for @.filters -> $filter
+for @.elements_filters -> $filter
 	{
-	$filter($s, DDT_SUB_ELEMENTS, ($current_depth, $glyph, @renderings), (@sub_elements,)) ;
+	$filter($s, ($current_depth, $glyph, @renderings), (@sub_elements,)) ;
 	
 	CATCH 
 		{
@@ -253,9 +256,9 @@ for @.filters -> $filter
 
 method filter_footer($s, ($current_depth, $glyph, @renderings))
 {
-for @.filters -> $filter
+for @.footer_filters -> $filter
 	{
-	$filter($s, DDT_FOOTER, ($current_depth, $glyph, @renderings)) ;
+	$filter($s, ($current_depth, $glyph, @renderings)) ;
 	
 	CATCH 
 		{
@@ -374,7 +377,7 @@ method !get_address($e)
 {
 my $ddt_address = $!address++ ;
 my $perl_address = $e.WHICH ;
-$perl_address ~= ':DDT:' ~ $e.WHERE unless $perl_address ~~ /\d ** 0..7/ ;
+$perl_address ~= ':DDT:' ~ $e.WHERE unless $perl_address ~~ /\d ** 4/ ;
 
 my ($link, $rendered) = ('', False) ;
 

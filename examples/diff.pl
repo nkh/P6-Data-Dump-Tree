@@ -27,17 +27,14 @@ my %df2 = M => $match2, A => %xxx, B => %xxx,               C => %(< a 1 b 2 c 3
 
 $d.dump_synched(%df1, %df2, compact_width => True, does => (DDTR::MatchDetails,), color_glyphs => True) ;
 ''.say ;
-#$d.dump_synched(%df1, %df2, compact_width => True, does => (DDTR::MatchDetails,), color_glyphs => True,
-#		diff_glyphs => False, remove_eq => True, remove_eqv => True,
-#		#rhs_filters => (&rhs_filter,)
-#		) ;
+$d.dump_synched(%df1, %df2, compact_width => True, does => (DDTR::MatchDetails,), color_glyphs => True,
+		diff_glyphs => False, remove_eq => True, remove_eqv => True,
+		rhs_header_filters => (&rhs_filter,)
+		) ;
 
-$d.dump_synched($o1, $o2, compact_width => True) ;
-
-
-multi sub rhs_filter(\r, Match $s, DDT_HEADER, ($depth, $glyph, @renderings), $)
+multi sub rhs_filter(\r, Match $s, ($depth, $glyph, @renderings), $)
 {
-#@renderings.append: $glyph ~ 'removing O' ;
+#@renderings.append: $glyph ~ '' ;
 r = Data::Dump::Tree::Type::Nothing ;
 }
 

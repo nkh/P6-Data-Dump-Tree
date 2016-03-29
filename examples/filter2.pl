@@ -12,7 +12,7 @@ use Terminal::ANSIColor ;
 my $d = Data::Dump::Tree.new does DDTR::QuotedString ;
 
 # remove the Hashes
-multi sub my_filter(\r, Hash $s, DDT_HEADER, ($depth, $glyph, @renderings), (\k, \b, \v, \f, \final, \want_address))
+multi sub my_filter(\r, Hash $s, ($depth, $glyph, @renderings), (\k, \b, \v, \f, \final, \want_address))
 {
 # but only the one the ones which names contain the word 'color'
 # DDT calls the type handler before the filters so it has already all
@@ -32,7 +32,7 @@ else
 
 # we can also act at a higher level, this filter catches the DDT object
 # before the Hashes are displayed
-multi sub my_filter( Data::Dump::Tree $s, DDT_SUB_ELEMENTS, ($depth, $glyph, @renderings), (@sub_elements))
+multi sub my_filter( Data::Dump::Tree $s, ($depth, $glyph, @renderings), (@sub_elements))
 {
 # simply show that we were called
 @renderings.append: $glyph ~ "SUB ELEMENTS " ~ $s.^name ;
@@ -42,6 +42,6 @@ multi sub my_filter( Data::Dump::Tree $s, DDT_SUB_ELEMENTS, ($depth, $glyph, @re
 }
 
 $d.dump($d) ;
-$d.dump($d, filters => (&my_filter,)) ;
+$d.dump($d, header_filters => (&my_filter,), elements_filters => (&my_filter,)) ;
 
 

@@ -44,7 +44,7 @@ my $dump_4 = $d_4.get_dump(my_grammar.parse("fuu \n\nbart baz x"));
 like $dump_4, /0\.\.16/, 'Grammar Match' ;
 is $dump_4.lines.elems, 15, 'Grammar Match lines' or diag get_dump $dump_4;
 
-my $dump_4_2 = $d_4.get_dump('ababa' ~~ m:g/a(b)/);
+my $dump_4_2 = $d_4.get_dump('ababa' ~~ m:g/a(b)/, display_perl_address => True);
 is $dump_4_2.lines.elems, 5, 'terminal Match lines' or diag get_dump $dump_4_2;
 
 #`{{{

@@ -7,7 +7,7 @@ use Data::Dump::Tree ;
 
 my $d = Data::Dump::Tree.new ;
 
-multi sub Stash_no_sub( Stash $s, DDT_SUB_ELEMENTS, ($depth, $glyph, @renderings), (@sub_elements))
+multi sub Stash_no_sub( Stash $s, ($depth, $glyph, @renderings), (@sub_elements))
 {
 # simply show that we were called
 #@renderings.append: $glyph ~ "SUB ELEMENTS " ~ $s.^name ;
@@ -16,12 +16,12 @@ multi sub Stash_no_sub( Stash $s, DDT_SUB_ELEMENTS, ($depth, $glyph, @renderings
 #@sub_elements = @sub_elements.grep: { $_[2] !~~ Data::Dump::Tree } ;
 }
 
-multi sub compress_ddt(\r, Data::Dump::Tree $s, DDT_HEADER, @r, (\k, \b, \v, \f, \final, \want_address))
+multi sub compress_ddt(\r, Data::Dump::Tree $s, @r, (\k, \b, \v, \f, \final, \want_address))
 {
 final = DDT_FINAL ;
 }
 
-my $dump = $d.get_dump([callframe()], color => False, width => 75, filters => (&Stash_no_sub, &compress_ddt)) ;
+my $dump = $d.get_dump([callframe()], color => False, width => 75, elements_filters => (&Stash_no_sub,), header_filters =>(&compress_ddt,)) ;
 is($dump.lines.elems, 20, '20 lines of filtered callframedump ') or diag $dump ;
 
 like $dump, /CallFrame/, 'CallFrame' or diag $dump ;

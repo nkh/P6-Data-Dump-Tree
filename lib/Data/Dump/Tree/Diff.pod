@@ -121,6 +121,20 @@ the same in both data structures.
 set if you want the to remove from the display the objects that are equivalent 
 in both data structures.
 
+=head3 data structure filters
+
+you can set U<header_filters>, U<elements_filters>, and U<footer_filters> as
+described in U<Data::Dump::Tree> documentation.
+
+You can alsospecify filters that are specific to a side of the diff
+
+=item rhs_header_filters and lhs_header_filters
+
+=item rhs_elements_filters and lhs_elements_filters
+
+=item rhs_footer_filters and lhs_footer_filters
+
+
 =head3 diff synchronization filter 
 I<Data::Dump::Tree::Diff> synchronizes Hashes, if you want to synch other type
 of data you can set 
