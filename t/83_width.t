@@ -5,7 +5,7 @@ plan 10 ;
 
 use Data::Dump::Tree;
 
-my $dump = get_dump '1234567890' x 6, title => 't:', color => False, does => (DDTR::AsciiGlyphs,) ;
+my $dump = get_dump '1234567890' x 6, title => 't:', width => 79, color => False, does => (DDTR::AsciiGlyphs,) ;
 is $dump.lines.elems, 1, '1 line, default width setting' or diag $dump ;
 
 $dump = get_dump '1234567890' x 8, title => 't:', color => False, width => 79, does => (DDTR::AsciiGlyphs,) ;
