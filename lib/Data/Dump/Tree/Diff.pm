@@ -32,9 +32,9 @@ $diff_glyphs [R//]= %options<diff_glyphs> ;
 my $diff_glyph_width = max(%diff_glyphs.values>>.chars) + 2 ;
 
 my $width = Int(((%options<width> // $.width) - ($diff_glyph_width + 1)) / 2) ;
-
 my $d1 = Data::Dump::Tree.new(
 		|%options, width => $width, 
+		title => (%options<lhs_title title>:v)[0] // '',
 		header_filters => %options<header_filters lhs_header_filters>:v,
 		elements_filters => %options<elements_filters lhs_elements_filters>:v,
 		footer_filters => %options<footer_filters lhs_footer_filters>:v,
@@ -44,6 +44,7 @@ $d1.reset ; #setup object
 
 my $d2 = Data::Dump::Tree.new(
 		|%options, width => $width,
+		title => (%options<rhs_title title>:v)[0] // '',
 		header_filters => %options<header_filters rhs_header_filters>:v,
 		elements_filters => %options<elements_filters rhs_elements_filters>:v,
 		footer_filters => %options<footer_filters rhs_footer_filters>:v,

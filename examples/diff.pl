@@ -29,7 +29,9 @@ $d.dump_synched(%df1, %df2, compact_width => True, does => (DDTR::MatchDetails,)
 ''.say ;
 $d.dump_synched(%df1, %df2, compact_width => True, does => (DDTR::MatchDetails,), color_glyphs => True,
 		diff_glyphs => False, remove_eq => True, remove_eqv => True,
-		rhs_header_filters => (&rhs_filter,)
+		rhs_header_filters => (&rhs_filter,),
+		rhs_title => <rhs_title>,
+		title => <title>,
 		) ;
 
 multi sub rhs_filter(\r, Match $s, ($depth, $glyph, @renderings), $)
