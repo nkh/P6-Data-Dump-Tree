@@ -17,11 +17,11 @@ has %diff_glyphs =
 	only_rhs             => '  r' ;
 
 has $diff_synch_filter ;
-has $remove_eq ;
-has $remove_eqv ;
 
 method dump_synched($s1, $s2, *%options) 
 {
+$diff_synch_filter = %options<diff_synch_filter> ;
+
 %.colors<diff1 diff2 diff_glyphs> = ('reset', 'reset', 'reset') ;
 
 my $color = role { method Str { state $++ %% 2 ?? 'diff1' !! 'diff2' } }.new  ;
@@ -51,8 +51,6 @@ my $d2 = Data::Dump::Tree.new(
  
 $d2.reset ; # setup object
 
-($diff_synch_filter, $remove_eqv, $remove_eq) = %options<diff_synch_filter remove_eqv remove_eq> ;
-
 my (@renderings1, @diff_glyphs, @renderings2) ;
 
 $.diff_elements(
@@ -65,8 +63,9 @@ $.diff_elements(
 #compute width without ANSI escape codes
 my regex color { \[ \d+ <?before [\;\d+]* > m } 
 my regex graph {\( [ 0|B ]}
-
 my @r1_width = @renderings1.map: { S:g/ \e [ <color> | <graph> ] //.chars } ;
+
+my ($remove_eqv, $remove_eq) = %options<remove_eqv remove_eq> ;
 
 if %options<compact_width>
 	{
@@ -147,6 +146,12 @@ else
 		if $s1.WHERE == $s2.WHERE
 			{
 			$diff_glyph = %diff_glyphs<same_object> ;
+			$d1.render_non_final($s1, $cd1, @renderings1, $cont_glyph1) ;
+			$d2.render_non_final($s2, $cd2, @renderings2, $cont_glyph2) ;
+			}
+		elsif $s1 eqv $s2
+			{
+			$diff_glyph = %diff_glyphs<same_type_same_value> ;
 			$d1.render_non_final($s1, $cd1, @renderings1, $cont_glyph1) ;
 			$d2.render_non_final($s2, $cd2, @renderings2, $cont_glyph2) ;
 			}
@@ -232,10 +237,10 @@ else
 			}
 		else
 			{
-				$diff_glyph = %diff_glyphs<diff_container> ;
-				$d1.render_non_final($s1, $cd1, @renderings1, $cont_glyph1) unless $rendered1 ;
-				$d2.render_non_final($s2, $cd2, @renderings2, $cont_glyph2) unless $rendered2 ;
-				$is_different++ ;
+			$diff_glyph = %diff_glyphs<diff_container> ;
+			$d1.render_non_final($s1, $cd1, @renderings1, $cont_glyph1) unless $rendered1 ;
+			$d2.render_non_final($s2, $cd2, @renderings2, $cont_glyph2) unless $rendered2 ;
+			$is_different++ ;
 			}
 		}
 	}
