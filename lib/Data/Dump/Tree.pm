@@ -191,9 +191,7 @@ $final, $rendered, $s, $continuation_glyph
 
 method get_sub_elements($s, $current_depth, @renderings, $continuation_glyph)
 {
-my (%glyphs, $glyph_width) := $.get_level_glyphs($current_depth) ; 
-
-my $width = $!width - ($glyph_width * ($current_depth + 1)) ;
+my (%glyphs, $) := $.get_level_glyphs($current_depth) ; 
 
 my @sub_elements ;
 
@@ -219,7 +217,6 @@ else
 
 @!elements_filters and $s.WHAT !=:= Mu and
 	$.filter_sub_elements($s, ($current_depth, %glyphs<filter>, @renderings), (@sub_elements,))  ;
-
 
 @sub_elements, %glyphs 
 }
