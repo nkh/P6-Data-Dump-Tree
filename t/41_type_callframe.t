@@ -7,7 +7,7 @@ use Data::Dump::Tree ;
 
 my $d = Data::Dump::Tree.new ;
 
-multi sub Stash_no_sub( Stash $s, ($depth, $glyph, @renderings), (@sub_elements))
+multi sub Stash_no_sub( Stash $s, ($depth, $glyph, @renderings), @sub_elements)
 {
 # simply show that we were called
 #@renderings.append: $glyph ~ "SUB ELEMENTS " ~ $s.^name ;

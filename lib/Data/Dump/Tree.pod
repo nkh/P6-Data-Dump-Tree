@@ -388,7 +388,7 @@ insert something in the tree rendering
 	sub header_filter(
 		$r,                                     # replacement
 		$s,                                     # "read only" object
-		($depth, $glyph, @renderings),          # info about tree
+		($depth, $path, $glyph, @renderings),   # info about tree
 		($k, $b, $v, $f, $final, $want_address) # element info
 		)
 	{
@@ -401,7 +401,7 @@ or change the B<rendering> of the object
 	sub header_filter(
 		\r,                                     # replacement
 		Int $s,                                 # filter Ints
-		($depth, $glyph, @renderings),          # info about the tree
+		($depth, $path, $glyph, @renderings),   # info about the tree
 		(\k, \b, \v, \f, \final, \want_address) # reference, can change
 		)
 	{
@@ -436,7 +436,7 @@ Called after the type's U<get_elements> ; you can change the elements.
 	sub elements_filter(
 		Hash $s,
 		($depth, $glyph, @renderings),
-		(@sub_elements)
+		@sub_elements
 		)
 	{
 	@renderings.append: $glyph ~ "SUB ELEMENTS" ;
@@ -472,7 +472,7 @@ the key will be displayed.
 If you return a Data::Dump::Tree::Type::Nothing replacement in your filter,
 the element will not be displayed at all.
 
-	sub my_filter(\r, Tomatoe $s, DDT_HEADER, $, $)
+	sub my_filter(\r, Tomatoe $s, $, $)
 	{
 	r = Data::Dump::Tree::Type::Nothing ;
 	}

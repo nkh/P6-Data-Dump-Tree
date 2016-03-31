@@ -55,9 +55,9 @@ $d2.reset ; # setup object
 my (@renderings1, @diff_glyphs, @renderings2) ;
 
 $.diff_elements(
-	$d1, ($d1.get_title, '', $s1), @renderings1, 0, (0, '', '', '', '', ''), '', 
+	$d1, ($d1.get_title, '', $s1, ''), @renderings1, 0, (0, '', '', '', '', ''), '', 
 	@diff_glyphs,
-	$d2, ($d2.get_title, '', $s2), @renderings2, 0, (0, '', '', '', '', ''), '',
+	$d2, ($d2.get_title, '', $s2, ''), @renderings2, 0, (0, '', '', '', '', ''), '',
 	) ;
 
 

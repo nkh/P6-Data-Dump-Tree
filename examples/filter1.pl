@@ -34,7 +34,7 @@ my $s2 =
 my $d = Data::Dump::Tree.new ;
 $d does DDTR::QuotedString ;
 
-multi sub my_filter(\s_replacement, Int $s, ($depth, $glyph, @renderings), (\k, \b, \v, \f, \final, \want_address))
+multi sub my_filter(\s_replacement, Int $s, ($depth, $path, $glyph, @renderings), (\k, \b, \v, \f, \final, \want_address))
 {
 #@renderings.append: $glyph ~ color('bold white on_yellow') ~ "Int HEADER " ~ $depth ;
 
@@ -51,18 +51,18 @@ if $depth < 3
 	}
 }
 
-multi sub my_filter($r, $s, ($depth, $glyph, @renderings), ($k, $b, $v, $f, $final, $want_address))
+multi sub my_filter($r, $s, ($depth, $path, $glyph, @renderings), ($k, $b, $v, $f, $final, $want_address))
 {
 #@renderings.append: $glyph ~ "HEADER " ~ $k ~ $b ~ " - " ~ ($v // $v.^name) ~ " - " ~ $f ~ ' - @depth' ~ $depth ;
 }
 
-multi sub my_filter(\r, Tomatoe $s, ($depth, $glyph, @renderings), $)
+multi sub my_filter(\r, Tomatoe $s, ($depth, $path, $glyph, @renderings), $)
 {
 @renderings.append: $glyph ~ color('red') ~ 'removing tomatoe' ;
 r = Data::Dump::Tree::Type::Nothing ;
 }
 
-multi sub my_filter(Hash $s, ($depth, $glyph, @renderings), (@sub_elements))
+multi sub my_filter(Hash $s, ($depth, $glyph, @renderings), @sub_elements)
 {
 #@renderings.append: $glyph ~ "SUB ELEMENTS" ;
 @sub_elements = (('key', ': ', 'value'), ('other_key', ': ', 1)) ; 

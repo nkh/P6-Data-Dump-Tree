@@ -4,6 +4,12 @@ why has xx doesn't work in role, should
 wy can'r pass role (does =>) with argument
 eqv not implemented for Match
 
+color objects
+
+scoped filters
+
+object size
+
 ColorStr class
 	keeps color and string separated, or colored string and length of uncolored string
 

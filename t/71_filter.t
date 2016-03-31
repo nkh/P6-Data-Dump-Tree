@@ -12,7 +12,7 @@ plan 4 ;
 
 
 # remove the Hashes
-multi sub header_filter(\r, Hash $s, ($depth, $glyph, @renderings), (\k, \b, \v, \f, \final, \want_address))
+multi sub header_filter(\r, Hash $s, ($depth, $path, $glyph, @renderings), (\k, \b, \v, \f, \final, \want_address))
 {
 # but only the one the ones which names contain the word 'color'
 # DDT calls the type handler before the filters so it has already all
@@ -32,7 +32,7 @@ else
 
 # we can also act at a higher level, this filter catches the DDT object
 # before the Hashes are displayed
-multi sub elements_filter(Data::Dump::Tree $s, ($depth, $glyph, @renderings), (@sub_elements))
+multi sub elements_filter(Data::Dump::Tree $s, ($depth, $glyph, @renderings), @sub_elements)
 {
 # simply show that we were called
 @renderings.append: $glyph ~ "SUB ELEMENTS " ~ $s.^name ;
@@ -44,7 +44,7 @@ multi sub elements_filter(Data::Dump::Tree $s, ($depth, $glyph, @renderings), (@
 my $d = Data::Dump::Tree.new(color => False) ;
 my $dump = $d.get_dump($d, header_filters => (&header_filter,), elements_filters => (&elements_filter,)) ;
 
-is $dump.lines.elems, 26, 'lines output' or diag $dump ;
+is $dump.lines.elems, 29, 'lines output' or diag $dump ;
 like $dump, /removing/, 'removing' or diag $dump ;
 like $dump, /'not removing'/, 'not removing' or diag $dump ;
 like $dump, /'SUB ELEMENTS'/, 'sub elements filter' or diag $dump ;

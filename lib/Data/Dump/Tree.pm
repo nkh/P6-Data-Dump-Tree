@@ -36,6 +36,9 @@ has $.display_type is rw = True ;
 has $.display_address is rw = True ;
 has $.display_perl_address is rw = False ; 
 
+has %.paths ;
+has $.keep_paths is rw = False ;
+
 has $.width is rw ; 
 
 has $.max_depth is rw = -1 ;
@@ -86,6 +89,7 @@ method reset
 {
 $!address = 0 ;
 %!rendered = () ;
+%.paths = () ;
 
 $!colorizer.set_colors(%.colors, $.color) ;
 
@@ -100,7 +104,7 @@ $.reset ;
 
 my @renderings ;
 
-self.render_element_structure((self.get_title, '', $s), 0, (0, '', '', '', '', ''), @renderings, '') ;
+self.render_element_structure((self.get_title, '', $s, []), 0, (0, '', '', '', '', ''), @renderings, '') ;
 
 @renderings
 }
@@ -120,7 +124,7 @@ method render_non_final($s, $current_depth, @renderings, $continuation_glyph)
 {
 my (@sub_elements, %glyphs) := $.get_sub_elements($s, $current_depth, @renderings, $continuation_glyph) ;
 
-for @sub_elements Z 0 .. * -> ($sub_element, $index)
+for @sub_elements Z 0..* -> ($sub_element, $index)
 	{
 	self.render_element_structure(
 		$sub_element,
@@ -135,7 +139,7 @@ for @sub_elements Z 0 .. * -> ($sub_element, $index)
 method render_element($element, $current_depth, @glyphs, @renderings, $head_glyph)
 {
 
-my ($k, $b, $s) = $element ;
+my ($k, $b, $s, $path) = $element ;
 
 my ($glyph_width, $glyph, $continuation_glyph, $multi_line_glyph, $empty_glyph, $filter_glyph) = @glyphs ;
 ($glyph, $continuation_glyph, $filter_glyph).map: { $_ = $head_glyph ~ $_ } ; 
@@ -143,14 +147,15 @@ my ($glyph_width, $glyph, $continuation_glyph, $multi_line_glyph, $empty_glyph, 
 my $width = $!width - ($glyph_width * ($current_depth + 1)) ;
 
 my ($v, $f, $final, $want_address) ;
-
 ($v, $f, $final, $want_address) = 
 	$s.WHAT =:= Mu
 		?? ('', '.Mu', DDT_FINAL ) 
 		!! self.get_element_header($s) ;
 
-$f = '' unless $.display_type ; 
+$f ~= ':U' unless $s.defined ;
 
+$f = '' unless $.display_type ; 
+ 
 $final //= DDT_NOT_FINAL ;
 $want_address //= $final ?? False !! True ;
 
@@ -162,7 +167,7 @@ my ($address, $rendered) =
 my $s_replacement ;
 
 @!header_filters and $s.WHAT !=:= Mu and  
-	$.filter_header($s_replacement, $s, ($current_depth, $filter_glyph, @renderings), ($k, $b, $v, $f, $final, $want_address)) ;
+	$.filter_header($s_replacement, $s, ($current_depth, $path, $filter_glyph, @renderings), ($k, $b, $v, $f, $final, $want_address)) ;
 
 $s_replacement ~~ Data::Dump::Tree::Type::Nothing and return(True, True, $s, $continuation_glyph) ;
 $s = $s_replacement.defined ?? $s_replacement !! $s ;
@@ -215,8 +220,18 @@ else
 	@sub_elements = |(self!get_element_subs($s) // ()) ;
 	}
 
+if $.keep_paths
+	{
+	for @sub_elements Z 0..* -> (($k, $b, $element), $index)
+		{
+		%.paths{$element.WHICH} = [|(%.paths{$s.WHICH}:v), $s] ;
+
+		@sub_elements[$index] = ($k, $b, $element, %.paths{$element.WHICH}) ;
+		}
+	}
+
 @!elements_filters and $s.WHAT !=:= Mu and
-	$.filter_sub_elements($s, ($current_depth, %glyphs<filter>, @renderings), (@sub_elements,))  ;
+	$.filter_sub_elements($s, ($current_depth, %glyphs<filter>, @renderings), @sub_elements)  ;
 
 @sub_elements, %glyphs 
 }
@@ -226,7 +241,7 @@ method filter_header(\s_replacement, $s, @rend, @ref)
 {
 for @.header_filters -> $filter
 	{
-	#$filter(s_replacement, $s, ($current_depth, $glyph, @renderings), (k, b, v, f, final, want_address)) ;
+	#$filter(s_replacement, $s, ($current_depth, $path, $glyph, @renderings), (k, b, v, f, final, want_address)) ;
 	$filter(s_replacement, $s, @rend, @ref) ;
 	
 	CATCH 
@@ -237,11 +252,11 @@ for @.header_filters -> $filter
 	}
 }
 
-method filter_sub_elements($s, ($current_depth, $glyph, @renderings), (@sub_elements))
+method filter_sub_elements($s, ($current_depth, $glyph, @renderings), @sub_elements)
 {
 for @.elements_filters -> $filter
 	{
-	$filter($s, ($current_depth, $glyph, @renderings), (@sub_elements,)) ;
+	$filter($s, ($current_depth, $glyph, @renderings), @sub_elements) ;
 	
 	CATCH 
 		{
@@ -265,7 +280,7 @@ for @.footer_filters -> $filter
 	}
 }
 
-multi method get_element_header($e) 
+method get_element_header($e) 
 {
 (self.can('get_header')[0].candidates.grep: {.signature.params[1].type ~~ $e.WHAT}) 
 	?? $.get_header($e) #specific to $e
@@ -346,7 +361,7 @@ else
 $kvf, @ks, @vs, @fs 
 }
 
-multi method split_text(Cool:U $text, $width) { 'type object' }
+multi method split_text(Cool:U $text, $width) { '' }
 
 multi method split_text(Cool:D $text, $width)
 {
@@ -374,7 +389,15 @@ method !get_address($e)
 {
 my $ddt_address = $!address++ ;
 my $perl_address = $e.WHICH ;
-$perl_address ~= ':DDT:' ~ $e.WHERE unless $perl_address ~~ /\d ** 4/ ;
+
+if ! $e.defined 
+	{
+	$perl_address ~= ':DDT:TYPE_OBJECT' ;
+	}
+else
+	{
+	$perl_address ~= ':DDT:' ~ $e.WHERE unless $perl_address ~~ /\d ** 4/ ;
+	}
 
 my ($link, $rendered) = ('', False) ;
 
@@ -456,9 +479,7 @@ $a.^attributes.grep({$_.^isa(Attribute)}).map:   #weeding out perl internal, tha
 
 	my $value = $a.defined 
 		?? $_.get_value($a) // 'Nil'
-		!! 'type object' ; 
-
-	#my $type = $_.type.^name ;
+		!! $_.type ; 
 
 	($name, ' = ', $value)
 	}
