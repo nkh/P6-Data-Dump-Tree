@@ -8,10 +8,10 @@ method get_P6_internal { ('!UNIT_MARKER', 'GLOBAL', 'EXPORT') }
 # get_headers: "final" objects returnf their value and type
 multi method get_header (IntStr $i) { $i.Int ~ ' / "' ~ $i.Str ~ '"',  '.' ~ $i.^name, DDT_FINAL }
 multi method get_header (Int $i) { $i,  '.' ~ $i.^name, DDT_FINAL }
-multi method get_header (Str:U $s) { 'type object', '.' ~ $s.^name, DDT_FINAL }
+multi method get_header (Str:U $s) { '', '.' ~ $s.^name, DDT_FINAL }
 multi method get_header (Str:D $s) { $s, '.' ~ $s.^name, DDT_FINAL } 
 multi method get_header (Rat $r) { $r  ~ ' (' ~ $r.numerator ~ '/' ~ $r.denominator ~ ')', '.' ~ $r.^name, DDT_FINAL }
-multi method get_header (Match $m) { Q/'/ ~ $m ~ Q/' [/ ~ $m.from ~ '..' ~ $m.to ~ '|', '.' ~ $m.^name, DDT_FINAL } 
+multi method get_header (Match $m) { ~$m, Q/[/ ~ $m.from ~ '..' ~ $m.to ~ '|', DDT_FINAL } 
 multi method get_header (Grammar $g) { $g.perl ~ ' ',  '.' ~ $g.^name, DDT_FINAL, } 
 multi method get_header (Regex $r) { $r.perl.substr(6) ,  '.' ~ $r.^name, DDT_FINAL, } 
 
@@ -24,9 +24,6 @@ multi method get_header (Sub $s) { ( $s.name || '<anon>'), '.' ~ $s.^name, DDT_F
 # get_headers: containers return some information and their type
 multi method get_header (Any $a) 
 {
-#$a.^name.say ;
-#$.get_P6_internal().say ;
-
 given $a.^name 
 	{
 	when 'any' { ( '', '.' ~ $a.^name, DDT_FINAL ) }
@@ -37,7 +34,7 @@ given $a.^name
 multi method get_elements (Any $a) { self!get_Any_attributes($a) } 
 
 multi method get_header (List $l) { '', '(' ~ $l.elems ~ ')' }
-multi method get_elements (List $l) { my $i = 0 ; $l.list.map: -> $v {$i++, ' = ', $v} }
+multi method get_elements (List $l) { $l.list.map: -> $v {$++, ' = ', $v} }
 
 multi method get_header (Array $a) { '', '[' ~ $a.elems ~ ']' }
 
@@ -59,7 +56,7 @@ multi method get_header (Str:D $s) { "'$s'", '.' ~ $s.^name, DDT_FINAL }
 
 role DDTR::PerlString 
 {
-multi method get_header (Str:D $s) { $s.perl, '.' ~ $s.^name, DDT_FINAL } 
+multi method get_header (Str:D $s) { $_ = $s.perl ; S:g/^\"(.*)\"$/$0/, '.' ~ $s.^name, DDT_FINAL } 
 }
 
 role DDTR::PerlSub

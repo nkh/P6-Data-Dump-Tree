@@ -47,8 +47,3 @@ is $dump_4.lines.elems, 15, 'Grammar Match lines' or diag get_dump $dump_4;
 my $dump_4_2 = $d_4.get_dump('ababa' ~~ m:g/a(b)/, display_perl_address => True);
 is $dump_4_2.lines.elems, 5, 'terminal Match lines' or diag get_dump $dump_4_2;
 
-#`{{{
-my $d_5 = Data::Dump::Tree.new does DDTR::MatchDetails ;
-my $dump_5 = $d_5.get_dump([Match, Grammar]);
-is $dump_5.lines.elems, 0, 'type object matches' or diag get_dump $dump_5;
-}}}

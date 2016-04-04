@@ -4,8 +4,10 @@ use Data::Dump::Tree ;
 use Data::Dump::Tree::ExtraRoles ;
 
 
-my $d = Data::Dump::Tree.new does DDTR::MatchDetails(40) ;
-$d does DDTR::PerlString ;
+my $d = Data::Dump::Tree.new(display_address => False) does DDTR::MatchDetails(40) ;
+$d does (DDTR::PerlString, DDTR::FixedGlyphs) ;
+
+#my $d = Data::Dump::Tree.new does (DDTR::MatchDetails(40), DDTR::PerlString, DDTR::FixedGlyphs) ;
 
 my $dump_1 = $d.get_dump('aaaaa' ~~ m:g/ $<token> = a $<T2> = a/);
 $dump_1.say ;
@@ -44,6 +46,7 @@ EOI
 $m = $contents ~~ /<section>*/ ;
 
 my $header = regex { \s* '[' (\w+) ']' \h* \n+ }
-my $dump_5 = $d.get_dump([ $header, $m ], title => 'config', display_info => False, does => (DDTR::AsciiGlyphs,)) ;
+
+my $dump_5 = $d.get_dump([ $header, $m ], title => 'config') ;
 $dump_5.say ;
 

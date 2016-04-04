@@ -6,18 +6,18 @@ role DDTR::StringLimiter
 
 method limit_string(Str $s, $limit)
 {
-if $limit.defined && ~$s.chars > $limit
+if $limit.defined && $s.chars > $limit
 	{
-	Q/'/ ~ $s.substr(0, $limit) ~ Q/'/ ~ '(+' ~ ~$s.chars - $limit ~ Q/)/,
+	$s.substr(0, $limit) ~ '(+' ~ $s.chars - $limit ~ ')'
 	}
 else
 	{
-	Q/'/ ~ $s ~ Q/'/ 
+	$s 
 	}	
 }
 
 
-}
+} #role
 
 role DDTR::MatchStringLimit does DDTR::StringLimiter
 {
@@ -25,7 +25,7 @@ has $.match_string_limit is rw = 10 ;
 
 multi method get_header (Match:D $m) 
 {
-	( $.limit_string(~$m, $.match_string_limit) ~ Q/ [/ ~ $m.from ~ '..' ~ $m.to ~ '|', '.' ~ $m.^name , DDT_FINAL) 
+$.limit_string(~$m, $.match_string_limit), Q/[/ ~ $m.from ~ '..' ~ $m.to ~ '|', DDT_FINAL 
 }
 
 } #role
@@ -36,13 +36,15 @@ role DDTR::MatchDetails does DDTR::StringLimiter
 
 has $.match_string_limit is rw ;
 
-multi method get_header (Match:U $m) { 'type object', '.' ~ $m.^name, DDT_FINAL }
+multi method get_header (Match:U $m) { '', '.' ~ $m.^name, DDT_FINAL }
 multi method get_header (Match:D $m) 
 {
 $m.caps.elems
-	?? ( $.limit_string(~$m, $.match_string_limit) ~ Q/ [/ ~ $m.from ~ '..' ~ $m.to ~ '|', '.' ~ $m.^name ) 
-	!! ( $.limit_string(~$m, $.match_string_limit) ~ Q/ [/ ~ $m.from ~ '..' ~ $m.to ~ '|', '.' ~ $m.^name , DDT_FINAL, DDT_HAS_ADDRESS ) 
+	?? ($.limit_string(~$m, $.match_string_limit), Q/[/ ~ $m.from ~ '..' ~ $m.to ~ '|') 
+	!! ($.limit_string(~$m, $.match_string_limit), Q/[/ ~ $m.from ~ '..' ~ $m.to ~ '|', DDT_FINAL, DDT_HAS_ADDRESS)
 }
+
+
 
 multi method get_elements (Match $m)
 {
@@ -53,13 +55,34 @@ $m.caps.map: -> $p
 	} 
 }
 
+} # role
 
-#role MatchDetails
+
+#`{{
+# role to display Match internals, commented out so we don't waste time compiling it
+
+use Data::Dump::Tree ;
+role DDTR::MatchObject does DDTR::StringLimiter 
+{
+# displays type as .Match and details about Match object
+has $.match_string_limit is rw ;
+
+multi method get_header (Match:U $m) { '', '.' ~ $m.^name, DDT_FINAL }
+multi method get_header (Match:D $m) 
+{
+$m.caps.elems
+	?? ( $.limit_string(~$m, $.match_string_limit), Q/[/ ~ $m.from ~ '..' ~ $m.to ~ '|' ) 
+	!! ( $.limit_string(~$m, $.match_string_limit), Q/[/ ~ $m.from ~ '..' ~ $m.to ~ '|', DDT_FINAL, DDT_HAS_ADDRESS ) 
 }
+
+multi method get_elements (Match $m) { get_Any_attributes($m) } 
+
+} #role
+}}
 
 role DDTR::FixedGlyphs
 {
-has $.fixed_glyph ;
+has $.fixed_glyph  = '   ' ;
 
 multi method get_glyphs
 {
@@ -67,11 +90,11 @@ multi method get_glyphs
 	last => $.fixed_glyph, not_last => $.fixed_glyph,
 	last_continuation => $.fixed_glyph, not_last_continuation => $.fixed_glyph,
 	multi_line => $.fixed_glyph, empty => ' ' x $.fixed_glyph.chars, max_depth => '...', 
+	filter => $.fixed_glyph,
 	}
 }
 
-#role
-}
+} #role
 
 role DDTR::NumberedLevel
 {
@@ -99,8 +122,8 @@ my %colored_glyphs = $.colorizer.color(%glyphs, @.glyph_colors_cycle[$level]) ;
 %colored_glyphs, $glyph_width
 }
 
-#role
-}
+} #role
+
 
 
 # scope for @ssl

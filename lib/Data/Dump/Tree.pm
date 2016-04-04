@@ -23,7 +23,7 @@ has %.colors =
 
 has $.color_glyphs ;
 has @.glyph_colors = < glyph_1> ;
-has @!glyph_colors_cycle ; 
+has @.glyph_colors_cycle ; 
 
 has @.header_filters ;
 has @.elements_filters ;
@@ -224,7 +224,7 @@ if $.keep_paths
 	{
 	for @sub_elements Z 0..* -> (($k, $b, $element), $index)
 		{
-		%.paths{$element.WHICH} = [|(%.paths{$s.WHICH}:v), $s] ;
+		%.paths{$element.WHICH} = [|(%.paths{$s.WHICH}:v), [$s, $k]] ;
 
 		@sub_elements[$index] = ($k, $b, $element, %.paths{$element.WHICH}) ;
 		}
@@ -232,6 +232,7 @@ if $.keep_paths
 
 @!elements_filters and $s.WHAT !=:= Mu and
 	$.filter_sub_elements($s, ($current_depth, %glyphs<filter>, @renderings), @sub_elements)  ;
+
 
 @sub_elements, %glyphs 
 }
@@ -325,6 +326,8 @@ else
 	{
 	@ks = $!colorizer.color(@ks, 'key') ; 
 	@vs = $!colorizer.color(@vs, 'value') ; 
+
+	@fs.append: '' unless @fs ;
 	
 	if (@fs.join ~ ' ' ~ $ddt_address ~ $link ~ ' ' ~ $perl_address).chars <= $width 
 		{

@@ -34,6 +34,8 @@ $d.dump_synched(%df1, %df2, compact_width => True, does => (DDTR::MatchDetails,)
 		title => <title>,
 		) ;
 
+say "ran for {now - INIT now} s" ;
+
 multi sub rhs_header_filter(\r, Match $s, ($depth, $path, $glyph, @renderings), $)
 {
 #@renderings.append: $glyph ~ '' ;

@@ -11,8 +11,8 @@ my $d = Data::Dump::Tree.new() ;
 my $string = "aaaaa\n" x 4 ;
 my $dump ;
 
-$dump = $d.get_dump($string ~~ /.*/) ;
-is($dump.lines.elems, 7, '7 lines') or diag $dump ;
+$dump = $d.get_dump($string ~~ /.*/, title => 'title') ;
+is($dump.lines.elems, 6, '6 lines') or diag $dump ;
 
 $d does DDTR::PerlString ;
 $dump = $d.get_dump($string ~~ /.*/) ;
@@ -37,7 +37,7 @@ like $dump, /\+9/, '' ;
 $d does DDTR::MatchDetails(3) ;
 $dump = $d.get_dump($string ~~ /(.*)/) ;
 is($dump.lines.elems, 2, '2 lines') or diag $dump ;
-like $dump, /\+21/, '' ;
+like $dump, /\+21/, '' or diag $dump ;
 
 $d.match_string_limit = 15 ;
 $dump = $d.get_dump($string ~~ /(.*)/) ;

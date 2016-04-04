@@ -25,7 +25,7 @@ It also
 
 =item can display the difference between two data structures
 
-=item can be used "visit" a data structure and call callbacks you define
+=item can be used to "visit" a data structure and call callbacks you define
 
 If you have Term::ANSIColor installed, the output will be so colored.
 
@@ -86,17 +86,17 @@ returns an array containing the dump of the data structure
 	|  |- $.size = 6.Str
 	|  `- $.name = P6 class.Str
 	`- 4 = (3) @3
-	   |- 0 = 'a' [0 .. 1].Match
-	   |- 1 = 'a' [1 .. 2].Match
-	   `- 2 = 'a' [2 .. 3].Match
+	   |- 0 = a[0..1]
+	   |- 1 = a[1..2]
+	   `- 2 = a[2..3]
 
 =head1 DUMP 
 Each line of output consists 5 elements, 2 elements, the tree and the address,
 are under the control of Data::Dump::Tree, The three remaining elements can
 be under your control but Data::Dump::Tree provides defaults.	
 
-Refer to section 'handling specific types' to learn how to add your own types
-or render specific types with your how handlers.
+Refer to section 'handling specific types' to learn how to render specific 
+types with your own type handlers.
 
 =head2 Elements of the dump
 
@@ -119,7 +119,7 @@ The value of the element being displayed; Data::Dump::Tree displays the value of
 "terminal" variables, eg: Str, Int, Rat. For containers, nothing is displayed.
 
 =head3 Types
-The type of the variable with a '.' prepended. IE: '.Str', '.MyClass'
+The type of the variable with a '.' appended. IE: '.Str', '.MyClass'
 
 Data::DumpTree will display
 
@@ -129,9 +129,11 @@ Data::DumpTree will display
 
 =item  Lists as '(x)' where x is the number of element of the list
 
+=item  Maches as '[x..y|' where x..y is the match range
+
 =head3 address
 the Data::Dump::Tree address is added to every container in the form of a '@'
-and an index that is incremented for heach container. If a container is
+and an index that is incremented for heach container. If a container is found
 multiple times in the output, it will be rendered once only then referred to 
 by '@current_address = @first_time_seen' 
 
@@ -239,7 +241,7 @@ The tree is draw with ANSI codes, if possible, otherwise in ASCII. See roles
 AsciiGyphs and UnicodeGlyphs.
 
 =head3 handling specific types
-This section will show you how to write specific handler in the classes that
+This section will show you how to write specific handlers in the classes that
 you create and to create a custom rendering for a specific class, even if it 
 is not under your control.
 
@@ -247,7 +249,7 @@ is not under your control.
 
 When Data::Dump::Tree renders an object, it first checks if it has an internal
 handler for that type; if no handler is found, the object is queried and its
-handler is used, if any; finally, Data::Dump::Tree uses a generic handler.
+handler is used, if none; finally, Data::Dump::Tree uses a generic handler.
 
 It is important to understand that you precisely control how your class is 
 rendered, You can even return completely different data than the one contained
@@ -262,7 +264,7 @@ Data::Dump::Tree uses two methods, you can define either one or both.
 	method ddt_get_header 
 	{
 	# some comment, usually blank # class type
-	"something about this class", '.' ~ self.^name" 
+	"something about this class", '.' ~ self.^name 
 	}
 
 
@@ -289,8 +291,9 @@ In the type handler, you can:
 If your keys or values are text string and they contain embedded "\n", 
 Data::Dump::Tree will display them on multiple lines. See the Role section.
 
-The module tests, examples diretory, and Data::Dump::Tree::DescribeBaseobjects are a good place to
-look at for more examples.
+The module tests, and examples diretory, and 
+Data::Dump::Tree::DescribeBaseobjects are a good place to look at for more
+examples.
 
 =head4 classes defined by someone else and base types
 
@@ -349,7 +352,7 @@ attributes, we display the Rat on a single line. Here is the handler:
  
 	multi method get_header (Rat $r)
 	{
-	# the rendition of the Rat
+	# the rendering of the Rat
 	$r ~ ' (' ~ $r.numerator ~ '/' ~ $r.denominator ~ ')',
 
 	#its type
@@ -382,8 +385,8 @@ To pass a filter to the dumper:
 Filters are called three times during the rendering of each object.
 
 =item DDT_HEADER
-This is called just after the type's U<get_header> is called, this allows you to
-insert something in the tree rendering
+This is called just after the type's U<get_header> is called, this allows you, EG,
+to insert something in the tree rendering
 
 	sub header_filter(
 		$r,                                     # replacement
@@ -409,7 +412,7 @@ or change the B<rendering> of the object
 
 	# in this trivial example we are replacing Ints by Hashes
 	# since the Hash we use also contains an Int, we make sure we don't
-	# recurs infinitely
+	# recurs indefinitely
 
 	if $depth < 3 
 		{
@@ -520,7 +523,7 @@ codes and hex values.
 Sub objects will be rendered with .perl
 
 =item DDTR::FixedGlyphs 
-Replace all the glyphs by a single glyph
+Replace all the glyphs by a single glyph; default is a three spaces glyph.
 
 	my $d = Data::Dump::Tree.new does DDTR::FixedGlyphs(' . ') ;
 
@@ -544,15 +547,14 @@ U<Match> objects are displayed as the string that it matched as well as the
 match start and end position.
 
 	# multiline match
-	'aaaaa
 	aaaaa
 	aaaaa
 	aaaaa
-	' [0..24|
-	.Match  
+	aaaaa
+	[0..24|
 	
 	# same match with PerlString role
-	"'aaaaa\naaaaa\naaaaa\naaaaa\n' [0..24|".Match  
+	"'aaaaa\naaaaa\naaaaa\naaaaa\n'[0..24|"  
 
 Some Roles are provided to allows you to change how Match object are displayed.
 
@@ -560,14 +562,14 @@ Some Roles are provided to allows you to change how Match object are displayed.
 Limits the length of the match string.
 
 	# default max length of 10 characters
-	"'aaaaa\naaaa'(+14)' [0..24|".Match  
+	aaaaa\naaaa(+14)[0..24|  
 
 You can set the maximum string length either by specifying a length when the 
 role is added to the dumper.
 
 	$dumper does DDTR::MatchLimit(15) ;
 	
-	"'aaaaa\naaaaa\n'(+12)' [0..24|".Match  
+	aaaaa\naaaaa\n(+12)'[0..24|  
 
 or by setting the U<$.match_string_limit> member variable
 
@@ -575,7 +577,7 @@ or by setting the U<$.match_string_limit> member variable
 	...
 	$dumper.match_string_limit = 15 ;
 	
-	"'aaaaa\naaaaa\n'(+12)' [0..24|".Match  
+	aaaaa\naaaaa\n(+12)[0..24|  
 
 The specified length is displayed, the length of the remaining part is
 displayed within parenthesis.
@@ -588,21 +590,24 @@ You can set the maximum string length either by specifying a length when the
 role is added to the dumper or by setting the U<$.match_string_limit> member
 variable.
 
-	$dumper does DDTR::MatchDetails ;
-	
-	 "'    [passwords]\n        jack=password1\n '(+74) [0..114|".Match @1 
-	   |- section => "'    [passwords]\n        jack=password1\n '(+29) [0..69|".Match @2 
-	   |  |- header => "'    [passwords]\n' [0..16|".Match @3 
-	   |  |  `- 0 => "'passwords' [5..14|".Match @4 
-	   |  |- kvpair => "'        jack=password1\n' [16..39|".Match @5 
-	   |  |  |- identifier => "'jack' [24..28|".Match @6 
-	   |  |  |- key => "'jack' [24..28|".Match @7 = @6 
-	   |  |  |- identifier => "'password1' [29..38|".Match @8 
-	   |  |  `- value => "'password1' [29..38|".Match @9 = @8 
-	   |  `- kvpair => "'        joy=muchmoresecure123\n' [39..69|".Match @10 
-	   |     |- identifier => "'joy' [47..50|".Match @11 
-	   ...
+	# from examples/named_captures.pl
+	$dumper does (DDTR::MatchDetails, DDTR::FixedGlyphs) ;
 
+	config [2]  
+	   0 = \{ \\s* '[' (\\w+) ']' \\h* \\n+ }.Regex  
+	   1 =     [passwords]\n        jack=password1\n (+74)[0..114|  
+	      section =>     [passwords]\n        jack=password1\n (+29)[0..69|  
+		 header =>     [passwords]\n[0..16|  
+		    0 => passwords[5..14|  
+		 kvpair =>         jack=password1\n[16..39|  
+		    identifier => jack[24..28|  
+		    key => jack[24..28|  
+		    identifier => password1[29..38|  
+		    value => password1[29..38|  
+		 kvpair =>         joy=muchmoresecure123\n[39..69|  
+		    identifier => joy[47..50|  
+		    key => joy[47..50|  
+		
 =head1 BUGS
 Submit bugs (preferably as executable tests) and feel free to make 
 suggestions.
