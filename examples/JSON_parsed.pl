@@ -28,8 +28,11 @@ Q<<{
 }>> ;
 
 my $parsed = JSON::Tiny::Grammar.parse($JSON) ;
-#$parsed.gist.say ;
+$parsed.perl.say ;
+$parsed.gist.say ;
 
+use Data::Dump ;
+Dump($parsed).say ;
 
 my $d = Data::Dump::Tree.new(
 		title => 'Parsed JSON', 

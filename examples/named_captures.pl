@@ -3,6 +3,11 @@
 use Data::Dump::Tree ;
 use Data::Dump::Tree::ExtraRoles ;
 
+my $d0 = Data::Dump::Tree.new(display_address => False) ;
+$d0 does (DDTR::PerlString, DDTR::FixedGlyphs) ;
+
+my $dump_0 = $d0.get_dump('aaaaa' ~~ m:g/ $<token> = a $<T2> = a/);
+$dump_0.say ;
 
 my $d = Data::Dump::Tree.new(display_address => False) does DDTR::MatchDetails(40) ;
 $d does (DDTR::PerlString, DDTR::FixedGlyphs) ;

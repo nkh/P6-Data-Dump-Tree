@@ -73,7 +73,6 @@ multi sub my_filter($s, ($depth, $filter_glyph, @renderings))
 @renderings.append: $filter_glyph ~ "FOOTER for {$s.^name}" ;
 }
 
-#$d.dump($s, header_filters => (&my_filter,), elements_filters => (&my_filter,), footer_filters => (&my_filter,)) ;
 $d.dump($s2) ;
 $d.dump($s2, header_filters => (&my_filter,), elements_filters => (&my_filter,), footer_filters => (&my_filter,)) ;
 
