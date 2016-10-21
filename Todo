@@ -1,43 +1,55 @@
 eqv bug with class o examples, lexical scope operator in rakudo, OUTER, ...
+
 report -match WHICH problem, match has no identity
+
 why has xx doesn't work in role, should 
-wy can'r pass role (does =>) with argument
+
+why can't pass role (does =>) with argument
+
+
+second pass to remove references that are not refered to
+
+user defined address name
+	is some nodes are of specific importance, give them name that can be used to 
+	display the reference rather than a standard @1234, eg, @important_node
+
 eqv not implemented for Match
 
-color objects
+#color objects
 
-scoped filters
+#scoped filters
 
 object size
 
 ColorStr class
 	keeps color and string separated, or colored string and length of uncolored string
 
-paths
+#paths
 	can be used in filters
 	
-diff list
+#diff list
 	can use paths
 
 #test::compare:DDT::diff
 
 #roles to sub dump
 
-filters on generic containers
-scoped filter and roles
+#filters on generic containers
+!scoped filter and roles
+	=> path and depth are enough for now
 
 Requirements:
 
 user interaction layer
-	cache
+	!cache
 		to avoid re-generating the data
 	
 	representation in
-		Prima, curses, gtk, dhtml
+		Prima, curses, gtk, dhtml, #terminal
 
 
 dumper
-	options
+	#options
 		#max depth, ...
 
 	name
@@ -45,20 +57,22 @@ dumper
 		eg: a piece of code contains a dumper but the user wants to control
 			in which scope the dump should be done		
 
-	handles multiple iterators
+	#handles multiple iterators
 		synchronized glyphs (diff)
 
-	returns one or multiple "row representations"
+	#returns one or multiple "row representations"
 		multiple rows have synchronization points
 
-	start and end tag per level
+	#start and end tag per level
 		ease generation of HTML for example
 
 	#user defined filters
 
-	dumps can be gathered from multiple source dynamically
+	#dumps can be gathered from multiple source dynamically
 		when getting to a specific point, data is gathered from another source
 		no need to create a data structure in advance
+	
+		=> any object can declare handler, including dynamic sources
 
 	dump, gather, dump_gathered, reset interface.
 
@@ -68,19 +82,19 @@ dumper
 
 	supports threads
 
-	lazy row represention element generation
+	lazy row representation element generation
 
 	can modify a previous glyph if the level after it is not the expected one
 		ie, an element becomes the latest in the level
 
-	when dumping multiple structures simulteanously
+	#when dumping multiple structures simultaneously
 		diff color
 		diff column
 		diff glyphs
 
-row representation
+#row representation
 	can contain multiple fields for each data element dumped
-		level, #data, #type, #inheritence, size, taint, tie, weak references, ...
+		level, #data, #type, #inheritance, size, taint, tie, weak references, ...
 	
 	#user registrable representation generators
 	class defined generator
@@ -90,20 +104,20 @@ row representation
 		per level
 		per type
 
-	lazy represention generation
+	lazy representation generation
 
 	},
 
-data iterator
+#data iterator
 	from data structure
 	from feeder
 		ie data can come from a stream
 
 
-glyph generator
+#glyph generator
 	option for different glyph representations
 
 	generate a glyph based on a hierarchical level
-		methode, input level, input glyphs, output a string
+		method, input level, input glyphs, output a string
 
 
