@@ -2,6 +2,7 @@
 use JSON::Tiny ;
 use Data::Dump::Tree ;
 use Data::Dump::Tree::ExtraRoles ;
+use Data::Dump::Tree::DescribeBaseObjects ;
 
 my $JSON =
 Q<<{

@@ -2,6 +2,7 @@
 
 use Data::Dump::Tree ;
 use Data::Dump::Tree::ExtraRoles ;
+use Data::Dump::Tree::DescribeBaseObjects ;
 
 my $d0 = Data::Dump::Tree.new(display_address => False) ;
 $d0 does (DDTR::PerlString, DDTR::FixedGlyphs) ;

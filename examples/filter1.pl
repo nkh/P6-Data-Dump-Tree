@@ -1,4 +1,6 @@
 use Data::Dump::Tree ;
+use Data::Dump::Tree::Enums ;
+use Data::Dump::Tree::DescribeBaseObjects ;
 use Data::Dump::Tree::ExtraRoles ;
 use Terminal::ANSIColor ;
 

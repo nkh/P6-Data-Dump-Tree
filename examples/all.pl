@@ -1,6 +1,7 @@
 #!/usr/bin/env perl6
 
 use Data::Dump::Tree ;
+use Data::Dump::Tree::Enums ;
 
 class Strings
 {
