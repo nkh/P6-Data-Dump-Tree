@@ -4,6 +4,8 @@ use Test ;
 plan 4 ;
 
 use Data::Dump::Tree ;
+use Data::Dump::Tree::Enums ;
+
 my $d = Data::Dump::Tree.new ;
 
 class C { has Any $!class_variable  }

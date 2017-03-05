@@ -5,6 +5,7 @@ plan 8 ;
 
 use Data::Dump::Tree ;
 use Data::Dump::Tree::ExtraRoles ;
+use Data::Dump::Tree::DescribeBaseObjects ;
 
 my $d = Data::Dump::Tree.new(width => 79, display_perl_address => False)  does DDTR::MatchDetails ;
 

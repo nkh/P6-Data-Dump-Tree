@@ -5,6 +5,7 @@ plan 2 ;
 
 use Data::Dump::Tree ;
 use Data::Dump::Tree::ExtraRoles ;
+use Data::Dump::Tree::DescribeBaseObjects ;
 
 my regex header { \s* '[' \w+ ']' \h* \n+ }
 my regex identifier  { \w+ }

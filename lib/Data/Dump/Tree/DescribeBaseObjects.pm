@@ -3,7 +3,7 @@ use Data::Dump::Tree::Enums ;
 
 role DDTR::DescribeBaseObjects
 {
-method get_P6_internal { ('!UNIT_MARKER', 'GLOBAL', 'EXPORT') }
+method get_P6_internal { ('!UNIT_MARKER', 'GLOBAL', 'EXPORT', 'Data', 'Test') }
 
 # get_headers: "final" objects returnf their value and type
 multi method get_header (IntStr $i) { $i.Int ~ ' / "' ~ $i.Str ~ '"',  '.' ~ $i.^name, DDT_FINAL }
@@ -46,7 +46,6 @@ multi method get_elements (Stash $s) { $s.sort(*.key)>>.kv.map: -> ($k, $v) {$k,
 
 multi method get_header (Map $m) { '', '.' ~ $m.^name } 
 multi method get_elements (Map $m) { $m.sort(*.key)>>.kv.map: -> ($k, $v) {$k, ' => ', $v} }
-
 }
 
 role DDTR::QuotedString 

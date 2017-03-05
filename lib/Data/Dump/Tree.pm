@@ -147,6 +147,7 @@ my ($glyph_width, $glyph, $continuation_glyph, $multi_line_glyph, $empty_glyph, 
 my $width = $!width - ($glyph_width * ($current_depth + 1)) ;
 
 my ($v, $f, $final, $want_address) ;
+
 ($v, $f, $final, $want_address) = 
 	$s.WHAT =:= Mu
 		?? ('', '.Mu', DDT_FINAL ) 
@@ -231,7 +232,7 @@ if $.keep_paths
 	}
 
 @!elements_filters and $s.WHAT !=:= Mu and
-	$.filter_sub_elements($s, ($current_depth, %glyphs<filter>, @renderings), @sub_elements)  ;
+	$.filter_sub_elements($s, ($current_depth, $continuation_glyph ~ %glyphs<filter>, @renderings), @sub_elements)  ;
 
 
 @sub_elements, %glyphs 
@@ -288,7 +289,7 @@ method get_element_header($e)
 	!! $e.^name ~~ none(self.get_P6_internal()) && $e.can('ddt_get_header') 
 		?? $e.ddt_get_header() # $e class provided
 		!! $.get_header($e) ;  # generic handler
-}
+}	
 
 method !get_element_subs($s)
 {

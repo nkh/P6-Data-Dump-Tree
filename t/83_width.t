@@ -4,6 +4,7 @@ use Test ;
 plan 10 ;
 
 use Data::Dump::Tree;
+use Data::Dump::Tree::DescribeBaseObjects ;
 
 my $dump = get_dump '1234567890' x 6, title => 't:', width => 79, color => False, does => (DDTR::AsciiGlyphs,) ;
 is $dump.lines.elems, 1, '1 line, default width setting' or diag $dump ;

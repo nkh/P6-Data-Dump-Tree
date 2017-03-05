@@ -4,6 +4,7 @@ use Test ;
 plan 1 ;
 
 use Data::Dump::Tree ;
+use Data::Dump::Tree::Enums ;
 
 class Strings
 {

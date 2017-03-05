@@ -1,3 +1,6 @@
+
+DDT_FINAL should be able to add a text to the dump as an extra information to user
+
 eqv bug with class o examples, lexical scope operator in rakudo, OUTER, ...
 
 report -match WHICH problem, match has no identity

@@ -5,6 +5,7 @@ plan 13 ;
 
 use Data::Dump::Tree ;
 use Data::Dump::Tree::ExtraRoles ;
+use Data::Dump::Tree::DescribeBaseObjects ;
 
 my $d = Data::Dump::Tree.new() ;
 
