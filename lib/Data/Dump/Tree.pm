@@ -30,6 +30,7 @@ has @.elements_filters ;
 has @.footer_filters ;
 
 has %!rendered ;
+has %!element_names ;
 has $!address ;
 has $.display_info is rw = True ;
 has $.display_type is rw = True ;
@@ -389,6 +390,22 @@ method superscribe($text) { $text }
 method superscribe_type($text) { $text }
 method superscribe_address($text) { $text }
 
+method set_element_name($e, $name)
+{
+my $perl_address = $e.WHICH ;
+
+if ! $e.defined 
+	{
+	$perl_address ~= ':DDT:TYPE_OBJECT' ;
+	}
+else
+	{
+	$perl_address ~= ':DDT:' ~ $e.WHERE unless $perl_address ~~ /\d ** 4/ ;
+	}
+
+%!element_names{$perl_address} = $name ;
+}
+
 method !get_address($e)
 {
 my $ddt_address = $!address++ ;
@@ -409,10 +426,12 @@ if %!rendered{$perl_address}:exists
 	{
 	$rendered++ ;
 	$link = ' = @' ~ %!rendered{$perl_address} ;
+	$link ~= ' ' ~ %!element_names{$perl_address} if %!element_names{$perl_address}:exists
 	}
 else
 	{
 	%!rendered{$perl_address} = $ddt_address ;
+	$ddt_address ~= ' ' ~ %!element_names{$perl_address} if %!element_names{$perl_address}:exists
 	}
 
 my $address = 
@@ -423,7 +442,6 @@ my $address =
 		$link, 
 		) 
 	!!	('', '', '',) ;
-
 
 $address, $rendered
 }
@@ -510,5 +528,4 @@ $t
 
 #class
 }
-
 

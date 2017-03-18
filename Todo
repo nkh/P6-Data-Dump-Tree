@@ -12,7 +12,11 @@ why can't pass role (does =>) with argument
 
 second pass to remove references that are not refered to
 
-user defined address name
+
+Only container containers can have names
+	give names to all possible elements or example a filter that can add names/hilight
+
+#user defined address name
 	is some nodes are of specific importance, give them name that can be used to 
 	display the reference rather than a standard @1234, eg, @important_node
 

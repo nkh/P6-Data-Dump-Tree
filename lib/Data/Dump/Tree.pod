@@ -137,6 +137,19 @@ and an index that is incremented for heach container. If a container is found
 multiple times in the output, it will be rendered once only then referred to 
 by '@current_address = @first_time_seen' 
 
+It is possible to name containers by using I<set_element_name> before dumping 
+your data structure.
+
+	my $d = Data::Dump::Tree.new ;
+
+	$d.set_element_name($s[5], 'some list') ;
+	$d.set_element_name(@a, 'some array') ;
+
+	$d.dump($s) ;
+
+If an element is named, its name will be displayed next to his address, the
+first time it is displayed and when an element refers to it. 
+
 =head2 Configuration and Overrides
 There are multiple ways to configure the Dumper. You can pass a configuration
 to the dump() sub or you can create a dumper object that you configure at
