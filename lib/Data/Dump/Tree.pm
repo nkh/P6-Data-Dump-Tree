@@ -31,10 +31,13 @@ has @.footer_filters ;
 
 has %!rendered ;
 has %!element_names ;
+
 has $!address ;
+
+has DDT_Address_Display $.display_address is rw = DDT_Address_Display::DDT_DISPLAY_CONTAINER ;
+
 has $.display_info is rw = True ;
 has $.display_type is rw = True ;
-has $.display_address is rw = True ;
 has $.display_perl_address is rw = False ; 
 
 has %.paths ;
@@ -56,7 +59,11 @@ else
 
 for @does // () -> $role { $object does $role }
 
-if $object.display_info == False { $object.display_type = $object.display_address = False ; };
+if $object.display_info == False 
+	{
+	$object.display_type = False ;
+	$object.display_address = DDT_DISPLAY_NONE ;
+	}
 
 $object 
 }
@@ -81,7 +88,11 @@ my $clone = self.clone(|%options) ;
 
 for %options<does> // () -> $role { $clone does $role } 
 
-if %options<display_info>.defined && %options<display_info> == False { $clone.display_type = $clone.display_address = False ; };
+if %options<display_info>.defined && %options<display_info> == False 
+	{
+	$clone.display_type = False ;
+	$clone.display_address = DDT_DISPLAY_NONE ; 
+	}
 
 $clone.render_root($s)
 }
@@ -155,19 +166,31 @@ my ($v, $f, $final, $want_address) ;
 		!! self.get_element_header($s) ;
 
 $f ~= ':U' unless $s.defined ;
-
 $f = '' unless $.display_type ; 
  
 $final //= DDT_NOT_FINAL ;
-$want_address //= $final ?? False !! True ;
+
+
+if $.display_address == DDT_DISPLAY_NONE | DDT_DISPLAY_ALL 
+	{
+	$want_address = True ;
+	}
+elsif $.display_address == DDT_DISPLAY_CONTAINER 
+	{
+	$want_address //= ! $final ;
+	}
+
 
 my ($address, $rendered) =
 	$s.WHAT !=:= Mu
 		?? $want_address ?? self!get_address($s) !! (Nil, True)
-		!! (('', '', ''), True) ;
+		!! (Nil, True) ;
+
+
+$address = Nil if $.display_address == DDT_DISPLAY_NONE ;
+
 
 my $s_replacement ;
-
 @!header_filters and $s.WHAT !=:= Mu and  
 	$.filter_header($s_replacement, $s, ($current_depth, $path, $filter_glyph, @renderings), ($k, $b, $v, $f, $final, $want_address)) ;
 
@@ -400,10 +423,9 @@ if ! $e.defined
 	}
 else
 	{
-	$perl_address ~= ':DDT:' ~ $e.WHERE unless $perl_address ~~ /\d ** 4/ ;
+	$perl_address ~= ':DDT:' ~ $e.WHICH unless $perl_address ~~ /\d ** 4/ ;
+	%!element_names{$perl_address} = $name ;
 	}
-
-%!element_names{$perl_address} = $name ;
 }
 
 method !get_address($e)
@@ -417,7 +439,7 @@ if ! $e.defined
 	}
 else
 	{
-	$perl_address ~= ':DDT:' ~ $e.WHERE unless $perl_address ~~ /\d ** 4/ ;
+	$perl_address ~= ':DDT:' ~ $e.WHICH unless $perl_address ~~ /\d ** 4/ ;
 	}
 
 my ($link, $rendered) = ('', False) ;

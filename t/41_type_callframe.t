@@ -21,7 +21,7 @@ final = DDT_FINAL ;
 
 my $dump = $d.get_dump([callframe()], color => False, width => 75, elements_filters => (&Stash_no_sub,), header_filters =>(&compress_ddt,)) ;
 
-is($dump.lines.elems, 31, '31 lines of filtered callframedump ') or diag $dump ;
+is($dump.lines.elems, 35, 'lines of filtered callframedump') or diag $dump ;
 
 like $dump, /CallFrame/, 'CallFrame' or diag $dump ;
 like $dump, /'$.my'/, '$.my element' or diag $dump ;
