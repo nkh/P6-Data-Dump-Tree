@@ -25,7 +25,9 @@ has $.match_string_limit is rw = 10 ;
 
 multi method get_header (Match:D $m) 
 {
-$.limit_string(~$m, $.match_string_limit), Q/[/ ~ $m.from ~ '..' ~ $m.to ~ '|', DDT_FINAL 
+$m.from ==  $m.to - 1 
+	?? ($.limit_string(~$m, $.match_string_limit), Q/[/ ~ $m.from ~ Q/]/ , DDT_FINAL)
+	!! ($.limit_string(~$m, $.match_string_limit), Q/[/ ~ $m.from ~ '..' ~ $m.to -1 ~ ']', DDT_FINAL) 
 }
 
 } #role
@@ -40,8 +42,14 @@ multi method get_header (Match:U $m) { '', '.' ~ $m.^name, DDT_FINAL }
 multi method get_header (Match:D $m) 
 {
 $m.caps.elems
-	?? ($.limit_string(~$m, $.match_string_limit), Q/[/ ~ $m.from ~ '..' ~ $m.to ~ '|') 
-	!! ($.limit_string(~$m, $.match_string_limit), Q/[/ ~ $m.from ~ '..' ~ $m.to ~ '|', DDT_FINAL, DDT_HAS_ADDRESS)
+	?? $m.from == $m.to - 1 
+		?? ($.limit_string(~$m, $.match_string_limit), Q/[/ ~ $m.from ~ Q/]/)
+		!! ($.limit_string(~$m, $.match_string_limit), Q/[/ ~ $m.from ~ '..' ~ $m.to - 1 ~ ']')
+			 
+	!! $m.from == $m.to - 1 
+		?? ($.limit_string(~$m, $.match_string_limit), Q/[/ ~ $m.from ~ Q/]/, DDT_FINAL, DDT_HAS_ADDRESS)
+		!! ($.limit_string(~$m, $.match_string_limit), Q/[/ ~ $m.from ~ '..' ~ $m.to -1 ~ ']', DDT_FINAL, DDT_HAS_ADDRESS)
+
 }
 
 
@@ -132,7 +140,7 @@ my %colored_glyphs = $.colorizer.color(%glyphs, @.glyph_colors_cycle[$level]) ;
 my @ssl ;
 
 for 	(
-	< . ( ) + - = @ > , < · ⁽ ⁾ ⁺ ⁻ ⁼ ᶝ >,
+	< . ( ) + - = @ [ ] | > , (|< · ⁽ ⁾ ⁺ ⁻ ⁼ >, '', ' ', '', ''),
 	('0'..'9')        , < ⁰ ¹ ² ³ ⁴ ⁵ ⁶ ⁷ ⁸ ⁹ >,
 	('a'..'z')        , < ᵃ ᵇ ᶜ ᵈ ᵉ ᶠ ᵍ ʰ ⁱ ʲ ᵏ ˡ ᵐ ⁿ ᵒ ᵖ ᵠ ʳ ˢ ᵗ ᵘ ᵛ ʷ ˣ ʸ ᶻ >,
 	('A'..'Z')        , < ᴬ ᴮ ᶜ ᴰ ᴱ ᶠ ᴳ ᴴ ᴵ ᴶ ᴷ ᴸ ᴹ ᴺ ᴼ ᴾ ᵠ ᴿ ˢ ᵀ ᵁ ⱽ ᵂ ˣ ʸ ᶻ >, 

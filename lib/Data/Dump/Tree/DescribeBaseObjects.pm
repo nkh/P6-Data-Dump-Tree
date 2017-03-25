@@ -11,7 +11,14 @@ multi method get_header (Int $i) { $i,  '.' ~ $i.^name, DDT_FINAL }
 multi method get_header (Str:U $s) { '', '.' ~ $s.^name, DDT_FINAL }
 multi method get_header (Str:D $s) { $s, '.' ~ $s.^name, DDT_FINAL } 
 multi method get_header (Rat $r) { $r  ~ ' (' ~ $r.numerator ~ '/' ~ $r.denominator ~ ')', '.' ~ $r.^name, DDT_FINAL }
-multi method get_header (Match $m) { ~$m, Q/[/ ~ $m.from ~ '..' ~ $m.to ~ '|', DDT_FINAL } 
+
+multi method get_header (Match $m) 
+	{
+	 $m.from == $m.to - 1 
+		 ?? (~$m, Q/[/ ~ $m.from ~ Q/]/ , DDT_FINAL)
+		 !! (~$m, Q/[/ ~ $m.from ~ '..' ~ $m.to - 1 ~ ']', DDT_FINAL) 
+	}
+
 multi method get_header (Grammar $g) { $g.perl ~ ' ',  '.' ~ $g.^name, DDT_FINAL, } 
 multi method get_header (Regex $r) { $r.perl.substr(6) ,  '.' ~ $r.^name, DDT_FINAL, } 
 

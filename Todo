@@ -1,7 +1,6 @@
 
 Allow filter to add text to the rendering of an element
 
-display a[0..1| as a[0]
 
 object size
 
@@ -11,6 +10,8 @@ ColorStr class
 why can't pass role (does =>) with argument
 
 eqv not implemented for Match
+
+#display a[0..1| as a[0]
 
 #Only container containers can have names
 	give names to all possible elements or example a filter that can add names/hilight

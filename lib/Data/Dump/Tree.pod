@@ -86,9 +86,9 @@ returns an array containing the dump of the data structure
 	|  |- $.size = 6.Str
 	|  `- $.name = P6 class.Str
 	`- 4 = (3) @3
-	   |- 0 = a[0..1]
-	   |- 1 = a[1..2]
-	   `- 2 = a[2..3]
+	   |- 0 = a[0]
+	   |- 1 = a[1]
+	   `- 2 = a[2]
 
 =head1 DUMP 
 Each line of output consists 5 elements, 2 elements, the tree and the address,
@@ -129,7 +129,7 @@ Data::DumpTree will display
 
 =item  Lists as '(x)' where x is the number of element of the list
 
-=item  Maches as '[x..y|' where x..y is the match range
+=item  Maches as '[x..y]' where x..y is the match range or [x] for one element
 
 =head3 address
 the Data::Dump::Tree address is added to every container in the form of a '@'
@@ -557,17 +557,17 @@ Use this role to display the type and address in Unicode superscript letters.
 
 =head3 Match objects
 U<Match> objects are displayed as the string that it matched as well as the
-match start and end position.
+match start and end position (inclusive, unlike .perl).
 
 	# multiline match
 	aaaaa
 	aaaaa
 	aaaaa
 	aaaaa
-	[0..24|
+	[0..23]
 	
 	# same match with PerlString role
-	"'aaaaa\naaaaa\naaaaa\naaaaa\n'[0..24|"  
+	"'aaaaa\naaaaa\naaaaa\naaaaa\n'[0..23]"  
 
 Some Roles are provided to allows you to change how Match object are displayed.
 
@@ -575,14 +575,14 @@ Some Roles are provided to allows you to change how Match object are displayed.
 Limits the length of the match string.
 
 	# default max length of 10 characters
-	aaaaa\naaaa(+14)[0..24|  
+	aaaaa\naaaa(+14)[0..23]  
 
 You can set the maximum string length either by specifying a length when the 
 role is added to the dumper.
 
 	$dumper does DDTR::MatchLimit(15) ;
 	
-	aaaaa\naaaaa\n(+12)'[0..24|  
+	aaaaa\naaaaa\n(+12)'[0..23]  
 
 or by setting the U<$.match_string_limit> member variable
 
@@ -590,7 +590,7 @@ or by setting the U<$.match_string_limit> member variable
 	...
 	$dumper.match_string_limit = 15 ;
 	
-	aaaaa\naaaaa\n(+12)[0..24|  
+	aaaaa\naaaaa\n(+12)[0..23]  
 
 The specified length is displayed, the length of the remaining part is
 displayed within parenthesis.
@@ -608,18 +608,18 @@ variable.
 
 	config [2]  
 	   0 = \{ \\s* '[' (\\w+) ']' \\h* \\n+ }.Regex  
-	   1 =     [passwords]\n        jack=password1\n (+74)[0..114|  
-	      section =>     [passwords]\n        jack=password1\n (+29)[0..69|  
-		 header =>     [passwords]\n[0..16|  
-		    0 => passwords[5..14|  
-		 kvpair =>         jack=password1\n[16..39|  
-		    identifier => jack[24..28|  
-		    key => jack[24..28|  
-		    identifier => password1[29..38|  
-		    value => password1[29..38|  
-		 kvpair =>         joy=muchmoresecure123\n[39..69|  
-		    identifier => joy[47..50|  
-		    key => joy[47..50|  
+	   1 =     [passwords]\n        jack=password1\n (+74)[0..113]  
+	      section =>     [passwords]\n        jack=password1\n (+29)[0..68]  
+		 header =>     [passwords]\n[0..15]  
+		    0 => passwords[5..13]  
+		 kvpair =>         jack=password1\n[16..38]  
+		    identifier => jack[24..27]  
+		    key => jack[24..27]  
+		    identifier => password1[29..37]  
+		    value => password1[29..37]  
+		 kvpair =>         joy=muchmoresecure123\n[39..68]  
+		    identifier => joy[47..49]  
+		    key => joy[47..49]  
 		
 =head1 BUGS
 Submit bugs (preferably as executable tests) and feel free to make 
