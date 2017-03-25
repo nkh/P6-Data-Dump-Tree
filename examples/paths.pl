@@ -9,12 +9,6 @@ my $s =
 	[ [ Tomatoe,], ],
 	123,
 	Tomatoe.new( color => 'green'),
-	{
-		first => [ < a b c > ],
-		second => < a b c >,
-		third => { a => 1, b => 2,},
-	},
-	0.5,
 	] ;
 
 
@@ -29,7 +23,7 @@ multi sub header_filter(\r, $s, ($depth, $path, $glyph, @renderings), $)
 
 # the rendering of the path information is simplistic, take the parent object
 # get a rendering from the dumper, IE an array of 6 elements would give [6]
-# apend it to the key, and add it as an extra information to the current
+# append it to the key, and add it as an extra information to the current
 # element. Eg: element 3 of an array of 6 elements would be rendered
 # as [6]/3.  
 

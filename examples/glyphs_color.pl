@@ -2,19 +2,8 @@
 use Data::Dump::Tree ;
 use Data::Dump::Tree::ExtraRoles ;
 
-my @s = [ [ [ [ [ [], ], ], ], ],  ] ;
 
-dump(@s) ;
-dump(@s, title => 'nested structure', glyph_colors => < glyph_0 glyph_1 glyph_2 glyph_3 >) ;
-
-my regex header { \s* '[' (\w+) ']' \h* \n+ }
-my regex identifier  { \w+ }
-my regex kvpair { \s* <key=identifier> '=' <value=identifier> \n+ }
-my regex section {
-    <header>
-    <kvpair>*
-}
-
+# content to be matched
 my $contents = q:to/EOI/;
     [passwords]
         jack=password1
@@ -24,13 +13,27 @@ my $contents = q:to/EOI/;
         joy=42
 EOI
 
-my $d = Data::Dump::Tree.new(display_perl_address => True) ;
+# define some regexp structure 
+my regex header { \s* '[' (\w+) ']' \h* \n+ }
+my regex identifier  { \w+ }
+my regex kvpair { \s* <key=identifier> '=' <value=identifier> \n+ }
+my regex section {
+    <header>
+    <kvpair>*
+}
+
+# create a match object to dump
+my $m = $contents ~~ /<section>*/ ;
+
+# dump with match details and number the levels
+my $d = Data::Dump::Tree.new ;
 $d does DDTR::MatchDetails ;
 $d does DDTR::NumberedLevel ;
 
-my $m = $contents ~~ /<section>*/ ;
 $d.dump($m) ;
 
+
+# dump again with superscribed text and color glyphs
 $d does DDTR::SuperscribeType ;
 $d does DDTR::SuperscribeAddress ;
 

@@ -1,35 +1,28 @@
 
-DDT_FINAL should be able to add a text to the dump as an extra information to user
+Allow filter to add text to the rendering of an element
 
-eqv bug with class o examples, lexical scope operator in rakudo, OUTER, ...
+display a[0..1| as a[0]
 
-report -match WHICH problem, match has no identity
+object size
 
-why has xx doesn't work in role, should 
+ColorStr class
+	keeps color and string separated, or colored string and length of uncolored string
 
 why can't pass role (does =>) with argument
 
+eqv not implemented for Match
 
-second pass to remove references that are not refered to
-
-
-Only container containers can have names
+#Only container containers can have names
 	give names to all possible elements or example a filter that can add names/hilight
 
 #user defined address name
 	is some nodes are of specific importance, give them name that can be used to 
 	display the reference rather than a standard @1234, eg, @important_node
 
-eqv not implemented for Match
 
 #color objects
 
 #scoped filters
-
-object size
-
-ColorStr class
-	keeps color and string separated, or colored string and length of uncolored string
 
 #paths
 	can be used in filters

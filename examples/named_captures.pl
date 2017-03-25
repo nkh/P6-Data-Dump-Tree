@@ -1,37 +1,23 @@
 #!/usr/bin/env perl6
 
 use Data::Dump::Tree ;
+use Data::Dump::Tree::Enums ;
 use Data::Dump::Tree::ExtraRoles ;
 use Data::Dump::Tree::DescribeBaseObjects ;
 
-my $d0 = Data::Dump::Tree.new(display_address => False) ;
-$d0 does (DDTR::PerlString, DDTR::FixedGlyphs) ;
+# ----------------------------------------------------
+# display result of regex matching with named captures
+# ----------------------------------------------------
 
-my $dump_0 = $d0.get_dump('aaaaa' ~~ m:g/ $<token> = a $<T2> = a/);
-$dump_0.say ;
+# displaying the addresses adds no value to the dump, disable it
+my $d = Data::Dump::Tree.new(display_address => DDT_DISPLAY_NONE) does DDTR::MatchDetails(40) ;
 
-my $d = Data::Dump::Tree.new(display_address => False) does DDTR::MatchDetails(40) ;
-$d does (DDTR::PerlString, DDTR::FixedGlyphs) ;
+$d.dump('aaaaabx' ~~ m:g/ ($<token> = a) ($<T2> = a) ./, title => '"aaaaabx" ~~ m:g/ ($<token> = a) ($<T2> = a) ./');
 
-#my $d = Data::Dump::Tree.new does (DDTR::MatchDetails(40), DDTR::PerlString, DDTR::FixedGlyphs) ;
-
-my $dump_1 = $d.get_dump('aaaaa' ~~ m:g/ $<token> = a $<T2> = a/);
-$dump_1.say ;
-
-my $dump_2 = $d.get_dump('aaaaa' ~~ m:g/ ($<token> = a) ($<T2> = a) a/);
-$dump_2.say ;
-
-my $dump_3 = $d.get_dump('abc-abc-abc' ~~ / $<string>=( [ $<part>=[abc] ]* % '-' ) /) ;
-$dump_3.say ;
+$d.dump('abc-abc-abc' ~~ / $<string>=( [ $<part>=[abc] ]* % '-' ) /, title => '"abc-abc-abc" ~~ / $<string>=( [ $<part>=[abc] ]* % "-" ) /') ;
 
 
-my regex line { \N*\n }
-my $m = "abc\ndef\nghi" ~~ /<line>* ghi/ ;
-
-my $dump_4 = $d.get_dump($m) ;
-$dump_4.say ;
-
-
+# larger example
 my regex header { \s* '[' (\w+) ']' \h* \n+ }
 my regex identifier  { \w+ }
 my regex kvpair { \s* <key=identifier> '=' <value=identifier> \n+ }
@@ -40,7 +26,7 @@ my regex section {
     <kvpair>*
 }
 
-my $contents = q:to/EOI/;
+my $config = q:to/EOI/;
     [passwords]
         jack=password1
         joy=muchmoresecure123
@@ -49,10 +35,20 @@ my $contents = q:to/EOI/;
         joy=42
 EOI
 
-$m = $contents ~~ /<section>*/ ;
+my $regex = regex { \s* '[' (\w+) ']' \h* \n+ }
 
-my $header = regex { \s* '[' (\w+) ']' \h* \n+ }
+my $match = $config ~~ /<section>*/ ;
 
-my $dump_5 = $d.get_dump([ $header, $m ], title => 'config') ;
-$dump_5.say ;
+$d.dump( { :$config, :$regex, :$match }, title => 'config parsing', elements_filters => (&sorter,)) ;
+
+# filter display the elements in a specific order
+# for the only hash that will be in the dump
+# 	for names <config regex match>
+# 		get the element in hash where the key is the name
+#
+multi sub sorter(Hash $s, $, @sub_elements)
+{
+my %h = @sub_elements.map: -> $e { $e[0] => $e } ;
+@sub_elements = <config regex match>.map: -> $e { %h{$e} }
+}
 

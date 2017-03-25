@@ -1,3 +1,4 @@
+
 use Data::Dump::Tree ;
 use Data::Dump::Tree::ExtraRoles ;
 use Data::Dump::Tree::DescribeBaseObjects ;
@@ -6,7 +7,7 @@ use Terminal::ANSIColor ;
 
 # this is a small example of a filter. I was curious about how DDT would
 # render itself. After a few try runs, wit different options, I got tired of
-# seing a long list which consists of a lot of colors so i decided to filter
+# seeing a long list which consists of a lot of colors so I decided to filter
 # them out 
 
 
@@ -24,10 +25,6 @@ if k ~~ /color/
 	@renderings.append: $glyph ~ color('red') ~ 'removing ' ~ k ;
 	r = Data::Dump::Tree::Type::Nothing ;
 	}
-else
-	{
-	@renderings.append: $glyph ~ color('green') ~ 'not removing ' ~ k ;
-	}
 }
 
 
@@ -36,13 +33,16 @@ else
 multi sub my_filter( Data::Dump::Tree $s, ($depth, $glyph, @renderings), @sub_elements)
 {
 # simply show that we were called
-@renderings.append: $glyph ~ "SUB ELEMENTS " ~ $s.^name ;
+@renderings.append: $glyph ~ "sub elements filter called" ~ $s.^name ;
 
 # we could have eliminated any sub element from @sub_elements, or even
 # added some elements
 }
 
+# unfiltered dump
 $d.dump($d) ;
+
+# filtering on
 $d.dump($d, header_filters => (&my_filter,), elements_filters => (&my_filter,)) ;
 
 
