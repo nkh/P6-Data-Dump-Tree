@@ -16,19 +16,13 @@ class Potatoe{}
 
 my $s2 =
 	[
-	Tomatoe,
 	123,
 	Tomatoe,
 	Potatoe,
 	{
 		third => { a => 1},
 	},
-	0.5,
-	Tomatoe,
 	] ;
-
-
-my $d = Data::Dump::Tree.new ;
 
 # dump unfiltered
 dump $s2 ;
@@ -45,25 +39,26 @@ dump $s2, header_filters => (&my_filter,), elements_filters => (&my_filter,), fo
 # filters match on their signatures too
 
 
-# 
-multi sub xmy_filter(\r, Int $s, ($depth, $path, $glyph, @renderings), (\k, \b, \v, \f, \final, \want_address))
+# HEADER FILTER
+multi sub my_filter(\r, Int $s, ($depth, $path, $glyph, @renderings), (\k, \b, \v, \f, \final, \want_address))
 {
 # add text in the rendering
-@renderings.append: $glyph ~ color('bold white on_yellow') ~ "Int replacement" ;
+@renderings.append: $glyph ~ color('bold white on_yellow') ~ "Int HEADER filter" ;
 
-r = { a => 1, b => 2 }  ;
+# can replace ourselves with something else, do not forget to update k, b, v, accordingly
+# r = < abc def > ;
 
-k = k ~ ' Int replaced by ' ;
-#b = '' ;
-#v = '' ;
-#f = '' ;
+k = '<Int> ' ;
+b = '<b>' ;
+v = '<v>' ;
+f = '<f>' ;
 final = DDT_NOT_FINAL ;
 want_address = True ;
-
 }
 
 
-# HEADER, called for every element in the data structure as $s, in the signature, is not typed
+# HEADER FILTER
+# called for every element in the data structure as $s, in the signature, is not typed
 multi sub my_filter($r, $s, ($depth, $path, $glyph, @renderings), ($k, $b, $v, $f, $final, $want_address))
 {
 # add text in the rendering
@@ -71,6 +66,7 @@ multi sub my_filter($r, $s, ($depth, $path, $glyph, @renderings), ($k, $b, $v, $
 }
 
 
+# HEADER FILTER
 # replacement filter, matches Tomatoes, removes them from the dump
 multi sub my_filter(\r, Tomatoe $s, ($depth, $path, $glyph, @renderings), $)
 {
@@ -82,19 +78,21 @@ r = Data::Dump::Tree::Type::Nothing ;
 }
 
 
+# ELEMENTS FILTER
 # Match Hashes and replace their elements
 multi sub my_filter(Hash $s, ($depth, $glyph, @renderings), @sub_elements)
 {
 # add text in the rendering
-@renderings.append: $glyph ~ "Changing the elements of the Hash" ;
+@renderings.append: $glyph ~ "Changing elements of the Hash" ;
 
 # new elements
-@sub_elements = (('rep key1', ': ', 1), ('rep key2', ': ', 2)) ; 
+@sub_elements = (('new element 1', ': ', 2/3), ('new element 2', ': ', 2), ('new element 3', ': ', 3)) ; 
 }
 
 
 
-# FOOTER, called for every element in the data structure as $s, in the signature, is not typed
+# FOOTER FILTER
+# called for every element in the data structure as $s, in the signature, is not typed
 multi sub my_filter($s, ($depth, $filter_glyph, @renderings))
 {
 # add text in the rendering

@@ -423,24 +423,18 @@ or change the B<rendering> of the object
 	{
 	@renderings.append: $glyph ~ "Int HEADER " ~ $depth ;
 
-	# in this trivial example we are replacing Ints by Hashes
-	# since the Hash we use also contains an Int, we make sure we don't
-	# recurs indefinitely
+	# need to set limit or we would create lists forever
+	if $depth < 2 { r = <1 2> } ;
 
-	if $depth < 3 
-		{
-		r = {a => 'str', b => 1 }  ;
+	# k, b, v, f are text
 
-		# k, b, v, f are text
+	k = k ~ ' will be replaced by Hash ' ;
+	#b = '' ;
+	#v = '' ;
+	#f = '' ;
 
-		k = k ~ ' will be replaced by Hash ' ;
-		#b = '' ;
-		#v = '' ;
-		#f = '' ;
-
-		final = DDT_NOT_FINAL ;
-		want_address = True ;
-		}
+	final = DDT_NOT_FINAL ;
+	want_address = True ;
 	}
 
 Note: You can not filter elements of type U<Mu> with DDT_HEADER filters but
@@ -468,7 +462,8 @@ Called when the element rendering is done.
 	}
 
 =head2 Data::Dump::Tree::Type::Nothing
-You can use this type to make DDT "vanish" some parts of a rendering
+You can use this type to have DDT make some elements of the structure disapear
+from the rendering
 
 =head3 Type element with only a name  
 If you return a Data::Dump::Tree::Type::Nothing in a type handler, then only

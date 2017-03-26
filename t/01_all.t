@@ -95,7 +95,7 @@ my $dump = $d.get_dump(
 		width => 75,
 		);
 
-is( $dump.lines.elems, 88, 'all lines') or diag $dump ;
+is( $dump.lines.elems, 89, 'all lines') or diag $dump ;
 
 # ------------- helpers  -------------
 

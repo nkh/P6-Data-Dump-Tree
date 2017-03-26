@@ -14,9 +14,9 @@ has $.caller is rw = False ;
 has $.color is rw = True ;
 has %.colors =
 	<
-	ddt_address blue     perl_address yellow     link  green
-	header      magenta  key         cyan        value reset
-	wrap        yellow
+	ddt_address blue     perl_address yellow     link   green
+	header      magenta  key         cyan        binder cyan 
+	value       reset    wrap        yellow
 
 	glyph_0 yellow   glyph_1 reset   glyph_2 green   glyph_3 red
 	> ;
@@ -183,7 +183,7 @@ elsif $.display_address == DDT_DISPLAY_CONTAINER
 
 my ($address, $rendered) =
 	$s.WHAT !=:= Mu
-		?? $want_address ?? self!get_address($s) !! (Nil, True)
+		?? $want_address ?? self!get_address($s) !! (Nil, False)
 		!! (Nil, True) ;
 
 
@@ -202,7 +202,7 @@ if $final { $multi_line_glyph = $empty_glyph }
 # perl stringy $v if role is on
 ($v, $, $) = self.get_header($v) if $s !~~ Str ;
 
-my ($kvf, @ks, @vs, @fs) := self!split_entry($width, $k~$b, $glyph_width, $v, $f, $address) ;
+my ($kvf, @ks, @vs, @fs) := self!split_entry($width, $k, $b, $glyph_width, $v, $f, $address) ;
 
 if $kvf.defined
 	{
@@ -324,7 +324,7 @@ method !get_element_subs($s)
 		!! $.get_elements($s) ;  # generic handler
 }
 
-method !split_entry($width, Cool $k, Int $glyph_width, Cool $v, Cool $f is copy, $address)
+method !split_entry($width, Cool $k, Cool $b, Int $glyph_width, Cool $v, Cool $f is copy, $address)
 {
 my @ks = self.split_text($k, $width + $glyph_width) ; # $k has a bit extra space
 my @vs = self.split_text($v, $width) ; 
@@ -338,9 +338,10 @@ my ($ddt_address, $perl_address, $link) =
 my $kvf ;
 
 if +@ks < 2 && +@vs < 2 && +@fs < 2
-	&& (@ks.join ~ @vs.join ~ @fs.join ~ $ddt_address ~ $perl_address ~ $link).chars <= $width 
+	&& (@ks.join ~ $b  ~ @vs.join ~ @fs.join ~ $ddt_address ~ $perl_address ~ $link).chars <= $width 
 	{
 	$kvf = $!colorizer.color(@ks.join, 'key') 
+		~ $!colorizer.color($b, 'binder') 
 		~ $!colorizer.color(@vs.join, 'value') 
 		~ $!colorizer.color(@fs.join, 'header')
 		~ ' ' ~ $!colorizer.color($ddt_address, 'ddt_address')
@@ -350,6 +351,8 @@ if +@ks < 2 && +@vs < 2 && +@fs < 2
 else
 	{
 	@ks = $!colorizer.color(@ks, 'key') ; 
+	@ks[*-1] ~= $!colorizer.color($b, 'binder') if @ks ; 
+
 	@vs = $!colorizer.color(@vs, 'value') ; 
 
 	@fs.append: '' unless @fs ;

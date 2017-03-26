@@ -7,7 +7,6 @@ use Data::Dump::Tree::Enums ;
 # example with different types of elements and some roles
 # -------------------------------------------------------
 
-
 class Strings
 {
 # a class that defines DDT specific methods
@@ -96,20 +95,14 @@ $! ?? (('DDT exception', ': ', "$!"),)  !! @e ;
 
 # ------------- test --------------
 
-my $d = Data::Dump::Tree.new ;
-$d does DescribeDog ;
-$d does DescribeShyFinal ;
-
-my $dump = $d.get_dump(
-		get_test_structure(),
-		title =>'test data',
-		caller => True,
-		max_depth => 3,
-		display_perl_address => True,
-		width => 75,
-		);
-
-$dump.say ;
+dump
+	get_test_structure(),
+	title =>'test data',
+	caller => True,
+	display_perl_address => True,
+	width => 75,
+	does => (DescribeDog, DescribeShyFinal),
+	max_depth => 3 ;
 
 # ------------- helpers  -------------
 

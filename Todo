@@ -1,5 +1,6 @@
 
-Allow filter to add text to the rendering of an element
+2 colums display of dumps
+	given two dumps, handle colors, etc ... and show both side by side
 
 
 object size
@@ -7,9 +8,11 @@ object size
 ColorStr class
 	keeps color and string separated, or colored string and length of uncolored string
 
-why can't pass role (does =>) with argument
-
 eqv not implemented for Match
+
+#why can't pass role (does =>) with argument
+
+#Allow filter to add text to the rendering of an element
 
 #display a[0..1| as a[0]
 
