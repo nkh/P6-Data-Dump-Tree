@@ -1,7 +1,4 @@
 
-2 colums display of dumps
-	given two dumps, handle colors, etc ... and show both side by side
-
 
 object size
 
@@ -9,6 +6,10 @@ ColorStr class
 	keeps color and string separated, or colored string and length of uncolored string
 
 eqv not implemented for Match
+
+#2 colums display of dumps
+	given two dumps, handle colors, etc ... and show both side by side
+
 
 #why can't pass role (does =>) with argument
 
@@ -22,7 +23,6 @@ eqv not implemented for Match
 #user defined address name
 	is some nodes are of specific importance, give them name that can be used to 
 	display the reference rather than a standard @1234, eg, @important_node
-
 
 #color objects
 

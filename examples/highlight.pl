@@ -8,16 +8,7 @@ use Terminal::ANSIColor ;
 # highlight some entries via a  user defined filter
 # -------------------------------------------------
 
-
-# the data structure to dump
-
-class Tomatoe{}
-class Potatoe{}
-
-my $s = [1..4] ;
-
-# dump filtered
-dump $s, header_filters => (&my_filter,) ;
+dump [1..4], header_filters => (&my_filter,) ;
 
 
 # HEADER FILTER
