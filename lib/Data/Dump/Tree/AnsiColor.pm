@@ -3,18 +3,21 @@ class AnsiColor
 {
 has %!color_lookup ;
 has Bool $.is_ansi is rw = False ;
+has &.ansicolor;
 
 method new
 {
-my $o = self.bless() ;
+my $is_ansi = False;
+my &ansicolor;
 
-try
-	{
-	require Terminal::ANSIColor;
-	$o.is_ansi = True ;
-	}
+if (try require ::Terminal::ANSIColor) === Nil {
+    &ansicolor = sub (Str $s) {''}
+} else {
+    $is_ansi = True ;
+    &ansicolor = ::("Terminal::ANSIColor::EXPORT::ALL::&color");
+}
 
-$o
+self.bless(:$is_ansi, :&ansicolor);
 }
 
 method !set_lookup_table(%lookup, $ansi_code) { for %lookup.kv -> $k, $v { %!color_lookup{$k} = $ansi_code($v) } }
@@ -22,9 +25,9 @@ method !set_lookup_table(%lookup, $ansi_code) { for %lookup.kv -> $k, $v { %!col
 method set_colors(%lookup, Bool $do_ansi)
 {
 %lookup<reset> = 'reset' ;
-	
+
 $.is_ansi && $do_ansi 
-	?? self!set_lookup_table(%lookup, GLOBAL::Terminal::ANSIColor::EXPORT::DEFAULT::<&color>)
+	?? self!set_lookup_table(%lookup, &.ansicolor)
 	!! self!set_lookup_table(%lookup, sub (Str $s) {''}) ;
 }
 
