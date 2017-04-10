@@ -14,6 +14,8 @@ $d.display_columns($d.get_dump_lines([1..4]), $d.get_dump_lines([6..12]), :width
 
 $d.display_columns($d.get_dump_lines([6..12]), $d.get_dump_lines([1..4])) ;
 
+$d.display_columns($d.get_dump_lines([1..7]),$d.get_dump_lines([4..12]), $d.get_dump_lines([1..4])) ;
+
 $d.display_columns(<line other_line>, $d.get_dump_lines([6..12]), $d.get_dump_lines([1..4])) ;
 
 $d.display_columns(<line other_line>, $d.get_dump_lines([6..12]), $d.get_dump_lines([1..4]), :width(20)) ;

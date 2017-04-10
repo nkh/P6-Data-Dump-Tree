@@ -53,33 +53,6 @@ class Mangled
 method ddt_get_elements { ('inner structure', ' => ', [123, 456]),  }
 }
 
-class Table
-{
-
-has Str $!title = 'mail addresses:' ;
-has $!int = 1 ;
-
-method ddt_get_elements 
-{
-my @e ;
-
-try 
-	{
-	require Text::Table::Simple <&lol2table> ;
-
-	my @columns = <id name email>;
-	my @rows    = ([1,"John Doe",'johndoe@cpan.org'], [2,'Jane Doe','mrsjanedoe@hushmail.com'],);
-	my @table = lol2table(@columns,@rows);
-
-	@e = ($!title, '', @table.join("\n")), |get_Any_attributes(self),  ;
-	}
-
-$! ?? (('DDT exception', ': ', "$!"),)  !! @e ;
-}
-
-#class
-}
-
 # ------------- test --------------
 
 my $d = Data::Dump::Tree.new ;
@@ -95,7 +68,7 @@ my $dump = $d.get_dump(
 		width => 75,
 		);
 
-is( $dump.lines.elems, 89, 'all lines') or diag $dump ;
+is( $dump.lines.elems, 78, 'all lines') or diag $dump ;
 
 # ------------- helpers  -------------
 
@@ -129,7 +102,6 @@ my $s = [
 		b => 'string',
 	},
 	Cool.new(),
-	Table.new(),
 	GenericClass.new(:x(5), :z('hi there')),
 	Mangled.new(),
 	Dog.new(name => 'fido'), 
