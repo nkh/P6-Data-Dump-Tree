@@ -116,7 +116,13 @@ $.reset ;
 
 my @renderings ;
 
-self.render_element_structure((self.get_title, '', $s, []), 0, (0, '', '', '', '', ''), @renderings, '') ;
+my (%glyphs, $width) := $.get_level_glyphs(0) ; 
+
+self.render_element_structure(
+	(self.get_title, '', $s, []),
+	0,
+	(0, '', '', %glyphs<multi_line>, '', ''),
+	@renderings, '') ;
 
 @renderings
 }
@@ -213,7 +219,7 @@ else
 	@renderings.append: $glyph ~ (@ks.shift if @ks) ; 
 	@renderings.append: @ks.map: { $continuation_glyph ~ $_} ; 
 	@renderings.append: @vs.map: { $continuation_glyph ~ $multi_line_glyph ~ $_} ; 
-	@renderings.append: @fs.map: { $continuation_glyph ~ $multi_line_glyph ~ $_} ; 
+	@renderings.append: @fs.map: { $continuation_glyph ~ $multi_line_glyph ~ $_} unless $.display_info == False ; 
 	}
 
 $final, $rendered, $s, $continuation_glyph
