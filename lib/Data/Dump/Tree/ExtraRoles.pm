@@ -147,23 +147,28 @@ for 	(
 	)
 	-> $A, $s { @ssl[|$A.map: {.ord}] = |$s	}
 
-role DDTR::SuperscribeAddress
+role DDTR::SuperscribeBase
 {
-method superscribe($text) { ($text.comb.map: { @ssl[$_.ord] // $_}).join }
-method superscribe_address($text) { ($text.comb.map: { @ssl[$_.ord] // $_}).join }
+method do_superscribe($text) { ($text.comb.map: { @ssl[$_.ord] // $_}).join }
 }
 
-role DDTR::SuperscribeType
+role DDTR::SuperscribeAddress does DDTR::SuperscribeBase
 {
-method superscribe($text) { ($text.comb.map: { @ssl[$_.ord] // $_}).join }
-method superscribe_type($text) { ($text.comb.map: { @ssl[$_.ord] // $_}).join }
+method superscribe($text) { $.do_superscribe($text) }
+method superscribe_address($text) {}
 }
 
-role DDTR::Superscribe
+role DDTR::SuperscribeType does DDTR::SuperscribeBase
 {
-method superscribe($text) { ($text.comb.map: { @ssl[$_.ord] // $_}).join }
-method superscribe_address($text) { ($text.comb.map: { @ssl[$_.ord] // $_}).join }
-method superscribe_type($text) { ($text.comb.map: { @ssl[$_.ord] // $_}).join }
+method superscribe($text) { $.do_superscribe($text) }
+method superscribe_type($text) { $.do_superscribe($text) }
+}
+
+role DDTR::Superscribe does DDTR::SuperscribeBase
+{
+method superscribe($text) { $.do_superscribe($text) }
+method superscribe_address($text) { $.do_superscribe($text) }
+method superscribe_type($text) { $.do_superscribe($text) }
 }
 
 # scope for @ssl
