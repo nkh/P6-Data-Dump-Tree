@@ -3,6 +3,7 @@
 "perl" : "6.c",
 
 "name" : "Data::Dump::Tree",
+"license" : "Artistic-2.0",
 "version" : "1.0.3",
 "authors" : ["Nadim Khemir"],
 
