@@ -14,13 +14,13 @@ See lib/Data/Dump/Tree.pod for a complete documentation.
 ```perl6
 	use Data::Dump::Tree ;
 
-	say dump @your_data, 'a_title', %options ;
+	say dump @your_data, :title('A complex structure'), ... ;
 
 	my $d = Data::Dump::Tree.new ;
-	say $d.dump @your_data ;
+	$d.dump @your_data ;
 
 	$dumper does role { .... } ;
-	say $d.dump @your_data ;
+	$d.dump @your_data ;
 
 ```
 
@@ -40,5 +40,8 @@ output example:
 	   |- 1 = [1 .. 2].Match
 	   `- 2 = [2 .. 3].Match
 
+
 ```
+
+![Imgur](http://i.imgur.com/P7eRSwl.png?1)
 
