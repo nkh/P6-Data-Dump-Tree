@@ -9,9 +9,9 @@ has $.colorizer = AnsiColor.new() ;
 method is_ansi { $!colorizer.is_ansi }
 
 has $.title ;
-has $.caller is rw = False ;
+has Bool $.caller is rw = False ;
 
-has $.color is rw = True ;
+has Bool $.color is rw = True ;
 has %.colors =
 	<
 	ddt_address blue     perl_address yellow     link   green
@@ -36,17 +36,17 @@ has $!address ;
 
 has DDT_Address_Display $.display_address is rw = DDT_Address_Display::DDT_DISPLAY_CONTAINER ;
 
-has $.display_info is rw = True ;
-has $.display_type is rw = True ;
-has $.display_perl_address is rw = False ; 
+has Bool $.display_info is rw = True ;
+has Bool $.display_type is rw = True ;
+has Bool $.display_perl_address is rw = False ; 
 
 has %.paths ;
-has $.keep_paths is rw = False ;
+has Bool $.keep_paths is rw = False ;
 
 has $.width is rw ; 
 
 has $.max_depth is rw = -1 ;
-has $.max_depth_message is rw = True ;
+has Bool $.max_depth_message is rw = True ;
 
 method new(:@does, *%attributes)
 {
@@ -59,7 +59,7 @@ else
 
 for @does // () -> $role { $object does $role }
 
-if $object.display_info == False 
+unless $object.display_info 
 	{
 	$object.display_type = False ;
 	$object.display_address = DDT_DISPLAY_NONE ;
@@ -88,7 +88,7 @@ my $clone = self.clone(|%options) ;
 
 for %options<does> // () -> $role { $clone does $role } 
 
-if %options<display_info>.defined && %options<display_info> == False 
+if %options<display_info> 
 	{
 	$clone.display_type = False ;
 	$clone.display_address = DDT_DISPLAY_NONE ; 
@@ -114,15 +114,17 @@ method render_root($s)
 {
 $.reset ;
 
-my @renderings ;
+my %glyphs = $.get_glyphs() ; 
+my $root_multi_line = $!colorizer.color(%glyphs<empty> ~ %glyphs<multi_line> , @!glyph_colors_cycle[0]) ;
 
-my (%glyphs, $width) := $.get_level_glyphs(0) ; 
+my @renderings ;
 
 self.render_element_structure(
 	(self.get_title, '', $s, []),
 	0,
-	(0, '', '', %glyphs<multi_line>, '', ''),
-	@renderings, '') ;
+	(0, '', '', $root_multi_line, '', ''),
+	@renderings,
+	'') ;
 
 @renderings
 }
@@ -330,37 +332,38 @@ method !get_element_subs($s)
 		!! $.get_elements($s) ;  # generic handler
 }
 
-method !split_entry($width, Cool $k, Cool $b, Int $glyph_width, Cool $v, Cool $f is copy, $address)
+method !split_entry(Int $width, Cool $k, Cool $b, Int $glyph_width, Cool $v, Cool $f is copy, $address)
 {
-my @ks = self.split_text($k, $width + $glyph_width) ; # $k has a bit extra space
-my @vs = self.split_text($v, $width) ; 
-my @fs = self.split_text($.superscribe_type($f), $width) ;
-
 my ($ddt_address, $perl_address, $link) =
 	$address.defined
 		?? $address.list.map: { $.superscribe_address($_) } 
 		!! ('', '', '') ;
 
-my $kvf ;
+my ($kvf, @ks, @vs, @fs) ;
 
-if +@ks < 2 && +@vs < 2 && +@fs < 2
-	&& (@ks.join ~ $b  ~ @vs.join ~ @fs.join ~ $ddt_address ~ $perl_address ~ $link).chars <= $width 
+# handle \t
+my ($k2, $v2, $f2)  = ($k // '', $v // '', $f // '').map: { .subst(/\t/, ' ' x 8, :g) } ;
+
+if none($k2, $v2, $f2) ~~ /\n/ && ($k2 ~ $b  ~ $v2 ~ $f2 ~ $ddt_address ~ $perl_address ~ $link).chars <= $width 
 	{
-	$kvf = $!colorizer.color(@ks.join, 'key') 
+	$kvf = $!colorizer.color($k2, 'key') 
 		~ $!colorizer.color($b, 'binder') 
-		~ $!colorizer.color(@vs.join, 'value') 
-		~ $!colorizer.color(@fs.join, 'header')
-		~ ' ' ~ $!colorizer.color($ddt_address, 'ddt_address')
-		~ $!colorizer.color($link, 'link') 
-		~ ' ' ~ $!colorizer.color($perl_address, 'perl_address') ;
+		~ $!colorizer.color($v2, 'value') 
+		~ $!colorizer.color($f2, 'header') ~ ' ' 
+		~ $!colorizer.color($ddt_address, 'ddt_address')
+		~ $!colorizer.color($link, 'link') ~ ' ' 
+		~ $!colorizer.color($perl_address, 'perl_address') ;
 	}
 else
 	{
+	@ks = self.split_text($k2, $width + $glyph_width) ; # $k has a bit extra space
 	@ks = $!colorizer.color(@ks, 'key') ; 
 	@ks[*-1] ~= $!colorizer.color($b, 'binder') if @ks ; 
 
+	@vs = self.split_text($v2, $width) ; 
 	@vs = $!colorizer.color(@vs, 'value') ; 
 
+	@fs = self.split_text($.superscribe_type($f2), $width) ;
 	@fs.append: '' unless @fs ;
 	
 	if (@fs.join ~ ' ' ~ $ddt_address ~ $link ~ ' ' ~ $perl_address).chars <= $width 
@@ -389,7 +392,6 @@ else
 					$.split_text($perl_address, $width).list,
 					'perl_address') ;
 			}
-		
 		}
 
 	@fs = $!colorizer.color(@fs, 'header') ;
@@ -402,12 +404,12 @@ multi method split_text(Cool:U $text, $width) { '' }
 
 multi method split_text(Cool:D $text, $width)
 {
-# given a, possibly empty, string, split the string on \n and width, handle \t
+# given a, possibly empty, string, split the string on \n and width
 # colorize last letter of wrapped lines
 
 return $text if $width < 1 ;
 
-$text.subst(/\t/, ' ' x 8, :g).lines.flatmap:
+$text.lines.flatmap:
 	{
 	$_.comb($width).map: 
 		{	

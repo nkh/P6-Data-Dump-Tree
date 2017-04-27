@@ -30,7 +30,7 @@ my $d = Data::Dump::Tree.new ;
 $d does DDTR::MatchDetails ;
 $d does DDTR::NumberedLevel ;
 
-$d.dump($m) ;
+$d.dump($m, :title('Parsing')) ;
 
 
 # dump again with superscribed text and color glyphs
@@ -38,5 +38,5 @@ $d does DDTR::SuperscribeType ;
 $d does DDTR::SuperscribeAddress ;
 
 $m = $contents ~~ /<section>*/ ;
-$d.dump($m, glyph_colors => < glyph_0 glyph_1 glyph_2 glyph_3 >) ;
+$d.dump($m, :title('Parsing'), glyph_colors => < glyph_0 glyph_1 glyph_2 glyph_3 >) ;
 

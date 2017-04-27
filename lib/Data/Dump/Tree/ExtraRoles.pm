@@ -155,7 +155,7 @@ method do_superscribe($text) { ($text.comb.map: { @ssl[$_.ord] // $_}).join }
 role DDTR::SuperscribeAddress does DDTR::SuperscribeBase
 {
 method superscribe($text) { $.do_superscribe($text) }
-method superscribe_address($text) {}
+method superscribe_address($text) { $.do_superscribe($text) }
 }
 
 role DDTR::SuperscribeType does DDTR::SuperscribeBase

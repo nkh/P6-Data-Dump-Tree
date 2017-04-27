@@ -52,3 +52,5 @@ my %h = @sub_elements.map: -> $e { $e[0] => $e } ;
 @sub_elements = <config regex match>.map: -> $e { %h{$e} }
 }
 
+say "ran for {now - INIT now} s" ;
+
