@@ -1,5 +1,6 @@
 
 use Data::Dump::Tree ;
+use Data::Dump::Tree::DescribeBaseObjects ;
 use Data::Dump::Tree::ExtraRoles ;
 
 
@@ -36,6 +37,7 @@ $d.dump($m, :title('Parsing'), glyph_colors => < glyph_0 glyph_1 glyph_2 glyph_3
 # dump again with superscribed text and color glyphs
 $d does DDTR::SuperscribeType ;
 $d does DDTR::SuperscribeAddress ;
+$d does DDTR::PerlString ;
 
 $m = $contents ~~ /<section>*/ ;
 $d.dump($m, :title('Parsing'), glyph_colors => < glyph_0 glyph_1 glyph_2 glyph_3 >) ;

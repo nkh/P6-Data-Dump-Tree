@@ -340,12 +340,12 @@ my ($kvf, @ks, @vs, @fs) ;
 # handle \t
 my ($k2, $v2, $f2)  = ($k // '', $v // '', $f // '').map: { .subst(/\t/, ' ' x 8, :g) } ;
 
-if none($k2, $v2, $f2) ~~ /\n/ && ($k2 ~ $b  ~ $v2 ~ $f2 ~ $ddt_address ~ $perl_address ~ $link).chars <= $width 
+if none($k2, $v2, $f2) ~~ /\n/	&& ($k2 ~ $b  ~ $v2 ~ $f2 ~ $ddt_address ~ $perl_address ~ $link).chars <= $width 
 	{
 	$kvf = $!colorizer.color($k2, 'key') 
 		~ $!colorizer.color($b, 'binder') 
 		~ $!colorizer.color($v2, 'value') 
-		~ $!colorizer.color($f2, 'header') ~ ' ' 
+		~ $!colorizer.color($.superscribe_type($f2), 'header') ~ ' ' 
 		~ $!colorizer.color($ddt_address, 'ddt_address')
 		~ $!colorizer.color($link, 'link') ~ ' ' 
 		~ $!colorizer.color($perl_address, 'perl_address') ;
