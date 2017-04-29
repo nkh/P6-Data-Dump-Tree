@@ -49,7 +49,7 @@ my sub zips(**@as)
 
 
 #compute width without ANSI escape codes
-my regex color { \[ \d+ <?before [\;\d+]* > m } 
+my regex color { \[ \d+ [\;\d+]* <?before [\;\d+]* > m } 
 my regex graph {\( [ 0|B ]}
 
 my @r1_width = @r1.map: { S:g/ \e [ <color> | <graph> ] //.chars } ;

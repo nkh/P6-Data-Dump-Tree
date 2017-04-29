@@ -27,10 +27,10 @@ my $m = $contents ~~ /<section>*/ ;
 
 # dump with match details and number the levels
 my $d = Data::Dump::Tree.new ;
-$d does DDTR::MatchDetails ;
 $d does DDTR::NumberedLevel ;
+$d does DDTR::MatchDetails ;
 
-$d.dump($m, :title('Parsing')) ;
+$d.dump($m, :title('Parsing'), glyph_colors => < glyph_0 glyph_1 glyph_2 glyph_3 >) ;
 
 
 # dump again with superscribed text and color glyphs

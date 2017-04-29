@@ -13,13 +13,13 @@ has Bool $.caller is rw = False ;
 
 has Bool $.color is rw = True ;
 has %.colors =
-	<
+	<<
 	ddt_address blue     perl_address yellow     link   green
 	header      magenta  key         cyan        binder cyan 
 	value       reset    wrap        yellow
 
-	glyph_0 yellow   glyph_1 reset   glyph_2 green   glyph_3 red
-	> ;
+	glyph_0 yellow   glyph_1 "bold black"  glyph_2 green   glyph_3 red
+	>> ;
 
 has $.color_glyphs ;
 has @.glyph_colors = < glyph_1> ;
@@ -47,6 +47,9 @@ has $.width is rw ;
 
 has $.max_depth is rw = -1 ;
 has Bool $.max_depth_message is rw = True ;
+
+has @!renderings ;
+method get_renderings() { @!renderings }
 
 method new(:@does, *%attributes)
 {
@@ -94,7 +97,8 @@ if %options<display_info>
 	$clone.display_address = DDT_DISPLAY_NONE ; 
 	}
 
-$clone.render_root($s)
+$clone.render_root($s) ;
+$clone.get_renderings() ;
 }
 
 method reset
@@ -108,41 +112,37 @@ $!colorizer.set_colors(%.colors, $.color) ;
 @.glyph_colors = < glyph_0 glyph_1 glyph_2 glyph_3 > if $.color_glyphs ;
 @!glyph_colors_cycle = |@.glyph_colors xx  * ; 
 $.width //= %+(qx[stty size] ~~ /\d+ \s+ (\d+)/)[0] ; 
+
+@!renderings = () ;
 }
 
 method render_root($s)
 {
 $.reset ;
 
-my %glyphs = $.get_glyphs() ; 
-my $root_multi_line = $!colorizer.color(%glyphs<empty> ~ %glyphs<multi_line> , @!glyph_colors_cycle[0]) ;
-
-my @renderings ;
+my (%glyphs, $) := $.get_level_glyphs(0, 1) ; 
 
 self.render_element_structure(
 	(self.get_title, '', $s, []),
 	0,
-	(0, '', '', $root_multi_line, '', ''),
-	@renderings,
+	(0, '', '', %glyphs<multi_line>, '', ''),
 	'') ;
-
-@renderings
 }
 
-method render_element_structure($element, $current_depth, @glyphs, @renderings, $head_glyph)
+method render_element_structure($element, $current_depth, @glyphs, $head_glyph)
 {
 my ($final, $rendered, $s, $continuation_glyph) := 
-	$.render_element($element, $current_depth, @glyphs, @renderings, $head_glyph) ;
+	$.render_element($element, $current_depth, @glyphs, $head_glyph) ;
 
-self.render_non_final($s, $current_depth, @renderings, $continuation_glyph) unless ($final || $rendered) ;
+self.render_non_final($s, $current_depth, $continuation_glyph) unless ($final || $rendered) ;
 
 @!footer_filters and $s.WHAT !=:= Mu and 
-	$.filter_footer($s, ($current_depth, $continuation_glyph, @renderings))  ;
+	$.filter_footer($s, ($current_depth, $continuation_glyph, @!renderings))  ;
 }
 
-method render_non_final($s, $current_depth, @renderings, $continuation_glyph)
+method render_non_final($s, $current_depth, $continuation_glyph)
 {
-my (@sub_elements, %glyphs) := $.get_sub_elements($s, $current_depth, @renderings, $continuation_glyph) ;
+my (@sub_elements, %glyphs) := $.get_sub_elements($s, $current_depth, $continuation_glyph) ;
 
 for @sub_elements Z 0..* -> ($sub_element, $index)
 	{
@@ -150,15 +150,13 @@ for @sub_elements Z 0..* -> ($sub_element, $index)
 		$sub_element,
 		$current_depth + 1,
 		self.get_element_glyphs(%glyphs, $index == @sub_elements.end),
-		@renderings,
 		$continuation_glyph,
 		) ;
 	}
 }
 
-method render_element($element, $current_depth, @glyphs, @renderings, $head_glyph)
+method render_element($element, $current_depth, @glyphs, $head_glyph)
 {
-
 my ($k, $b, $s, $path) = $element ;
 
 my ($glyph_width, $glyph, $continuation_glyph, $multi_line_glyph, $empty_glyph, $filter_glyph) = @glyphs ;
@@ -188,24 +186,22 @@ elsif $.display_address == DDT_DISPLAY_CONTAINER
 	$want_address //= ! $final ;
 	}
 
-
 my ($address, $rendered) =
 	$s.WHAT !=:= Mu
 		?? $want_address ?? self!get_address($s) !! (Nil, False)
 		!! (Nil, True) ;
-
 
 $address = Nil if $.display_address == DDT_DISPLAY_NONE ;
 
 
 my $s_replacement ;
 @!header_filters and $s.WHAT !=:= Mu and  
-	$.filter_header($s_replacement, $s, ($current_depth, $path, $filter_glyph, @renderings), ($k, $b, $v, $f, $final, $want_address)) ;
+	$.filter_header($s_replacement, $s, ($current_depth, $path, $filter_glyph, @!renderings), ($k, $b, $v, $f, $final, $want_address)) ;
 
 $s_replacement ~~ Data::Dump::Tree::Type::Nothing and return(True, True, $s, $continuation_glyph) ;
 $s = $s_replacement.defined ?? $s_replacement !! $s ;
 
-if $final { $multi_line_glyph = $empty_glyph }
+$multi_line_glyph = $empty_glyph if $final ;
 
 # perl stringy $v if role is on
 ($v, $, $) = self.get_header($v) if $s !~~ Str ;
@@ -214,26 +210,30 @@ my ($kvf, @ks, @vs, @fs) := self!split_entry($width, $k, $b, $glyph_width, $v, $
 
 if $kvf.defined
 	{
-	@renderings.append: $glyph ~ $kvf ;
+	@!renderings.append: $glyph ~ $kvf ;
 	}
 else
 	{
-	@renderings.append: $glyph ~ (@ks.shift if @ks) ; 
-	@renderings.append: @ks.map: { $continuation_glyph ~ $_} ; 
-	@renderings.append: @vs.map: { $continuation_glyph ~ $multi_line_glyph ~ $_} ; 
-	@renderings.append: @fs.map: { $continuation_glyph ~ $multi_line_glyph ~ $_} unless $.display_info == False ; 
+	@!renderings.append: $glyph ~ (@ks.shift if @ks) ; 
+	@!renderings.append: @ks.map: { $continuation_glyph ~ $_} ; 
+	@!renderings.append: @vs.map: { $continuation_glyph ~ $multi_line_glyph ~ $_} ; 
+	@!renderings.append: @fs.map: { $continuation_glyph ~ $multi_line_glyph ~ $_} unless $.display_info == False ; 
 	}
 
 $final, $rendered, $s, $continuation_glyph
 }
 
-method get_sub_elements($s, $current_depth, @renderings, $continuation_glyph)
+method get_sub_elements($s, $current_depth, $continuation_glyph)
 {
 my (%glyphs, $) := $.get_level_glyphs($current_depth) ; 
 
 my @sub_elements ;
 
-if $current_depth + 1 == $.max_depth 
+if $current_depth + 1 != $.max_depth 
+	{
+	@sub_elements = |(self!get_element_subs($s) // ()) ;
+	}
+else
 	{
 	if $.max_depth_message
 		{
@@ -248,10 +248,6 @@ if $current_depth + 1 == $.max_depth
 				),) ;
 		}
 	}
-else
-	{
-	@sub_elements = |(self!get_element_subs($s) // ()) ;
-	}
 
 if $.keep_paths
 	{
@@ -264,7 +260,7 @@ if $.keep_paths
 	}
 
 @!elements_filters and $s.WHAT !=:= Mu and
-	$.filter_sub_elements($s, ($current_depth, $continuation_glyph ~ %glyphs<filter>, @renderings), @sub_elements)  ;
+	$.filter_sub_elements($s, ($current_depth, $continuation_glyph ~ %glyphs<filter>, @!renderings), @sub_elements)  ;
 
 
 @sub_elements, %glyphs 
@@ -479,20 +475,27 @@ my $address =
 $address, $rendered
 }
 
-method get_level_glyphs($level)
+method get_level_glyphs($level, $root?)
 {
-my %glyphs = $.get_glyphs() ; 
-my $glyph_width = %glyphs<empty>.chars ;
+state %glyphs = $.get_glyphs() ; 
+state $glyph_width = %glyphs<empty>.chars ;
+state $multi_line = %glyphs<multi_line> ; # multiline glyph is on the next level, color accordingly
 
-# multiline glyph is on the next level, color accordingly
-my $multi_line = %glyphs<multi_line> ;
+#TODO, cache for root defined or not
+state %x ;
 
-my %colored_glyphs = $!colorizer.color(%glyphs, @!glyph_colors_cycle[$level]) ;
-%colored_glyphs<multi_line> = $!colorizer.color($multi_line, @!glyph_colors_cycle[$level + 1]) ;
+unless %x{$level}.defined
+	{
+	%x{$level} = $!colorizer.color(%glyphs, @!glyph_colors_cycle[$level]) ;
 
-%colored_glyphs<__width> = $glyph_width ; #squirel in the width
+	$root.defined
+		?? (%x{$level}<multi_line> = $!colorizer.color($multi_line, @!glyph_colors_cycle[0]))
+		!! (%x{$level}<multi_line> = $!colorizer.color($multi_line, @!glyph_colors_cycle[$level + 1]));
 
-%colored_glyphs, $glyph_width
+	%x{$level}<__width> = $glyph_width ; #squirel in the width
+	}
+
+return %x{$level}, $glyph_width	
 }
 
 method get_element_glyphs(%glyphs, Bool $is_last) # is: cached

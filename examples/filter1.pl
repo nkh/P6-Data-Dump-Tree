@@ -43,7 +43,7 @@ dump $s2, header_filters => (&my_filter,), elements_filters => (&my_filter,), fo
 multi sub my_filter(\r, Int $s, ($depth, $path, $glyph, @renderings), (\k, \b, \v, \f, \final, \want_address))
 {
 # add text in the rendering
-@renderings.append: $glyph ~ color('bold white on_yellow') ~ "Int HEADER filter" ;
+@renderings.append: $glyph ~ color('bold white on_yellow') ~ "Int HEADER filter" ~ color('reset') ;
 
 # can replace ourselves with something else, do not forget to update k, b, v, accordingly
 # r = < abc def > ;

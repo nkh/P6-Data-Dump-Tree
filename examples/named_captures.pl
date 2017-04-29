@@ -39,6 +39,8 @@ my $regex = regex { \s* '[' (\w+) ']' \h* \n+ }
 
 my $match = $config ~~ /<section>*/ ;
 
+my $dump_start = now ;
+
 $d.dump( { :$config, :$regex, :$match }, title => 'config parsing', elements_filters => (&sorter,)) ;
 
 # filter display the elements in a specific order
@@ -52,5 +54,6 @@ my %h = @sub_elements.map: -> $e { $e[0] => $e } ;
 @sub_elements = <config regex match>.map: -> $e { %h{$e} }
 }
 
-say "ran for {now - INIT now} s" ;
+say "dump time: {now - $dump_start} s" ;
+say "total time {now - INIT now} s" ;
 
