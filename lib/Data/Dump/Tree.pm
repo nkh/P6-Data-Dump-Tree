@@ -16,9 +16,9 @@ has %.colors =
 	<<
 	ddt_address blue     perl_address yellow     link   green
 	header      magenta  key         cyan        binder cyan 
-	value       reset    wrap        yellow
+	value       reset    wrap        yellow      reset  reset
 
-	glyph_0 yellow   glyph_1 "bold black"  glyph_2 green   glyph_3 red
+	glyph_0 yellow   glyph_1 242  glyph_2 green   glyph_3 red
 	>> ;
 
 has $.color_glyphs ;
@@ -120,12 +120,12 @@ method render_root($s)
 {
 $.reset ;
 
-my (%glyphs, $) := $.get_level_glyphs(0, 1) ; 
+my (%glyphs, $width) := $.get_level_glyphs(0, True) ; 
 
 self.render_element_structure(
 	(self.get_title, '', $s, []),
 	0,
-	(0, '', '', %glyphs<multi_line>, '', ''),
+	($width, '', '', %glyphs<multi_line>, '', ''),
 	'') ;
 }
 
@@ -475,27 +475,23 @@ my $address =
 $address, $rendered
 }
 
-method get_level_glyphs($level, $root?)
+method get_level_glyphs($level, Bool $root? = False)
 {
 state %glyphs = $.get_glyphs() ; 
 state $glyph_width = %glyphs<empty>.chars ;
 state $multi_line = %glyphs<multi_line> ; # multiline glyph is on the next level, color accordingly
 
-#TODO, cache for root defined or not
-state %x ;
+state %cache ;
 
-unless %x{$level}.defined
+unless %cache{$level}{$root}.defined
 	{
-	%x{$level} = $!colorizer.color(%glyphs, @!glyph_colors_cycle[$level]) ;
+	%cache{$level}{$root} = $!colorizer.color(%glyphs, @!glyph_colors_cycle[$level]) ;
 
-	$root.defined
-		?? (%x{$level}<multi_line> = $!colorizer.color($multi_line, @!glyph_colors_cycle[0]))
-		!! (%x{$level}<multi_line> = $!colorizer.color($multi_line, @!glyph_colors_cycle[$level + 1]));
-
-	%x{$level}<__width> = $glyph_width ; #squirel in the width
+	%cache{$level}{$root}<multi_line> = $!colorizer.color($multi_line, @!glyph_colors_cycle[$root ?? 0 !! $level + 1]) ;
+	%cache{$level}{$root}<__width> = $glyph_width ; #squirel in the width
 	}
 
-return %x{$level}, $glyph_width	
+return %cache{$level}{$root}, $glyph_width	
 }
 
 method get_element_glyphs(%glyphs, Bool $is_last) # is: cached

@@ -107,7 +107,7 @@ multi method get_glyphs
 role DDTR::NumberedLevel
 {
 
-method get_level_glyphs($level, $root?)
+method get_level_glyphs($level, Bool $root? = False)
 {
 my %glyphs = $.get_glyphs() ;
 
@@ -124,7 +124,7 @@ my $multi_line = %glyphs<multi_line> ;
 
 my %colored_glyphs = $.colorizer.color(%glyphs, @.glyph_colors_cycle[$level]) ;
 
-$root.defined 
+$root
 	?? (%colored_glyphs<multi_line> = $.colorizer.color($multi_line, @.glyph_colors_cycle[0]))
 	!! (%colored_glyphs<multi_line> = $.colorizer.color($multi_line, @.glyph_colors_cycle[$level + 1])) ;
 
