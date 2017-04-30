@@ -18,11 +18,11 @@ is($dump_1.lines.elems, 9, '9 dump lines') or diag $dump_1 ;
 
 my $dump_2 = $d.get_dump(color => False, title => "$string ~~ " ~ 'yyy', $string ~~ m:g/<yyy>/ );
 is($dump_2.lines.elems, 13, '13 dump lines, with capture') or diag $dump_2 ;
-like $dump_2, /"0 => aa"/, 'capture' or diag $dump_2 ;
+like $dump_2, /"<0> aa"/, 'capture' or diag $dump_2 ;
 
 my $dump_3 = $d.get_dump(color => False, 'abc-abc-abc' ~~ / $<string>=( [ $<part>=[abc] ]* % '-' ) /) ;
 is($dump_3.lines.elems, 5, '5 lines: title, top match, 3 sub macthes') or diag $dump_3 ;
-like $dump_3, /"string => abc-abc-abc"/, 'top match' or diag $dump_3 ;
+like $dump_3, /"<string> abc-abc-abc"/, 'top match' or diag $dump_3 ;
 
 my regex line { \N*\n }
 my $dump_4 = $d.get_dump("abc\ndef\nghi" ~~ /<line>* ghi/, does => (DDTR::PerlString,)) ;

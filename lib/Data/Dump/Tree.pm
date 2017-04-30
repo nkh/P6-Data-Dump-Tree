@@ -14,11 +14,11 @@ has Bool $.caller is rw = False ;
 has Bool $.color is rw = True ;
 has %.colors =
 	<<
-	ddt_address blue     perl_address yellow     link   green
-	header      magenta  key         cyan        binder cyan 
-	value       reset    wrap        yellow      reset  reset
+	ddt_address blue     perl_address yellow  link   green
+	header      magenta  key         cyan     binder cyan 
+	value       reset    wrap        yellow   reset  reset
 
-	glyph_0 yellow   glyph_1 242  glyph_2 green   glyph_3 red
+	glyph_0 yellow  glyph_1 242  glyph_2 green  glyph_3 red  glyph_4 blue
 	>> ;
 
 has $.color_glyphs ;
@@ -55,12 +55,12 @@ method new(:@does, *%attributes)
 {
 my $object = self.bless(|%attributes);
 
+for @does // () -> $role { $object does $role }
+
 if $object.is_ansi 
 	{ $object does DDTR::AnsiGlyphs } 
 else
 	{ $object does DDTR::AsciiGlyphs}
-
-for @does // () -> $role { $object does $role }
 
 unless $object.display_info 
 	{
@@ -121,11 +121,15 @@ method render_root($s)
 $.reset ;
 
 my (%glyphs, $width) := $.get_level_glyphs(0, True) ; 
+my ($v, $f, $final, $want_address) = 
+	$s.WHAT =:= Mu
+		?? ('', '.Mu', DDT_FINAL ) 
+		!! self.get_element_header($s) ;
 
 self.render_element_structure(
 	(self.get_title, '', $s, []),
 	0,
-	($width, '', '', %glyphs<multi_line>, '', ''),
+	($final ?? 0 !! $width, '', '', %glyphs<multi_line>, '', ''),
 	'') ;
 }
 
@@ -477,21 +481,16 @@ $address, $rendered
 
 method get_level_glyphs($level, Bool $root? = False)
 {
-state %glyphs = $.get_glyphs() ; 
-state $glyph_width = %glyphs<empty>.chars ;
-state $multi_line = %glyphs<multi_line> ; # multiline glyph is on the next level, color accordingly
+my %glyphs = $.get_glyphs() ; 
 
-state %cache ;
+my $glyph_width = %glyphs<empty>.chars ;
+my $multi_line = %glyphs<multi_line> ;
 
-unless %cache{$level}{$root}.defined
-	{
-	%cache{$level}{$root} = $!colorizer.color(%glyphs, @!glyph_colors_cycle[$level]) ;
+%glyphs = $!colorizer.color(%glyphs, @!glyph_colors_cycle[$level]) ;
+%glyphs<multi_line> = $!colorizer.color($multi_line, @!glyph_colors_cycle[$root ?? 0 !! $level + 1]) ;
+%glyphs<__width> = $glyph_width ; #squirel in the width
 
-	%cache{$level}{$root}<multi_line> = $!colorizer.color($multi_line, @!glyph_colors_cycle[$root ?? 0 !! $level + 1]) ;
-	%cache{$level}{$root}<__width> = $glyph_width ; #squirel in the width
-	}
-
-return %cache{$level}{$root}, $glyph_width	
+%glyphs, $glyph_width	
 }
 
 method get_element_glyphs(%glyphs, Bool $is_last) # is: cached

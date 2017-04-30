@@ -604,17 +604,17 @@ variable.
 	config [2]  
 	   0 = \{ \\s* '[' (\\w+) ']' \\h* \\n+ }.Regex  
 	   1 =     [passwords]\n        jack=password1\n (+74)[0..113]  
-	      section =>     [passwords]\n        jack=password1\n (+29)[0..68]  
-		 header =>     [passwords]\n[0..15]  
-		    0 => passwords[5..13]  
-		 kvpair =>         jack=password1\n[16..38]  
-		    identifier => jack[24..27]  
-		    key => jack[24..27]  
-		    identifier => password1[29..37]  
-		    value => password1[29..37]  
-		 kvpair =>         joy=muchmoresecure123\n[39..68]  
-		    identifier => joy[47..49]  
-		    key => joy[47..49]  
+	      <section>     [passwords]\n        jack=password1\n (+29)[0..68]  
+		 <header>     [passwords]\n[0..15]  
+		    <0> passwords[5..13]  
+		 <kvpair>         jack=password1\n[16..38]  
+		    <identifier> jack[24..27]  
+		    <key> jack[24..27]  
+		    <identifier> password1[29..37]  
+		    <value> password1[29..37]  
+		 <kvpair>         joy=muchmoresecure123\n[39..68]  
+		    <identifier> joy[47..49]  
+		    <key> joy[47..49]  
 		
 =head1 BUGS
 Submit bugs (preferably as executable tests) and feel free to make 

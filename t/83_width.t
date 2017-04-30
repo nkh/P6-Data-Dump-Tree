@@ -17,7 +17,7 @@ is $dump.lines.elems, 6, '6 lines, width set to 20' or diag $dump ;
 is all($dump.lines>>.chars) <= 20,  True, 'all lines under 20 chars' or do { diag $dump.lines>>.chars ;diag $dump ; }
 
 $dump = get_dump ['1234567890' x 8], title => 't:', color => False, width => 20, does => (DDTR::AsciiGlyphs,) ;
-is $dump.lines.elems, 9, '9 lines, width set to 20' or diag $dump ;
+is $dump.lines.elems, 8, '8 lines, width set to 20' or diag $dump ;
 is all($dump.lines>>.chars) <= 20,  True, 'all lines under 20 chars' or do { diag $dump.lines>>.chars ; diag $dump ; }
 
 $dump = get_dump '1234567890' x 5, title => '12345' x 5, color => False, width => 20, does => (DDTR::AsciiGlyphs,) ;

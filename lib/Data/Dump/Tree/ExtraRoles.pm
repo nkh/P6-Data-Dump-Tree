@@ -52,15 +52,9 @@ $m.caps.elems
 
 }
 
-
-
 multi method get_elements (Match $m)
 {
-$m.caps.map: -> $p
-	{
-	my ($k, $v) = $p.kv ;
-	( $k, ' => ', $v )
-	} 
+$m.caps>>.kv.map: -> ($k, $v) { ( "<$k>", ' ', $v ) } 
 }
 
 } # role
