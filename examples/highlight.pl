@@ -14,7 +14,7 @@ dump [1..4], header_filters => (&my_filter,) ;
 # HEADER FILTER
 multi sub my_filter(\r, Int $s, ($depth, $path, $glyph, @renderings), (\k, \b, \v, \f, \final, \want_address))
 {
-if $s == 1 { @renderings.append: $glyph ~ color('bold white on_yellow') ~ ' add line in the graph ' }
+if $s == 1 { @renderings.append: $glyph ~ color('bold white on_yellow') ~ ' add line in the graph '  ~ color('reset')}
 
 if $s == 2 { k = k ~ color('bold white on_yellow') ~ '*' }
 
