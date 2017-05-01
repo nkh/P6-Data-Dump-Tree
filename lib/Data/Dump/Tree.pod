@@ -7,12 +7,12 @@ Date::Dump::Tree - Renders data structures in a tree fashion
 =SYNOPSIS
 	use Data::Dump::Tree ;
 
-	dump @your_data, title => 'a_title', ... ;
+	dump @your_data ;
 
-	my $d = Data::Dump::Tree.new ;
+	my $d = Data::Dump::Tree.new(...) ;
 	$d.dump @your_data ;
 
-	$dumper does role { .... } ;
+	$d does role { .... } ;
 	$d.dump @your_data ;
 	
 =DESCRIPTION
@@ -72,7 +72,7 @@ returns an array containing the dump of the data structure
 		'aaa' ~~ m:g/(a)/,
 		] ;
 
-	dump $s, title => 'A complex structure', color => 0 ;
+	dump $s, :title('A complex structure'), :color(False) ;
 
 =head2 Output
 	
@@ -118,7 +118,7 @@ key of the element. IE: '0 =', '3 =', '4 ='
 The value of the element being displayed; Data::Dump::Tree displays the value of
 "terminal" variables, eg: Str, Int, Rat. For containers, nothing is displayed.
 
-=head3 Types
+=head3 Type
 The type of the variable with a '.' appended. IE: '.Str', '.MyClass'
 
 Data::DumpTree will display
@@ -133,7 +133,7 @@ Data::DumpTree will display
 
 =head3 address
 the Data::Dump::Tree address is added to every container in the form of a '@'
-and an index that is incremented for heach container. If a container is found
+and an index that is incremented for each container. If a container is found
 multiple times in the output, it will be rendered once only then referred to 
 by '@current_address = @first_time_seen' 
 
@@ -152,26 +152,25 @@ first time it is displayed and when an element refers to it.
 
 =head2 Configuration and Overrides
 There are multiple ways to configure the Dumper. You can pass a configuration
-to the dump() sub or you can create a dumper object that you configure at
-creation time. 
+to the dump() sub or you can create a dumper object with your configuration. 
 
-	# sub interface
-	dump($s, title => 'text', width => 115, color => False)  ;
+	# subroutine interface
+	dump($s, :title('text'), :width(115), :color(False))  ;
 
 	# basic object
 	my $dumper = Data::Dump::Tree.new ;
 
 	# pass you configuration at every call
-	$dumper.get_dump($s, width => 115, color => False) ;
+	$dumper.get_dump($s, :width(115), :color(False)) ;
 
 	# configure object at creation time
-	my $dumper = Data::Dump::Tree.new(width => 79) ;
+	my $dumper = Data::Dump::Tree.new(:width(79)) ;
 
 	# use as configured
 	$dumper.dump($s) ;
 
-	# or with a call time configuration
-	$dumper.dump($s, width => 115, max_depth => 3) ;
+	# or with a call time configuration override
+	$dumper.dump($s, :width(115), :max_depth(3)) ;
 
 
 	# see roles for roles configuration
@@ -197,13 +196,14 @@ You can pass your own colors. The default are:
 
 where colors are ANSI colors. I<reset> means default color.
 
-By default the glyphs will not be colored. For certain renderings, with many
-and very long continuation lines, having colored glyphs (per level) helps 
-greatly.
+By default the glyphs will not be colored and the key and binder use colors
+'key' and 'binder'. For certain renderings, with many and very long continuation
+lines, having colored glyphs and key-binder colored per level helps greatly.
 
 =head4 $color_glyphs
-Will set a default glyph color cycle. you can also define your own with 
-B<@glyph_colors>.
+Will set a default glyph color cycle.
+
+	B<@glyph_colors>.
  
 	my @s = [ ... ] ;
 
@@ -211,16 +211,37 @@ B<@glyph_colors>.
 	dump(@s) ;
 
 	# colored glyphs, will cycle 
-	dump(@s, color_glyphs => True) ; #uses < glyph_0 glyph_1 glyph_2 glyph_3 >
+	dump(@s, :color_glyphs) ; #uses < glyph_0 glyph_1 glyph_2 glyph_3 >
 
 =head4 @glyph_colors
+You can also define your own cycle with B<@kb_colors>: 
+
 	my @s = [ ... ] ;
 
 	# monochrome glyphs
 	dump(@s) ;
 
 	# colored glyphs, will cycle (note that the colors must be defined)
-	dump(@s, glyph_colors => < glyph_0 glyph_1 glyph_2 glyph_3 >) ;
+	dump(@s, :color_glyphs, glyph_colors => < glyph_0 glyph_1 >) ;
+
+=head4 $color_kbs
+Will set a default key and binding color cycle.
+ 
+	my @s = [ ... ] ;
+
+	# default uses colors 'key' and 'binder'
+	dump(@s) ;
+
+	# used color 'kb_1', 'kb_2' ... and cycles
+	dump(@s, :color_kbs) ; #uses < kb_0 kb_1 ...  kb_10 >
+
+=head4 @kb_colors
+You can also define your own cycle with B<@kb_colors>:
+
+	my @s = [ ... ] ;
+
+	# colored glyphs, will cycle (note that the colors must be defined)
+	dump(@s, :color_kbs, kb_colors => < kb_0 kb_1 >) ;
 
 =head3 $width = terminal width
 Note that the width you pass is reduced with the width of the glyps as we use
@@ -229,10 +250,10 @@ that space when displaying multiline values in the dump.
 When using ANSI colors, the last character of each wrapped line is colored.
 
 =head3 $max_depth 
-Limit the depth of a dump to the option. by default there is no limit.
+Limit the depth of a dump. There is no limit by default.
 
 =head3 $max_depth_message = True
-A line showing that you have reached the $max_depth limit, setting this flag
+Display a message telling that you have reached the $max_depth limit, set this flag
 to false disable the message.
 
 =head3 $display_info = True
@@ -246,7 +267,7 @@ By default this option is set.
 By default this option is set.
 
 =head3 $display_perl_address = False 
-Display the internal address of the objects.
+Display the internal address of the objects. Default is False.
 
 =head3 ANSI vs ASCII vs Unicode tree drawing
 
@@ -269,7 +290,6 @@ rendered, You can even return completely different data than the one contained
 in your class.
 
 Data::Dump::Tree uses two methods, you can define either one or both.
-
 
 =head5 ddt_get_header, code is defined in your class 
 
@@ -337,7 +357,7 @@ Both work in the same fashion.
 To make that handler active, make your dumper do the role
 
 	# using 'does'
-	my $d = Data::Dump::Tree.new(width => 80) ;
+	my $d = Data::Dump::Tree.new(:width(80)) ;
 	$d does your_hash_handler ;
 
 	$d.dump(@your_data) ;
@@ -462,13 +482,12 @@ Called when the element rendering is done.
 	}
 
 =head2 Data::Dump::Tree::Type::Nothing
-You can use this type to have DDT make some elements of the structure disapear
+You can use this type to have DDT make some elements of the structure vanish
 from the rendering
 
 =head3 Type element with only a name  
-If you return a Data::Dump::Tree::Type::Nothing in a type handler, then only
-the key will be displayed.
- 
+If you return a Data::Dump::Tree::Type::Nothing in a type handler, only the key
+will be displayed.
 
 	method ddt_get_elements 
 	{ 
@@ -507,21 +526,21 @@ lines as the element, you don't want to see, is never seen by DDT.
 
 =head2 Roles provided with Data::Dump::Tree
 
-Data::Dump::Tree comes with a few extra roles that are not "played" by the
+Data::Dump::Tree comes with a few extra roles that are not 'does'ed by the
 object returned by new()
 
 Please feel free to send me roles you think would be useful to other and that
 you believe fit well in the same bundle.
 
-You are welcome to make your own distribution too, I recommend using namespace
-DDTR::YourRole.
+You are welcome to make your own distribution for the roles too, I recommend
+using namespace DDTR::YourRole.
 
 =item DDTR::AsciiGlyphs
 Uses ASCII codes rather than ANSI to render the tree.
 
 =item DDTR::UnicodeGlyphs
 Uses Unicode to render the tree. this is the tightest rendering as only one
-character is used to display the tree.
+character per level is used to display the tree.
 
 =item DDTR::PerlString
 Renders string containing control codes (eg: \n, ANSI, ...) with backslashed
@@ -617,11 +636,10 @@ variable.
 		    <key> joy[47..49]  
 		
 =head1 BUGS
-Submit bugs (preferably as executable tests) and feel free to make 
-suggestions.
+Submit bugs (preferably as executable tests) and feel free to make suggestions.
 
-This module will mature with time, and with your suggestions, it 
-is intended to replace my P5 Data::TreeDumper module for P6.
+This module will mature with time, and with your suggestions, it is intended to
+replace my P5 Data::TreeDumper module for P6.
 
 =head2 Dumper Exception
 As this module uses the MOP interface, it happens that it may use interfaces
@@ -649,6 +667,7 @@ under the same terms as Perl6 itself.
 =SEE-ALSO
 
 Data::Dump
+Pretty:Printer
 
 =end pod
 

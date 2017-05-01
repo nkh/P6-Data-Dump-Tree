@@ -1,4 +1,44 @@
 
+
+Create a handler DDTR
+# .Data::Dump::Tree+{DDTR::AnsiGlyphs} .Data::Dump::Tree @0
+# │ SUB ELEMENTS Data::Dump::Tree+{DDTR::AnsiGlyphs}
+# ├ $.colorizer = .AnsiColor @1
+# │ │ removing %!color_lookup
+# │ ├ $.is_ansi = True.Bool
+# │ └ &.ansicolor = color.Sub
+# ├ $.title = Nil.Str
+# ├ $.caller = False.Bool
+# ├ $.color = False.Bool
+# │ removing %.colors
+# ├ $.color_glyphs = Nil.Str
+# ├ @.glyph_colors = [1] @4
+# │ └ 0 = glyph_1.Str
+# ├ @.glyph_colors_cycle = [0] @5
+# ├ $.color_kbs = Nil.Str
+# ├ @.kb_colors = [1] @6
+# │ └ 0 = kb_1.Str
+# ├ @.kb_colors_cycle = [0] @7
+# ├ @.header_filters = [0] @8
+# ├ @.elements_filters = [0] @9
+# ├ @.footer_filters = [0] @10
+# │ not removing %!rendered
+# ├ %!rendered = {0} @11
+# │ not removing %!element_names
+# ├ %!element_names = {0} @12
+# ├ $!address = Nil.Str
+# ├ $.display_address = DDT_DISPLAY_CONTAINER.DDT_Address_Display
+# ├ $.display_info = True.Bool
+# ├ $.display_type = True.Bool
+# ├ $.display_perl_address = False.Bool
+# │ not removing %.paths
+# ├ %.paths = {0} @13
+# ├ $.keep_paths = False.Bool
+# ├ $.width = Nil.Str
+# ├ $.max_depth = -1.Int
+# ├ $.max_depth_message = True.Bool
+# └ @!renderings = [0] @14
+
 object size
 
 ColorStr class
@@ -77,17 +117,17 @@ dumper
 	
 		=> any object can declare handler, including dynamic sources
 
-	dump, gather, dump_gathered, reset interface.
+	!dump, gather, dump_gathered, reset interface.
 
-	dumper can re-synchronize the glyphs
+	!dumper can re-synchronize the glyphs
 		if a stream ends, the glyph for the previous element
 		may need to be changed	
 
 	supports threads
 
-	lazy row representation element generation
+	!lazy row representation element generation
 
-	can modify a previous glyph if the level after it is not the expected one
+	!can modify a previous glyph if the level after it is not the expected one
 		ie, an element becomes the latest in the level
 
 	#when dumping multiple structures simultaneously
@@ -103,11 +143,11 @@ dumper
 	class defined generator
 		it can use this module and the glyphs get aligned properly
 
-	colorizer
+	#colorizer
 		per level
 		per type
 
-	lazy representation generation
+	!lazy representation generation
 
 	},
 

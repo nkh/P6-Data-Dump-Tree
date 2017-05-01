@@ -19,11 +19,21 @@ has %.colors =
 	value       reset    wrap        yellow   reset  reset
 
 	glyph_0 yellow  glyph_1 242  glyph_2 green  glyph_3 red  glyph_4 blue
+
+	kb_1 184  kb_2  178 
+	kb_3 33   kb_4  27
+	kb_5 175  kb_6  169      
+	kb_7 34   kb_8  28
+	kb_9 160  kb_10 124 
 	>> ;
 
 has $.color_glyphs ;
 has @.glyph_colors = < glyph_1> ;
 has @.glyph_colors_cycle ; 
+
+has $.color_kbs ;
+has @.kb_colors = < kb_1> ;
+has @.kb_colors_cycle ; 
 
 has @.header_filters ;
 has @.elements_filters ;
@@ -111,6 +121,10 @@ $!colorizer.set_colors(%.colors, $.color) ;
 
 @.glyph_colors = < glyph_0 glyph_1 glyph_2 glyph_3 > if $.color_glyphs ;
 @!glyph_colors_cycle = |@.glyph_colors xx  * ; 
+
+@.kb_colors = < kb_1 kb_2 kb_3 kb_4 kb_5 kb_6 kb_7 kb_8 kb_9 kb_10 > ;
+@!kb_colors_cycle = |@.kb_colors xx  * ; 
+
 $.width //= %+(qx[stty size] ~~ /\d+ \s+ (\d+)/)[0] ; 
 
 @!renderings = () ;
@@ -210,7 +224,7 @@ $multi_line_glyph = $empty_glyph if $final ;
 # perl stringy $v if role is on
 ($v, $, $) = self.get_header($v) if $s !~~ Str ;
 
-my ($kvf, @ks, @vs, @fs) := self!split_entry($width, $k, $b, $glyph_width, $v, $f, $address) ;
+my ($kvf, @ks, @vs, @fs) := self!split_entry($current_depth, $width, $k, $b, $glyph_width, $v, $f, $address) ;
 
 if $kvf.defined
 	{
@@ -332,7 +346,7 @@ method !get_element_subs($s)
 		!! $.get_elements($s) ;  # generic handler
 }
 
-method !split_entry(Int $width, Cool $k, Cool $b, Int $glyph_width, Cool $v, Cool $f is copy, $address)
+method !split_entry(Int $current_depth, Int $width, Cool $k, Cool $b, Int $glyph_width, Cool $v, Cool $f is copy, $address)
 {
 my ($ddt_address, $perl_address, $link) =
 	$address.defined
@@ -346,8 +360,10 @@ my ($k2, $v2, $f2)  = ($k // '', $v // '', $f // '').map: { .subst(/\t/, ' ' x 8
 
 if none($k2, $v2, $f2) ~~ /\n/	&& ($k2 ~ $b  ~ $v2 ~ $f2 ~ $ddt_address ~ $perl_address ~ $link).chars <= $width 
 	{
-	$kvf = $!colorizer.color($k2, 'key') 
-		~ $!colorizer.color($b, 'binder') 
+	$kvf = ''
+		~ $!colorizer.color($k2, $.color_kbs ?? @.kb_colors_cycle[$current_depth] !! 'key') 
+		~ $!colorizer.color($b, $.color_kbs ?? @.kb_colors_cycle[$current_depth] !! 'binder') 
+
 		~ $!colorizer.color($v2, 'value') 
 		~ $!colorizer.color($.superscribe_type($f2), 'header') ~ ' ' 
 		~ $!colorizer.color($ddt_address, 'ddt_address')
@@ -357,8 +373,8 @@ if none($k2, $v2, $f2) ~~ /\n/	&& ($k2 ~ $b  ~ $v2 ~ $f2 ~ $ddt_address ~ $perl_
 else
 	{
 	@ks = self.split_text($k2, $width + $glyph_width) ; # $k has a bit extra space
-	@ks = $!colorizer.color(@ks, 'key') ; 
-	@ks[*-1] ~= $!colorizer.color($b, 'binder') if @ks ; 
+	@ks = $!colorizer.color(@ks, $.color_kbs ?? @.kb_colors_cycle[$current_depth] !! 'key') ; 
+	@ks[*-1] ~= $!colorizer.color($b, $.color_kbs ?? @.kb_colors_cycle[$current_depth] !! 'binder') if @ks ; 
 
 	@vs = self.split_text($v2, $width) ; 
 	@vs = $!colorizer.color(@vs, 'value') ; 
