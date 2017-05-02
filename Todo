@@ -1,43 +1,62 @@
 
+override default colors without having to redefine all of them
 
 Create a handler DDTR
 # .Data::Dump::Tree+{DDTR::AnsiGlyphs} .Data::Dump::Tree @0
-# │ SUB ELEMENTS Data::Dump::Tree+{DDTR::AnsiGlyphs}
+#
+# remove &ansicolor, do not show the colors
 # ├ $.colorizer = .AnsiColor @1
 # │ │ removing %!color_lookup
 # │ ├ $.is_ansi = True.Bool
 # │ └ &.ansicolor = color.Sub
+#
 # ├ $.title = Nil.Str
 # ├ $.caller = False.Bool
+# 
 # ├ $.color = False.Bool
+# 
 # │ removing %.colors
+# show the colors in color
+#
 # ├ $.color_glyphs = Nil.Str
 # ├ @.glyph_colors = [1] @4
 # │ └ 0 = glyph_1.Str
 # ├ @.glyph_colors_cycle = [0] @5
+#
 # ├ $.color_kbs = Nil.Str
+# display over all the color information 
+#
 # ├ @.kb_colors = [1] @6
 # │ └ 0 = kb_1.Str
 # ├ @.kb_colors_cycle = [0] @7
+#
 # ├ @.header_filters = [0] @8
 # ├ @.elements_filters = [0] @9
 # ├ @.footer_filters = [0] @10
-# │ not removing %!rendered
-# ├ %!rendered = {0} @11
-# │ not removing %!element_names
-# ├ %!element_names = {0} @12
+# horizontal check list
+#
+#
 # ├ $!address = Nil.Str
+# ├ %!rendered = {0} @11
+# 
+# ├ %!element_names = {0} @12
+#
+#
 # ├ $.display_address = DDT_DISPLAY_CONTAINER.DDT_Address_Display
 # ├ $.display_info = True.Bool
 # ├ $.display_type = True.Bool
 # ├ $.display_perl_address = False.Bool
-# │ not removing %.paths
-# ├ %.paths = {0} @13
+
 # ├ $.keep_paths = False.Bool
+# ├ %.paths = {0} @13
+# remove
+#
 # ├ $.width = Nil.Str
 # ├ $.max_depth = -1.Int
 # ├ $.max_depth_message = True.Bool
+
 # └ @!renderings = [0] @14
+# remove
 
 object size
 

@@ -8,31 +8,33 @@ class Data::Dump::Tree does DDTR::DescribeBaseObjects
 has $.colorizer = AnsiColor.new() ;
 method is_ansi { $!colorizer.is_ansi }
 
+my %default_colors =
+	<
+	ddt_address blue     perl_address yellow  link   green
+	header      magenta  key         cyan     binder cyan 
+	value       reset    wrap        yellow
+
+	gl_0 242  gl_1 yellow  gl_2 green gl_3 red  gl_4 blue
+
+	kb_0 178   kb_1 172 
+	kb_2 33    kb_3 27
+	kb_4 175   kb_5 169      
+	kb_6 34    kb_7 28
+	kb_8 160   kb_9 124 
+	> ;
+
 has $.title ;
 has Bool $.caller is rw = False ;
 
 has Bool $.color is rw = True ;
-has %.colors =
-	<<
-	ddt_address blue     perl_address yellow  link   green
-	header      magenta  key         cyan     binder cyan 
-	value       reset    wrap        yellow   reset  reset
-
-	glyph_0 yellow  glyph_1 242  glyph_2 green  glyph_3 red  glyph_4 blue
-
-	kb_1 184  kb_2  178 
-	kb_3 33   kb_4  27
-	kb_5 175  kb_6  169      
-	kb_7 34   kb_8  28
-	kb_9 160  kb_10 124 
-	>> ;
+has %.colors ;
 
 has $.color_glyphs ;
-has @.glyph_colors = < glyph_1> ;
+has @.glyph_colors ;
 has @.glyph_colors_cycle ; 
 
 has $.color_kbs ;
-has @.kb_colors = < kb_1> ;
+has @.kb_colors ;
 has @.kb_colors_cycle ; 
 
 has @.header_filters ;
@@ -63,6 +65,8 @@ method get_renderings() { @!renderings }
 
 method new(:@does, *%attributes)
 {
+my %colors = %attributes<colors> // (), %default_colors ;
+
 my $object = self.bless(|%attributes);
 
 for @does // () -> $role { $object does $role }
@@ -114,20 +118,32 @@ $clone.get_renderings() ;
 method reset
 {
 $!address = 0 ;
+@!renderings = () ;
 %!rendered = () ;
 %.paths = () ;
 
-$!colorizer.set_colors(%.colors, $.color) ;
+$!colorizer.set_colors(%(|%default_colors, |$.colors), $.color) ;
 
-@.glyph_colors = < glyph_0 glyph_1 glyph_2 glyph_3 > if $.color_glyphs ;
-@!glyph_colors_cycle = |@.glyph_colors xx  * ; 
+if $.color_glyphs 
+	{
+	unless @.glyph_colors.elems
+		{
+		@.glyph_colors.append:  "gl_$_" for ^5 ;
+		}
+	}
+else
+	{
+	@.glyph_colors = < gl_0 > ;
+	}
+@!glyph_colors_cycle = |@.glyph_colors xx  * ;
 
-@.kb_colors = < kb_1 kb_2 kb_3 kb_4 kb_5 kb_6 kb_7 kb_8 kb_9 kb_10 > ;
+unless @.kb_colors.elems
+	{
+	@.kb_colors.append:  "kb_$_" for 0 ..10 ;
+	}
 @!kb_colors_cycle = |@.kb_colors xx  * ; 
 
 $.width //= %+(qx[stty size] ~~ /\d+ \s+ (\d+)/)[0] ; 
-
-@!renderings = () ;
 }
 
 method render_root($s)

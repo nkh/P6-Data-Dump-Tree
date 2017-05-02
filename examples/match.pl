@@ -44,14 +44,11 @@ $d.dump(:title('Parsing (MatchDetails, PerlString+ml, FixedGlyphs, custom colors
 	$m,
 	does => (DDTR::FixedGlyphs,),
 	:display_address(DDT_DISPLAY_NONE),
-	:colors(
-		<<
+	:colors(<
 		ddt_address 17  perl_address 58  link   23
 		key         32  binder       32  value  246  header 53
 		wrap        23
-
-		glyph_0 95  glyph_1 59  glyph_2 64  glyph_3 94  glyph_4 31
-		>>),
+		>),
 	);
 
 
@@ -59,22 +56,7 @@ $d.dump(:title('Parsing (MatchDetails, PerlString+ml, FixedGlyphs, custom colors
 	$m ,
 	does => (DDTR::FixedGlyphs,),
 	:display_address(DDT_DISPLAY_NONE),
-	:colors(
-		<<
-		ddt_address 17  perl_address 58  link   23
-		key         32  binder       32  value  246  header 53
-		wrap        23
-
-		glyph_0 95  glyph_1 59  glyph_2 64  glyph_3 94  glyph_4 31
-
-		kb_1 184  kb_2  178 
-		kb_3 33   kb_4  27
-		kb_5 175  kb_6  169      
-		kb_7 34   kb_8  28
-		kb_9 160  kb_10 124 
-		
-		>>),
-		 
 	:color_kbs,
 	);
+
 

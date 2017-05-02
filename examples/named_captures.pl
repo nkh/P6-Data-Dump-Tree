@@ -41,7 +41,7 @@ my $match = $config ~~ /<section>*/ ;
 
 my $dump_start = now ;
 
-$d.dump( { :$config, :$regex, :$match }, title => 'config parsing', elements_filters => (&sorter,)) ;
+$d.dump({ :$config, :$regex, :$match }, title => 'config parsing', elements_filters => (&sorter,)) ;
 
 # filter display the elements in a specific order
 # for the only hash that will be in the dump

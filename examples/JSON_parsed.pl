@@ -52,7 +52,7 @@ my $d = Data::Dump::Tree.new(
 			(
 			DDTR::MatchDetails, DDTR::PerlString,
 			DDTR::UnicodeGlyphs, DDTR::Superscribe,
-			)
+			),
 		) ;
 
 # limit the output of the matched string to 40  characters in length	

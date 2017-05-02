@@ -190,7 +190,7 @@ You can pass your own colors. The default are:
 		header      magenta  key         cyan        value reset
 		wrap        yellow
 
-		glyph_0 yellow   glyph_1 reset   glyph_2 green   glyph_3 red
+		gl_0 yellow   gl_1 reset   gl_2 green   gl_3 red
 		> ;
 
 
@@ -211,7 +211,7 @@ Will set a default glyph color cycle.
 	dump(@s) ;
 
 	# colored glyphs, will cycle 
-	dump(@s, :color_glyphs) ; #uses < glyph_0 glyph_1 glyph_2 glyph_3 >
+	dump(@s, :color_glyphs) ; #uses < gl_0 gl_1 gl_2 gl_3 >
 
 =head4 @glyph_colors
 You can also define your own cycle with B<@kb_colors>: 
@@ -222,7 +222,7 @@ You can also define your own cycle with B<@kb_colors>:
 	dump(@s) ;
 
 	# colored glyphs, will cycle (note that the colors must be defined)
-	dump(@s, :color_glyphs, glyph_colors => < glyph_0 glyph_1 >) ;
+	dump(@s, :color_glyphs, glyph_colors => < gl_0 gl_1 >) ;
 
 =head4 $color_kbs
 Will set a default key and binding color cycle.
@@ -232,7 +232,7 @@ Will set a default key and binding color cycle.
 	# default uses colors 'key' and 'binder'
 	dump(@s) ;
 
-	# used color 'kb_1', 'kb_2' ... and cycles
+	# used color 'kb_0', 'kb_1' ... and cycles
 	dump(@s, :color_kbs) ; #uses < kb_0 kb_1 ...  kb_10 >
 
 =head4 @kb_colors

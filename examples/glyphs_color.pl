@@ -2,21 +2,24 @@
 use Data::Dump::Tree ;
 use Data::Dump::Tree::DescribeBaseObjects ;
 use Data::Dump::Tree::ExtraRoles ;
+use Data::Dump::Tree::Enums ;
 
 my $d = Data::Dump::Tree.new ;
+my $m = [ [ |(1..3), [ |(1..3), [ |(1..3), [ |(1..3), [ 1..3 ] ] ], |(1..3) ] ], 1] ;
 
-$d.dump([ [ |(1..3), [ |(1..3), [ |(1..3), [ |(1..3), [ 1..3 ] ] ] ] ], 1], :title('Glyphs'));
-
-
-# dump again with roles on 
 $d does DDTR::SuperscribeType ;
 $d does DDTR::SuperscribeAddress ;
 
-$d.dump([ [ |(1..3), [ |(1..3), [ |(1..3), [ |(1..3), [ 1..3 ] ] ] ] ], 1], :title('Glyphs'),
-	 :glyph_colors( < glyph_0 glyph_1 glyph_2 glyph_3> ) );
+$d.dump($m, :title('Glyphs'));
 
-$d does DDTR::NumberedLevel ;
-$d.dump([ [ |(1..3), [ |(1..3), [ |(1..3), [ |(1..3), [ 1..3 ] ] ] ] ], 1], :title('Glyphs'),
-	 :glyph_colors( < glyph_0 glyph_1 glyph_2 glyph_3> ) );
+$d.dump($m, :title('Glyphs, numbered levels'), does => (DDTR::NumberedLevel,), );
+
+$d.dump($m, :title('Glyphs, colored glyphs default'), :color_glyphs, );
+
+$d.dump(:title('Glyphs, custom colors, 3 first level green'),
+	$m ,
+	:colors(< gl_0 green gl_1 green gl_2 green >), 
+	:color_glyphs,
+	);
 
 
