@@ -23,7 +23,9 @@ It also
 
 =item can display two data structures side by side
 
-=item can display the difference between two data structures
+=item can display the difference between two data structures (DDTR::Diff)
+
+=item can display output DHTML (DDTR::DHTML)
 
 =item can be used to "visit" a data structure and call callbacks you define
 
@@ -638,9 +640,6 @@ variable.
 =head1 BUGS
 Submit bugs (preferably as executable tests) and feel free to make suggestions.
 
-This module will mature with time, and with your suggestions, it is intended to
-replace my P5 Data::TreeDumper module for P6.
-
 =head2 Dumper Exception
 As this module uses the MOP interface, it happens that it may use interfaces
 not implemented by some internal classes. 
@@ -666,6 +665,10 @@ under the same terms as Perl6 itself.
 
 =SEE-ALSO
 
+P5:
+Data::TreeDumper
+
+P6: 
 Data::Dump
 Pretty:Printer
 

@@ -1,0 +1,61 @@
+
+=begin pod
+
+=NAME
+Date::Dump::Tree::DHTML - Renders structure as DHTML
+
+=SYNOPSIS
+	
+=DESCRIPTION
+
+Data::Dump::Tree::DHTML is a Role you can add to a Data::Dump::Tree object.
+
+The role add a B<dump_dhtml> method to the object. 
+
+=INTERFACE
+
+=item $dumper.dump_dhtml($s1, *%options) 
+Dump a HTML document with folding capacity on .
+
+=item $dumper.get_dhtml_dump($s1, *%options) 
+Returns a HTML document with folding capacity on $*OUT.
+
+=USAGE
+
+	my $d = Data::Dump::Tree.new(title => 'test',  does => ( DDTR::DHTML,),) ;
+	
+	class Tomato{ has Int $seeds }
+	$d.dump_dhtml([ 1, { key => { sk1 => 'v1', sk2 => 'v2'},}, Tomato,]) ;
+
+=head2 Multiple data structures output
+
+You can call I<dump_dhtml> multiple times for different data structures. Each
+dump will have a separate body, class, style, and identifiers.
+ 
+=head2 Configuration and Overrides
+Check B<Data::Dump::Tree> for the options that you can pass the dumper. Not all
+the standard configurations can be used.
+
+TBD: list compatible configuration override
+
+=head3 Width
+The default width is set to 1_000 characters, you can override it with I<:width>.
+
+=AUTHOR
+
+Nadim ibn hamouda el Khemir
+https://github.com/nkh
+
+=LICENSE
+
+This program is free software; you can redistribute it and/or modify it
+under the same terms as Perl6 itself.
+
+=SEE-ALSO
+
+Data::Dump::Tree
+
+=end pod
+
+DOC INIT {use Pod::To::Text ; pod2text($=pod) ; }
+

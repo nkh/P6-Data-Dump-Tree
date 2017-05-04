@@ -37,6 +37,10 @@ has $.color_kbs ;
 has @.kb_colors ;
 has @.kb_colors_cycle ; 
 
+has $.wrap_data is rw ;
+has $.wrap_header ;
+has $.wrap_footer ;
+
 has @.header_filters ;
 has @.elements_filters ;
 has @.footer_filters ;
@@ -100,7 +104,6 @@ method get_dump_lines($s, *%options)
 {
 # roles can be passed in new() or as options to dump
 # make a clone so we do not pollute the object
-
 my $clone = self.clone(|%options) ;
 
 for %options<does> // () -> $role { $clone does $role } 
@@ -112,7 +115,10 @@ if %options<display_info>
 	}
 
 $clone.render_root($s) ;
-$clone.get_renderings() ;
+
+$clone.wrap_data.defined
+	?? ($clone.get_renderings(), $clone.wrap_data) 
+	!! $clone.get_renderings() ;
 }
 
 method reset
@@ -172,6 +178,9 @@ self.render_non_final($s, $current_depth, $continuation_glyph) unless ($final ||
 
 @!footer_filters and $s.WHAT !=:= Mu and 
 	$.filter_footer($s, ($current_depth, $continuation_glyph, @!renderings))  ;
+	
+my $wf = $.wrap_footer  ;
+$wf.defined and $wf($.wrap_data, $s, $final, ($current_depth, $continuation_glyph, @!renderings))  ;
 }
 
 method render_non_final($s, $current_depth, $continuation_glyph)
@@ -242,17 +251,36 @@ $multi_line_glyph = $empty_glyph if $final ;
 
 my ($kvf, @ks, @vs, @fs) := self!split_entry($current_depth, $width, $k, $b, $glyph_width, $v, $f, $address) ;
 
+
 if $kvf.defined
 	{
 	@!renderings.append: $glyph ~ $kvf ;
 	}
 else
 	{
-	@!renderings.append: $glyph ~ (@ks.shift if @ks) ; 
-	@!renderings.append: @ks.map: { $continuation_glyph ~ $_} ; 
+	@!renderings.append: $glyph ~ @ks[0] if @ks ;
+	
+	if @ks > 1
+		{
+		for @ks[1..*-1] -> $ks
+			{
+			@!renderings.append: $continuation_glyph ~ $ks ; 
+			} 
+		}
+
 	@!renderings.append: @vs.map: { $continuation_glyph ~ $multi_line_glyph ~ $_} ; 
 	@!renderings.append: @fs.map: { $continuation_glyph ~ $multi_line_glyph ~ $_} unless $.display_info == False ; 
 	}
+
+my $wh = $.wrap_header ;
+$wh.defined and $wh(
+		$.wrap_data,
+		($glyph, $continuation_glyph, $multi_line_glyph),
+		($kvf, @ks, @vs, @fs),
+		$s,
+		($current_depth, $path, $filter_glyph, @!renderings),
+		($k, $b, $v, $f, $final, $want_address),
+		) ;
 
 $final, $rendered, $s, $continuation_glyph
 }
