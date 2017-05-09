@@ -258,7 +258,7 @@ if $kvf.defined
 	}
 else
 	{
-	@!renderings.append: $glyph ~ @ks[0] if @ks ;
+        @!renderings.append: $glyph ~ (@ks[0] if @ks) ;
 	
 	if @ks > 1
 		{

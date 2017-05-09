@@ -1,10 +1,10 @@
 
 dhtml
-	ansi
 	user chose ascii or unicode
 	user colors
 	documentation
 	user css override
+	re-factor JS
 
 graphs that have entry further than :width are not clipped properly 
 

@@ -1,35 +1,29 @@
 
 use Data::Dump::Tree ;
-use Data::Dump::Tree::Enums ;
 use Data::Dump::Tree::DescribeBaseObjects ;
-use Data::Dump::Tree::ExtraRoles ;
 
 role DDTR::DHTML
 {
-	
 my $a2h = ( [ "'", '"', '&', '<', '>' ] =>  [ '&apos;', '&quot;', '&amp;', '&lt;', '&gt;' ]) ;
 my $class_bag = (^10_000).BagHash ;
 
-method dump_dhtml($s, *%options) is export 
-{
-say $.get_dhtml_dump($s, |%options) ; 
-}
+method dump_dhtml($s, *%options) is export { say $.get_dhtml_dump($s, |%options) }
 
 method get_dhtml_dump($s, *%options) is export 
 {
 %options<wrap_data> //= %() ;
 my %s := %options<wrap_data> ;
 
-%s<DHTML> //= '' ;
-%s<uuid> = 0 ;
-%s<class> //= 'ddt_' ~ $class_bag.grab(1) ;
-%s<style_none> //= 0 ;
-%s<collapsed> //= False ;
-%s<button_collapse> //= True ;
+%s<uuid>                 = 0 ;
+%s<DHTML>              //= '' ;
+%s<class>              //= 'ddt_' ~ $class_bag.grab(1) ;
+%s<style_none>         //= 0 ;
+%s<collapsed>          //= False ;
+%s<button_collapse>    //= True ;
 %s<collapse_button_id> //= "%s<class>_button_1" ;
-%s<collapse_ids> //= () ;
-%s<button_search> //= False ;
-%s<search_button_id> //= "%s<class>_button_2" ;
+%s<collapse_ids>       //= () ;
+%s<button_search>      //= True ;
+%s<search_button_id>   //= "%s<class>_button_2" ;
 
 %s<style> //= qq:to/STYLE/ ;
 <style type='text/css'>
@@ -55,20 +49,20 @@ qq:to/DHTML/ ;
 <head> <title>Data Dump</title> </head>
 <body>
 %s<style>
-<div class='tdump_button_container'>
+
+<div>
 {
-my $buttons = 
-	%s<button_collapse>
-		?? %s<collapsed> 
-			?? "   <input type='button' id='%s<collapse_button_id>' onclick='expand_collapse_%s<class>\(true)' value='Expand'/>\n"
-			!! "   <input type='button' id='%s<collapse_button_id>' onclick='expand_collapse_%s<class>\(true)' value='Collapse'/>\n"
-		!! '' ;
+(%s<button_collapse>
+	?? %s<collapsed> 
+		?? "   <input type='button' id='%s<collapse_button_id>' onclick='expand_collapse_%s<class>\(true)' value='Expand'/>\n"
+		!! "   <input type='button' id='%s<collapse_button_id>' onclick='expand_collapse_%s<class>\(true)' value='Collapse'/>\n"
+	!! '')
 
-$buttons ~= %s<button_search>
+~ # append
+
+(%s<button_search>
 	?? "   <input type='button' id='%s<search_button_id>' onclick='search_{%s<class>}()' value='Search'/>\n" 
-	!! '' ;
-
-$buttons ;
+	!! '')
 }	
 </div>
 
@@ -145,11 +139,7 @@ else
 		?? " data-final=1>"
 		!! " href='javascript:void(0);' onclick='toggleList_$class\(\"$c_uuid\", \"$a_uuid\")'>" ;
 
-	if @ks
-		{
-		wd<DHTML> ~= $glyph ~ @ks[0].trans($a2h) ~ '<br>' ;
-		}
-	
+	if @ks	{ wd<DHTML> ~= $glyph ~ @ks[0].trans($a2h) ~ '<br>' ; }
 	if @ks > 1
 		{
 		for @ks[1..*-1] -> $ks
@@ -213,6 +203,58 @@ my $collapsed = %s<collapsed> ;
 qq:to/EOS/ ;
 <script type='text/javascript'>
 
+function search_{$class}()
+\{
+var string_to_search = prompt('DDTR::DHTML Search','');
+var regexp = new RegExp(string_to_search, 'i') ;
+
+var i ;
+for (i = 0 ; i < a_id_array_{$class}.length; i++)
+	\{
+	if (document.getElementById) 
+		\{
+		if(regexp.test(document.getElementById(a_id_array_{$class}[i]).text))
+			\{
+			show_specific_node_{$class}(document.getElementById(a_id_array_{$class}[i])) ;
+			document.getElementById(a_id_array_{$class}[i]).style.color = '' ;
+			document.getElementById(a_id_array_{$class}[i]).style.backgroundColor = 'cyan' ;
+			break ;
+			}
+		}
+	else if (document.all) 
+		\{
+		if(regexp.test(document.all[a_id_array_{$class}[0]].text))
+			\{
+			show_specific_node_{$class}(document.all[a_id_array_{$class}[0]]) ;
+			break ;
+			}
+		}
+	else if (document.layers) 
+		\{
+		if(regexp.test(document.layers[a_id_array_{$class}[0]].text))
+			\{
+			show_specific_node_{$class}(document.layers[a_id_array_{$class}[0]]) ;
+			break ;
+			}
+		}
+	}
+}
+
+function show_specific_node_{$class} (node)
+\{
+collapsed_{$class} = 0; /* hide all */
+expand_collapse_{$class}();
+
+do
+	\{
+	node = node.parentNode;
+	
+	if (node && node.tagName == 'UL')
+		node.style.display = 'block';
+		
+	} while (node && node.parentNode);
+}
+
 var a_id_array_{$class}= new Array
 		(
 		$a_ids
@@ -249,6 +291,7 @@ for (i = 0; i < { %s<uuid> } ; i++)
 	if (document.getElementById) 
 		\{
 		document.getElementById(collapsable_id_array_{$class}\[i]).style.display = style ;
+		document.getElementById(a_id_array_{$class}[i]).style.backgroundColor = '' ;
 
 		var element = document.getElementById(a_id_array_{$class}\[i]) ;
 		var final =  element.getAttribute('data-final') ;
@@ -308,12 +351,14 @@ if (document.getElementById)
 			element.style.display = 'block';
 			element = document.getElementById(head_id);
 			element.style.color = '' ;
+			element.style.backgroundColor = '' ;
 			}
 		else
 			\{
 			element.style.display = 'none';
 			element = document.getElementById(head_id);
 			element.style.color = 'magenta' ;
+			element.style.backgroundColor = '' ;
 			}
 		}
 	}
