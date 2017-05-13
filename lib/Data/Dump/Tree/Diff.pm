@@ -121,13 +121,13 @@ my $is_different = 0 ;
 if $final1 && !$final2  # different types
 	{
 	$diff_glyph = %diff_glyphs<container_left> ;
-	$d2.render_non_final($s2, $cd2, $cont_glyph2) unless $rendered2 ;
+	$d2.render_non_final($s2, $cd2, $cont_glyph2, $s2_header) unless $rendered2 ;
 	$is_different++ ;
 	}
 elsif !$final1 && $final2  # different types
 	{
 	$diff_glyph = %diff_glyphs<container_right> ;
-	$d1.render_non_final($s1, $cd1, $cont_glyph1) unless $rendered1 ;
+	$d1.render_non_final($s1, $cd1, $cont_glyph1, $s1_header) unless $rendered1 ;
 	$is_different++ ;
 	} 
 elsif $final1 && $final2
@@ -147,14 +147,14 @@ else
 		if $s1.WHERE == $s2.WHERE
 			{
 			$diff_glyph = %diff_glyphs<same_object> ;
-			$d1.render_non_final($s1, $cd1, $cont_glyph1) ;
-			$d2.render_non_final($s2, $cd2, $cont_glyph2) ;
+			$d1.render_non_final($s1, $cd1, $cont_glyph1, $s1_header) ;
+			$d2.render_non_final($s2, $cd2, $cont_glyph2, $s2_header) ;
 			}
 		elsif $s1 eqv $s2
 			{
 			$diff_glyph = %diff_glyphs<same_type_same_value> ;
-			$d1.render_non_final($s1, $cd1, $cont_glyph1) ;
-			$d2.render_non_final($s2, $cd2, $cont_glyph2) ;
+			$d1.render_non_final($s1, $cd1, $cont_glyph1, $s1_header) ;
+			$d2.render_non_final($s2, $cd2, $cont_glyph2, $s2_header) ;
 			}
 		else
 			{
@@ -168,8 +168,8 @@ else
 
 			my $index = @diff_glyphs.end ; # may have to change the glyph after rendering sub levels 
 
-			my (@sub_elements1, %glyphs1) := $d1.get_sub_elements($s1, $cd1, $cont_glyph1) ;
-			my (@sub_elements2, %glyphs2) := $d2.get_sub_elements($s2, $cd2, $cont_glyph2) ;
+			my (@sub_elements1, %glyphs1) := $d1.get_sub_elements($s1, $cd1, $cont_glyph1, $s1_header) ;
+			my (@sub_elements2, %glyphs2) := $d2.get_sub_elements($s2, $cd2, $cont_glyph2, $s2_header) ;
 
 			if $diff_synch_filter
 				{

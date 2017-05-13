@@ -174,7 +174,7 @@ method render_element_structure($element, $current_depth, @glyphs, $head_glyph)
 my ($final, $rendered, $s, $continuation_glyph) := 
 	$.render_element($element, $current_depth, @glyphs, $head_glyph) ;
 
-self.render_non_final($s, $current_depth, $continuation_glyph) unless ($final || $rendered) ;
+self.render_non_final($s, $current_depth, $continuation_glyph, $element) unless ($final || $rendered) ;
 
 @!footer_filters and $s.WHAT !=:= Mu and 
 	$.filter_footer($s, ($current_depth, $continuation_glyph, @!renderings))  ;
@@ -183,9 +183,9 @@ my $wf = $.wrap_footer  ;
 $wf.defined and $wf($.wrap_data, $s, $final, ($current_depth, $continuation_glyph, @!renderings))  ;
 }
 
-method render_non_final($s, $current_depth, $continuation_glyph)
+method render_non_final($s, $current_depth, $continuation_glyph, $element)
 {
-my (@sub_elements, %glyphs) := $.get_sub_elements($s, $current_depth, $continuation_glyph) ;
+my (@sub_elements, %glyphs) := $.get_sub_elements($s, $current_depth, $continuation_glyph, $element) ;
 
 for @sub_elements Z 0..* -> ($sub_element, $index)
 	{
@@ -207,9 +207,7 @@ my ($glyph_width, $glyph, $continuation_glyph, $multi_line_glyph, $empty_glyph, 
 
 my $width = $!width - ($glyph_width * ($current_depth + 1)) ;
 
-my ($v, $f, $final, $want_address) ;
-
-($v, $f, $final, $want_address) = 
+my ($v, $f, $final, $want_address) = 
 	$s.WHAT =:= Mu
 		?? ('', '.Mu', DDT_FINAL ) 
 		!! self.get_element_header($s) ;
@@ -285,7 +283,7 @@ $wh.defined and $wh(
 $final, $rendered, $s, $continuation_glyph
 }
 
-method get_sub_elements($s, $current_depth, $continuation_glyph)
+method get_sub_elements($s, $current_depth, $continuation_glyph, $element)
 {
 my (%glyphs, $) := $.get_level_glyphs($current_depth) ; 
 
@@ -322,7 +320,7 @@ if $.keep_paths
 	}
 
 @!elements_filters and $s.WHAT !=:= Mu and
-	$.filter_sub_elements($s, ($current_depth, $continuation_glyph ~ %glyphs<filter>, @!renderings), @sub_elements)  ;
+	$.filter_sub_elements($s, ($current_depth, $continuation_glyph ~ %glyphs<filter>, @!renderings, $element), @sub_elements)  ;
 
 
 @sub_elements, %glyphs 
@@ -344,11 +342,11 @@ for @.header_filters -> $filter
 	}
 }
 
-method filter_sub_elements($s, ($current_depth, $glyph, @renderings), @sub_elements)
+method filter_sub_elements($s, ($current_depth, $glyph, @renderings, $element), @sub_elements)
 {
 for @.elements_filters -> $filter
 	{
-	$filter($s, ($current_depth, $glyph, @renderings), @sub_elements) ;
+	$filter($s, ($current_depth, $glyph, @renderings, $element), @sub_elements) ;
 	
 	CATCH 
 		{

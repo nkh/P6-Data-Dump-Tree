@@ -1,12 +1,10 @@
 
 dhtml
-	user chose ascii or unicode
 	user colors
-	documentation
 	user css override
-	re-factor JS
 
 graphs that have entry further than :width are not clipped properly 
+	clip but insert warning in the tree
 
 #override default colors without having to redefine all of them
 

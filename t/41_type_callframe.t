@@ -8,7 +8,7 @@ use Data::Dump::Tree::Enums ;
 
 my $d = Data::Dump::Tree.new ;
 
-multi sub Stash_no_sub( Stash $s, ($depth, $glyph, @renderings), @sub_elements)
+multi sub Stash_no_sub( Stash $s, ($depth, $glyph, @renderings, $), @sub_elements)
 {
 # remove subs from stash
 @sub_elements = @sub_elements.grep: { $_[2] !~~ Sub} ;

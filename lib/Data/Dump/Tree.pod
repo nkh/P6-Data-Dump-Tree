@@ -400,7 +400,7 @@ attributes, we display the Rat on a single line. Here is the handler:
 	DDT_HAS_ADDRESS,
 	}
 
-=head3 handling specific objects
+=head3 handling specific objects, filtering
 In the previous section we discussed rendering types with specific handler.
 The handlers apply to all the objects of the type. Sometimes you want to 
 handle instances differently. An example would be having three Hashes,
@@ -417,7 +417,18 @@ To pass a filter to the dumper:
 		) ;
 
 
-Filters are called three times during the rendering of each object.
+Data::Dump::Tree cycle is:
+
+when the element is to be displayed, DDT calls the element which return
+a description of itself then
+        * filters DDT_HEADER are called
+
+when sub elements of an element are to be displayed, DDT calls the element
+which returns a list of the sub elements in the form ('name' 'binder' 'sub_element')
+        * filters DDT_SUB_ELEMENTS are called
+
+when DDT has rendered the element and will get to the next element
+        * filters DDT_FOOTER are called
 
 =item DDT_HEADER
 This is called just after the type's U<get_header> is called, this allows you, EG,
@@ -463,11 +474,11 @@ Note: You can not filter elements of type U<Mu> with DDT_HEADER filters but
 you can in DDT_SUB_ELEMENTS filters. 
 
 =item DDT_SUB_ELEMENTS
-Called after the type's U<get_elements> ; you can change the elements.
+Called after the type's U<get_elements> ; you can change the sub elements.
 
 	sub elements_filter(
 		Hash $s,
-		($depth, $glyph, @renderings),
+		($depth, $glyph, @renderings, ($key, $binder, $, $path),
 		@sub_elements
 		)
 	{

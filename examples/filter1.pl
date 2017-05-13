@@ -80,7 +80,7 @@ r = Data::Dump::Tree::Type::Nothing ;
 
 # ELEMENTS FILTER
 # Match Hashes and replace their elements
-multi sub my_filter(Hash $s, ($depth, $glyph, @renderings), @sub_elements)
+multi sub my_filter(Hash $s, ($, $glyph, @renderings, $), @sub_elements)
 {
 # add text in the rendering
 @renderings.append: $glyph ~ "Changing elements of the Hash" ;

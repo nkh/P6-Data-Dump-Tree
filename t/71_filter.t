@@ -32,7 +32,7 @@ else
 
 # we can also act at a higher level, this filter catches the DDT object
 # before the Hashes are displayed
-multi sub elements_filter(Data::Dump::Tree $s, ($depth, $glyph, @renderings), @sub_elements)
+multi sub elements_filter(Data::Dump::Tree $s, ($depth, $glyph, @renderings, $), @sub_elements)
 {
 # simply show that we were called
 @renderings.append: $glyph ~ "SUB ELEMENTS " ~ $s.^name ;
