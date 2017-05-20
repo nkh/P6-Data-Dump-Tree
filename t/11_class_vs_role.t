@@ -4,7 +4,9 @@ use Test ;
 plan 7 ;
 
 use Data::Dump::Tree ;
-my $d = Data::Dump::Tree.new ;
+use Data::Dump::Tree::DescribeBaseObjects ;
+
+my $d = Data::Dump::Tree.new does DDTR::AsciiGlyphs ;
 
 
 class UseDefault

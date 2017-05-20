@@ -7,18 +7,20 @@ use Data::Dump::Tree::DescribeBaseObjects ;
 
 plan 9 ;
 
-my $d_1 = Data::Dump::Tree.new ;
+my $d_1 = Data::Dump::Tree.new does DDTR::AsciiGlyphs ;
 
 my $dump_1 = $d_1.get_dump(:title('title'), "nl1\nnl2\nnl3") ;
 
 is $dump_1.lines.elems, 5, 'multi lines' or diag $dump_1 ;
 
 my $d_2 = Data::Dump::Tree.new does DDTR::PerlString ;
+$d_2 does DDTR::AsciiGlyphs ;
+
 my $dump_2 = $d_2.get_dump("nl1\nnl1\nnl1") ;
 
 is $dump_2.lines.elems, 1, '1 lines' or diag $dump_2 ;
 
-my $d_3 = Data::Dump::Tree.new ;
+my $d_3 = Data::Dump::Tree.new does DDTR::AsciiGlyphs ;
 my $dump_3 = $d_3.get_dump(sub{}) ;
 
 like $dump_3, /anon/, 'default sub dump' ;
@@ -40,6 +42,7 @@ grammar my_grammar {
 };
 
 my $d_4 = Data::Dump::Tree.new does DDTR::MatchDetails ;
+$d_4 does DDTR::AsciiGlyphs ;
 
 my $dump_4 = $d_4.get_dump(my_grammar.parse("fuu \n\nbart baz x"));
 like($dump_4, /0\.\.15/, 'Grammar Match')  ;

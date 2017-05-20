@@ -75,11 +75,6 @@ my $object = self.bless(|%attributes);
 
 for @does // () -> $role { $object does $role }
 
-if $object.is_ansi 
-	{ $object does DDTR::AnsiGlyphs } 
-else
-	{ $object does DDTR::AsciiGlyphs}
-
 unless $object.display_info 
 	{
 	$object.display_type = False ;
@@ -107,6 +102,14 @@ method get_dump_lines($s, *%options)
 my $clone = self.clone(|%options) ;
 
 for %options<does> // () -> $role { $clone does $role } 
+
+unless $clone.can('get_glyphs')
+	{
+	if $clone.is_ansi 
+		{ $clone does DDTR::AnsiGlyphs } 
+	else
+		{ $clone does DDTR::AsciiGlyphs}
+	}
 
 if %options<display_info> 
 	{

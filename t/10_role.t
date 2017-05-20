@@ -2,10 +2,11 @@
 
 use Test ;
 use Data::Dump::Tree ;
+use Data::Dump::Tree::DescribeBaseObjects ;
 
 plan 5 ;
 
-my $d = Data::Dump::Tree.new() ;
+my $d = Data::Dump::Tree.new does DDTR::AsciiGlyphs ;
 
 class C  { has $.in_object = 'in_object' }
 

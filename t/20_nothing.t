@@ -2,6 +2,7 @@
 
 use Test ;
 use Data::Dump::Tree ;
+use Data::Dump::Tree::DescribeBaseObjects ;
 
 plan 3 ;
 
@@ -20,7 +21,7 @@ method ddt_get_elements
 #class
 }
 
-my $d = Data::Dump::Tree.new(color => False) ;
+my $d = Data::Dump::Tree.new(:!color, does => (DDTR::AsciiGlyphs,)) ;
 my $dump = $d.get_dump(HasNothing.new()) ;
 
 is $dump.lines.elems, 3, '3 lines output' ;

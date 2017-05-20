@@ -5,8 +5,9 @@ plan 4 ;
 
 use Data::Dump::Tree ;
 use Data::Dump::Tree::Enums ;
+use Data::Dump::Tree::DescribeBaseObjects ;
 
-my $d = Data::Dump::Tree.new ;
+my $d = Data::Dump::Tree.new does DDTR::AsciiGlyphs ;
 
 class C { has Any $!class_variable  }
 

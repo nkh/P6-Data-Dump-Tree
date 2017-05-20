@@ -26,7 +26,7 @@ EOI
 
 my $m = $contents ~~ /<section>*/ ;
 
-my $d = Data::Dump::Tree.new(does => ( DDTR::MatchDetails, DDTR::PerlString) ) ;
+my $d = Data::Dump::Tree.new(does => ( DDTR::MatchDetails, DDTR::PerlString, DDTR::AsciiGlyphs,) ) ;
 
 my $dump_5 = $d.get_dump($m, title => 'roles via new', width => 115) ;
 is($dump_5.lines.elems, 28, '28 lines of section parsing, roles via new() ') or diag $dump_5 ;
@@ -35,7 +35,8 @@ is($dump_5.lines.elems, 28, '28 lines of section parsing, roles via new() ') or 
 
 $m = $contents ~~ /<section>*/ ;
 
-my $d2 = Data::Dump::Tree.new ;
+my $d2 = Data::Dump::Tree.new does DDTR::AsciiGlyphs ;
+
 my $dump_6 = $d2.get_dump($m, title => 'roles via config', width => 115, does => ( DDTR::MatchDetails, DDTR::PerlString) ) ;
 
 is($dump_6.lines.elems, 28, '28 lines of section parsing, roles via config') or diag $dump_6 ;

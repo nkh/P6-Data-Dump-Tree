@@ -2,12 +2,13 @@
 
 use Test ;
 use Data::Dump::Tree ;
+use Data::Dump::Tree::DescribeBaseObjects ;
 
 plan 4 ;
 
 # this is a small example of a filter. I was curious about how DDT would
-# render itself. After a few try runs, wit different options, I got tired of
-# seing a long list which consists of a lot of colors so I decided to filter
+# render itself. After a few try runs, with different options, I got tired of
+# seeing a long list which consists of a lot of colors so I decided to filter
 # them out 
 
 
@@ -41,8 +42,8 @@ multi sub elements_filter(Data::Dump::Tree $s, ($depth, $glyph, @renderings, $),
 # added some elements
 }
 
-my $d = Data::Dump::Tree.new(color => False) ;
-my $dump = $d.get_dump($d, header_filters => (&header_filter,), elements_filters => (&elements_filter,)) ;
+my $d = Data::Dump::Tree.new does DDTR::AsciiGlyphs ;
+my $dump = $d.get_dump($d, :!color, header_filters => (&header_filter,), elements_filters => (&elements_filter,)) ;
 
 is $dump.lines.elems, 38, 'lines output' or diag $dump ;
 like $dump, /removing/, 'removing' or diag $dump ;

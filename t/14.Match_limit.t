@@ -7,7 +7,7 @@ use Data::Dump::Tree ;
 use Data::Dump::Tree::ExtraRoles ;
 use Data::Dump::Tree::DescribeBaseObjects ;
 
-my $d = Data::Dump::Tree.new() ;
+my $d = Data::Dump::Tree.new does DDTR::AsciiGlyphs ;
 
 my $string = "aaaaa\n" x 4 ;
 my $dump ;
