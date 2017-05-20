@@ -43,7 +43,7 @@ multi sub elements_filter(Data::Dump::Tree $s, ($depth, $glyph, @renderings, $),
 }
 
 my $d = Data::Dump::Tree.new does DDTR::AsciiGlyphs ;
-my $dump = $d.get_dump($d, :!color, header_filters => (&header_filter,), elements_filters => (&elements_filter,)) ;
+my $dump = $d.get_dump($d, :!color, :width<120>, header_filters => (&header_filter,), elements_filters => (&elements_filter,)) ;
 
 is $dump.lines.elems, 38, 'lines output' or diag $dump ;
 like $dump, /removing/, 'removing' or diag $dump ;

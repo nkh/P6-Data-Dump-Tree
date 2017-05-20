@@ -75,6 +75,14 @@ my $object = self.bless(|%attributes);
 
 for @does // () -> $role { $object does $role }
 
+unless $object.can('get_glyphs')
+	{
+	if $object.is_ansi 
+		{ $object does DDTR::AnsiGlyphs } 
+	else
+		{ $object does DDTR::AsciiGlyphs}
+	}
+
 unless $object.display_info 
 	{
 	$object.display_type = False ;
@@ -102,14 +110,6 @@ method get_dump_lines($s, *%options)
 my $clone = self.clone(|%options) ;
 
 for %options<does> // () -> $role { $clone does $role } 
-
-unless $clone.can('get_glyphs')
-	{
-	if $clone.is_ansi 
-		{ $clone does DDTR::AnsiGlyphs } 
-	else
-		{ $clone does DDTR::AsciiGlyphs}
-	}
 
 if %options<display_info> 
 	{
@@ -174,7 +174,7 @@ self.render_element_structure(
 
 method render_element_structure($element, $current_depth, @glyphs, $head_glyph)
 {
-my ($final, $rendered, $s, $continuation_glyph) := 
+my ($final, $rendered, $s, $continuation_glyph) = 
 	$.render_element($element, $current_depth, @glyphs, $head_glyph) ;
 
 self.render_non_final($s, $current_depth, $continuation_glyph, $element) unless ($final || $rendered) ;
@@ -586,7 +586,8 @@ $! ?? (('DDT exception', ': ', "$!"),)  !! @a ;
 
 multi sub get_Any_attributes (Any $a) is export 
 {
-$a.^attributes.grep({$_.^isa(Attribute)}).map:   #weeding out perl internal, thanks to moritz 
+$a.^attributes.grep({$_.^isa(Attribute)}).map:
+   #weeding out perl internal, thanks to moritz 
 	{
 	my $name = $_.name ;
 	$name ~~ s~^(.).~$0.~ if $_.has_accessor ;
@@ -595,7 +596,11 @@ $a.^attributes.grep({$_.^isa(Attribute)}).map:   #weeding out perl internal, tha
 		?? $_.get_value($a) // 'Nil'
 		!! $_.type ; 
 
-	($name, ' = ', $value)
+   	#weeding out perl internal, thanks to jnth 
+	if $value.HOW.^name eq 'NQPClassHOW'
+		{ ($name, ' = ', Data::Dump::Tree::Type::NQP.new(:class($value.^name))) }
+	else
+		{ ($name, ' = ', $value) }
 	}
 }
 

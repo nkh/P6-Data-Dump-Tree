@@ -11,6 +11,13 @@ multi method get_header (Int $i) { $i,  '.' ~ $i.^name, DDT_FINAL }
 multi method get_header (Str:U $s) { '', '.' ~ $s.^name, DDT_FINAL }
 multi method get_header (Str:D $s) { $s, '.' ~ $s.^name, DDT_FINAL } 
 multi method get_header (Rat $r) { $r  ~ ' (' ~ $r.numerator ~ '/' ~ $r.denominator ~ ')', '.' ~ $r.^name, DDT_FINAL }
+multi method get_header (Range $r) { $r.gist , '.' ~ $r.^name, DDT_FINAL }
+multi method get_header (Seq $s) 
+	{
+	$s.is-lazy
+		?? return ( '', '.' ~ $s.^name ~ '(*)', DDT_FINAL )
+		!! return( '', '.' ~ $s.^name, DDT_FINAL )
+	}
 
 multi method get_header (Match $m) 
 	{
@@ -72,6 +79,13 @@ multi method get_header (Routine $r) { $r.perl, '.' ~ $r.^name, DDT_FINAL }
 multi method get_header (Sub $s) { $s.perl, '.' ~ $s.^name, DDT_FINAL }
 }
 
+class Data::Dump::Tree::Type::NQP
+{
+has $.class ;
+
+multi method ddt_get_header { $.class, ' ** NQP **', DDT_FINAL }
+}
+
 class Data::Dump::Tree::Type::MaxDepth
 {
 has $.glyph ;
@@ -83,6 +97,14 @@ multi method ddt_get_header { $.glyph ~ "max depth($.depth)", '', DDT_FINAL }
 class Data::Dump::Tree::Type::Nothing
 {
 multi method ddt_get_header { '', '', DDT_FINAL }
+}
+
+class Data::Dump::Tree::Type::Final
+{
+has $.value = '' ;
+has $.type = '' ;
+
+multi method ddt_get_header { $.value, $.type, DDT_FINAL }
 }
 
 role DDTR::UnicodeGlyphs
@@ -123,7 +145,7 @@ multi method get_glyphs
 	{
 	last => "\x1b(0\x6d \x1b(B", not_last => "\x1b(0\x74 \x1b(B",
 	last_continuation => '  ', not_last_continuation => "\x1b(0\x78 \x1b(B",
-	multi_line => "\x1b(0\x78 \x1b(B", empty => '  ', max_depth => '...', 
+	multi_line => "\x1b(0\x78 \x1b(B", empty => '  ', max_depth => '…', 
 	filter => "\x1b(0\x78 \x1b(B" , # not last continuation
 	}
 }

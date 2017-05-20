@@ -1,5 +1,7 @@
 
 use Data::Dump::Tree ;
+use Data::Dump::Tree::ExtraRoles ;
+use Data::Dump::Tree::DescribeBaseObjects ;
 
 role DDTR::Diff
 {
@@ -112,6 +114,22 @@ my ($final1, $rendered1, $s1, $cont_glyph1) =
 
 my ($final2, $rendered2, $s2, $cont_glyph2) = 
 	$d2.render_element($s2_header, $cd2, $glyphs2, $head_glyph2) ; 
+
+# handle Seq as they get consumed during the diff
+my sub cache_seq(Seq $s)
+	{
+	my $seq_display_size = $d1 ~~ DDTR::ConsumeSeq ?? $d1.consume_seq<max_element_vertical> !! 10 ;
+	my $size = $s.is-lazy ?? ~Inf !! $s.elems ;
+
+	my @l = $s.cache[0..^$seq_display_size].grep({.defined}) ;
+	@l.push: Data::Dump::Tree::Type::Final.new(:value('..' ~ $size)) if $size > $seq_display_size ;
+
+	@l
+	}
+
+$s1 = cache_seq($s1)  if $s1 ~~ Seq ;
+$s2 = cache_seq($s2)  if $s2 ~~ Seq ;
+
 
 my ($pad_glyph1, $pad_glyph2) = ($head_glyph1 ~ $glyphs1[2], $head_glyph2 ~ $glyphs2[2]) ;
 my $diff_glyph = ' ? ' ;

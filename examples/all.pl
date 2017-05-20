@@ -1,6 +1,7 @@
 #!/usr/bin/env perl6
 
 use Data::Dump::Tree ;
+use Data::Dump::Tree::DescribeBaseObjects ;
 use Data::Dump::Tree::Enums ;
 
 # -------------------------------------------------------
@@ -101,7 +102,7 @@ dump
 	caller => True,
 	display_perl_address => True,
 	width => 75,
-	does => (DescribeDog, DescribeShyFinal),
+	does => (DDTR::AsciiGlyphs, DescribeDog, DescribeShyFinal),
 	max_depth => 3 ;
 
 # ------------- helpers  -------------

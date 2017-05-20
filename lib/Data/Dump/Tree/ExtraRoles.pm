@@ -1,5 +1,63 @@
 
 use Data::Dump::Tree::Enums ;
+use Data::Dump::Tree::DescribeBaseObjects ;
+
+role DDTR::ConsumeSeq 
+{
+has %.consume_seq is rw = (:!consume_lazy, :vertical, :max_element_vertical<10>, :max_element_horizontal<100>) ;
+
+multi method get_header (Seq $s) 
+	{
+	%.consume_seq<consume_lazy vertical max_element_vertical max_element_horizontal> [Z//]= False, True, 10, 100 ;
+
+	if $s.is-lazy
+		{
+		if ! %.consume_seq<consume_lazy>
+			{
+			( '', '.' ~ $s.^name ~ '(*)', DDT_FINAL )
+			}
+		else
+			{
+			if %.consume_seq<vertical> 
+				{ 
+				( '', '.' ~ $s.^name ~ '(*)' )
+				}
+			else
+				{ 
+				my @elements = ($s)[0..^%.consume_seq<max_element_horizontal>].map({.gist}) ;
+				@elements.push: '...*' ;
+
+				( '(' ~ @elements.join(', ') ~ ')', '.' ~ $s.^name ~ '(*)', DDT_FINAL )
+				}
+			}
+		}
+	else
+		{
+		if %.consume_seq<vertical> 
+			{ 
+			( '', '.' ~ $s.^name)
+			}
+		else
+			{ 
+			my @elements = ($s)[0..^%.consume_seq<max_element_horizontal>].grep({.defined}).map({.gist})  ;
+			@elements.push: '...' if ($s)[%.consume_seq<max_element_horizontal>].defined ;
+
+			( '(' ~ @elements.join(', ') ~ ')', '.' ~ $s.^name, DDT_FINAL )
+			}
+		}
+	}
+
+multi method get_elements (Seq $s)
+	{
+	my @cache = $s.cache ;
+	my @elements = @cache[0..^%.consume_seq<max_element_vertical>].grep({.defined}).map: {$++, ' = ', $_} ;
+
+	@elements.push: ('...' ~ ($s.is-lazy ?? '*' !! ''), '', Data::Dump::Tree::Type::Nothing.new)
+		if @cache[%.consume_seq<max_element_vertical>].defined ;
+
+	@elements
+	} 
+}
 
 role DDTR::StringLimiter
 {
@@ -130,9 +188,7 @@ $root
 } #role
 
 
-
-# scope for @ssl
-{
+# superscribe below
 
 my @ssl ;
 
@@ -143,6 +199,8 @@ for 	(
 	('A'..'Z')        , < ᴬ ᴮ ᶜ ᴰ ᴱ ᶠ ᴳ ᴴ ᴵ ᴶ ᴷ ᴸ ᴹ ᴺ ᴼ ᴾ ᵠ ᴿ ˢ ᵀ ᵁ ⱽ ᵂ ˣ ʸ ᶻ >, 
 	)
 	-> $A, $s { @ssl[|$A.map: {.ord}] = |$s	}
+
+sub do_superscribe($text) { ($text.comb.map: { @ssl[$_.ord] // $_}).join }
 
 role DDTR::SuperscribeBase
 {
@@ -168,5 +226,3 @@ method superscribe_address($text) { $.do_superscribe($text) }
 method superscribe_type($text) { $.do_superscribe($text) }
 }
 
-# scope for @ssl
-}

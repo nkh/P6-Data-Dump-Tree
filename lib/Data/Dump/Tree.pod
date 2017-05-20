@@ -131,6 +131,17 @@ Data::DumpTree will display
 
 =item  Lists as '(x)' where x is the number of element of the list
 
+=item  Sequences as '.Seq' or '.Seq(*)' for lazy lists
+
+Sequences contents are normally not displayed only a header will be added to
+the dump. If you want to display sequences, use the role DDTR:ConsumeSeq. 
+It will allow you to dump sequences and control if the sequences are dumped
+vertically or horizontally, how much of the sequence is dumped and if lazy
+sequences are dumped (you decide how many elements for lazy sequences too).
+
+Check file I<examples/sequences.pl> in the distribution as well as the role
+implementation in I<lib/Data/Dump/Tree/ExtraRoles.pm>.
+
 =item  Maches as '[x..y]' where x..y is the match range or [x] for one element
 
 =head3 address
@@ -246,8 +257,8 @@ You can also define your own cycle with B<@kb_colors>:
 	dump(@s, :color_kbs, kb_colors => < kb_0 kb_1 >) ;
 
 =head3 $width = terminal width
-Note that the width you pass is reduced with the width of the glyps as we use
-that space when displaying multiline values in the dump.
+Note that the width of the glyps is subtracted from the width you pass as we
+use that space when displaying multiline values in the dump.
 
 When using ANSI colors, the last character of each wrapped line is colored.
 
