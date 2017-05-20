@@ -152,7 +152,7 @@ unless @.kb_colors.elems
 	}
 @!kb_colors_cycle = |@.kb_colors xx  * ; 
 
-$.width //= %+(qx[stty size] ~~ /\d+ \s+ (\d+)/)[0] ; 
+$.width //= %+((qx[stty size] || '0 80') ~~ /\d+ \s+ (\d+)/)[0] ; 
 }
 
 method render_root($s)
