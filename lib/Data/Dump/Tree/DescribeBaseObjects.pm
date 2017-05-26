@@ -5,19 +5,14 @@ role DDTR::DescribeBaseObjects
 {
 method get_P6_internal { ('!UNIT_MARKER', 'GLOBAL', 'EXPORT', 'Data', 'Test') }
 
-# get_headers: "final" objects returnf their value and type
+# get_headers: "final" objects return their value and type
 multi method get_header (IntStr $i) { $i.Int ~ ' / "' ~ $i.Str ~ '"',  '.' ~ $i.^name, DDT_FINAL }
 multi method get_header (Int $i) { $i,  '.' ~ $i.^name, DDT_FINAL }
 multi method get_header (Str:U $s) { '', '.' ~ $s.^name, DDT_FINAL }
 multi method get_header (Str:D $s) { $s, '.' ~ $s.^name, DDT_FINAL } 
 multi method get_header (Rat $r) { $r  ~ ' (' ~ $r.numerator ~ '/' ~ $r.denominator ~ ')', '.' ~ $r.^name, DDT_FINAL }
 multi method get_header (Range $r) { $r.gist , '.' ~ $r.^name, DDT_FINAL }
-multi method get_header (Seq $s) 
-	{
-	$s.is-lazy
-		?? return ( '', '.' ~ $s.^name ~ '(*)', DDT_FINAL )
-		!! return( '', '.' ~ $s.^name, DDT_FINAL )
-	}
+multi method get_header (Seq $s) { ( '', '.' ~ $s.^name ~ ( $s.is-lazy ?? '(*)' !! ''), DDT_FINAL ) }
 
 multi method get_header (Match $m) 
 	{

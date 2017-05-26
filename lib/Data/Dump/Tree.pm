@@ -391,7 +391,7 @@ method !get_element_subs($s)
 		!! $.get_elements($s) ;  # generic handler
 }
 
-method !split_entry(Int $current_depth, Int $width, Cool $k, Cool $b, Int $glyph_width, Cool $v, Cool $f is copy, $address)
+method !split_entry(Int $current_depth, Int $width, Cool $k, Cool $b, Int $glyph_width, Cool $v, $f is copy, $address)
 {
 my ($ddt_address, $perl_address, $link) =
 	$address.defined
