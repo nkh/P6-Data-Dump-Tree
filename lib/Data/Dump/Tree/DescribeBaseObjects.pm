@@ -14,6 +14,12 @@ multi method get_header (Rat $r) { $r  ~ ' (' ~ $r.numerator ~ '/' ~ $r.denomina
 multi method get_header (Range $r) { $r.gist , '.' ~ $r.^name, DDT_FINAL }
 multi method get_header (Seq $s) { ( '', '.' ~ $s.^name ~ ( $s.is-lazy ?? '(*)' !! ''), DDT_FINAL ) }
 multi method get_header (Bool $b) { ( $b, '.' ~ $b.^name, DDT_FINAL ) }
+multi method get_header (Regex $r) { $r.perl.substr(6) ,  '.' ~ $r.^name, DDT_FINAL, } 
+
+multi method get_header (Junction $j) 
+	{
+	( $j.gist, '.' ~ $j.^name, DDT_FINAL )
+	}
 
 multi method get_header (Match $m) 
 	{
@@ -21,8 +27,6 @@ multi method get_header (Match $m)
 		 ?? (~$m, Q/[/ ~ $m.from ~ Q/]/ , DDT_FINAL)
 		 !! (~$m, Q/[/ ~ $m.from ~ '..' ~ $m.to - 1 ~ ']', DDT_FINAL) 
 	}
-
-multi method get_header (Regex $r) { $r.perl.substr(6) ,  '.' ~ $r.^name, DDT_FINAL, } 
 
 # Block must be declare or it groaks when passed a Sub
 #TODO: report to P6P

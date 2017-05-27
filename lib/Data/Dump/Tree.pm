@@ -92,18 +92,18 @@ unless $object.display_info
 $object 
 }
 
-sub dump($s, *%options) is export { say get_dump($s, |%options) }
-sub get_dump($s, *%options) is export { Data::Dump::Tree.new(|%options).get_dump($s)}
-sub get_dump_lines($s, *%options) is export { Data::Dump::Tree.new(|%options).get_dump_lines($s)}
+sub dump(Mu $s, *%options) is export { say get_dump($s, |%options) }
+sub get_dump(Mu $s, *%options) is export { Data::Dump::Tree.new(|%options).get_dump($s)}
+sub get_dump_lines(Mu $s, *%options) is export { Data::Dump::Tree.new(|%options).get_dump_lines($s)}
 
-method dump($s, *%options) { say self.get_dump($s, |%options) }
+method dump(Mu $s, *%options) { say self.get_dump($s, |%options) }
 
-method get_dump($s, *%options)
+method get_dump(Mu $s, *%options)
 {
 self.get_dump_lines($s, |%options).join("\n") ~ "\n"
 }
 
-method get_dump_lines($s, *%options)
+method get_dump_lines(Mu $s, *%options)
 {
 # roles can be passed in new() or as options to dump
 # make a clone so we do not pollute the object
@@ -155,7 +155,7 @@ unless @.kb_colors.elems
 $.width //= %+((qx[stty size] || '0 80') ~~ /\d+ \s+ (\d+)/)[0] ; 
 }
 
-method render_root($s)
+method render_root(Mu $s)
 {
 $.reset ;
 
@@ -186,7 +186,7 @@ my $wf = $.wrap_footer  ;
 $wf.defined and $wf($.wrap_data, $s, $final, ($current_depth, $continuation_glyph, @!renderings))  ;
 }
 
-method render_non_final($s, $current_depth, $continuation_glyph, $element)
+method render_non_final(Mu $s, $current_depth, $continuation_glyph, $element)
 {
 my (@sub_elements, %glyphs) := $.get_sub_elements($s, $current_depth, $continuation_glyph, $element) ;
 
@@ -286,7 +286,7 @@ $wh.defined and $wh(
 $final, $rendered, $s, $continuation_glyph
 }
 
-method get_sub_elements($s, $current_depth, $continuation_glyph, $element)
+method get_sub_elements(Mu $s, $current_depth, $continuation_glyph, $element)
 {
 my (%glyphs, $) := $.get_level_glyphs($current_depth) ; 
 
@@ -330,7 +330,7 @@ if $.keep_paths
 }
 
 
-method filter_header(\s_replacement, $s, @rend, @ref)
+method filter_header(\s_replacement, Mu $s, @rend, @ref)
 {
 for @.header_filters -> $filter
 	{
@@ -345,7 +345,7 @@ for @.header_filters -> $filter
 	}
 }
 
-method filter_sub_elements($s, ($current_depth, $glyph, @renderings, $element), @sub_elements)
+method filter_sub_elements(Mu $s, ($current_depth, $glyph, @renderings, $element), @sub_elements)
 {
 for @.elements_filters -> $filter
 	{
@@ -359,7 +359,7 @@ for @.elements_filters -> $filter
 	}
 }
 
-method filter_footer($s, ($current_depth, $glyph, @renderings))
+method filter_footer(Mu $s, ($current_depth, $glyph, @renderings))
 {
 for @.footer_filters -> $filter
 	{
@@ -373,7 +373,7 @@ for @.footer_filters -> $filter
 	}
 }
 
-method get_element_header($e) 
+method get_element_header(Mu $e) 
 {
 (self.can('get_header')[0].candidates.grep: {.signature.params[1].type ~~ $e.WHAT}) 
 	?? $.get_header($e) #specific to $e
@@ -382,7 +382,7 @@ method get_element_header($e)
 		!! $.get_header($e) ;  # generic handler
 }	
 
-method !get_element_subs($s)
+method !get_element_subs(Mu $s)
 {
 (self.can('get_elements')[0].candidates.grep: {.signature.params[1].type ~~ $s.WHAT}) 
 	?? $.get_elements($s) # self is  $s specific 
@@ -485,7 +485,7 @@ method superscribe($text) { $text }
 method superscribe_type($text) { $text }
 method superscribe_address($text) { $text }
 
-method set_element_name($e, $name)
+method set_element_name(Mu $e, $name)
 {
 my $perl_address = $e.WHICH ;
 
@@ -500,7 +500,7 @@ else
 	}
 }
 
-method !get_address($e)
+method !get_address(Mu $e)
 {
 my $ddt_address = $!address++ ;
 my $perl_address = $e.WHICH ;
