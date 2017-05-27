@@ -80,6 +80,10 @@ say c.gist ;
 
 #is($dump_1.lines.elems, 9, '9 dump lines') or diag $dump_1 ;
 
-dd Pair.new(1, 'a') ;
+my $p = Pair.new(1, 'a') ;
 dump (1 => 'a') ;
+
+dump(($p, $p, $p, $p, a => (|< a b c >, ($p,$p)))) ;
+
+
 
