@@ -13,6 +13,7 @@ multi method get_header (Str:D $s) { $s, '.' ~ $s.^name, DDT_FINAL }
 multi method get_header (Rat $r) { $r  ~ ' (' ~ $r.numerator ~ '/' ~ $r.denominator ~ ')', '.' ~ $r.^name, DDT_FINAL }
 multi method get_header (Range $r) { $r.gist , '.' ~ $r.^name, DDT_FINAL }
 multi method get_header (Seq $s) { ( '', '.' ~ $s.^name ~ ( $s.is-lazy ?? '(*)' !! ''), DDT_FINAL ) }
+multi method get_header (Bool $b) { ( $b, '.' ~ $b.^name, DDT_FINAL ) }
 
 multi method get_header (Match $m) 
 	{
