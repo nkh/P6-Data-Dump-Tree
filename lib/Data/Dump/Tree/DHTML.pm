@@ -98,7 +98,7 @@ my sub header_wrap(
 	\wd,
 	($glyph, $continuation_glyph, $multi_line_glyph),
 	($kvf, @ks, @vs, @fs),
-	$s,
+	Mu $s,
 	($depth, $path, $filter_glyph, @renderings),
 	($k, $b, $v, $f, $final, $want_address),
 	) 
@@ -185,7 +185,7 @@ else
 wd<uuid>++ ;
 }
 
-my sub footer_wrap(\wd, $s, $final, ($depth, $filter_glyph, @renderings))
+my sub footer_wrap(\wd, Mu $s, $final, ($depth, $filter_glyph, @renderings))
 {
 wd<DHTML> ~= '   ' xx $depth + 2 ~ "</ul>\n" unless $final ;
 wd<DHTML> ~= '   ' xx $depth + 1 ~ "</li>\n" ;
