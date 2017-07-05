@@ -185,7 +185,7 @@ else
 wd<uuid>++ ;
 }
 
-my sub footer_wrap(\wd, Mu $s, $final, ($depth, $filter_glyph, @renderings))
+my sub footer_wrap(\wd, Mu $s, $final, ($depth, $filter_glyph, @renderings), $wh_token)
 {
 wd<DHTML> ~= '   ' xx $depth + 2 ~ "</ul>\n" unless $final ;
 wd<DHTML> ~= '   ' xx $depth + 1 ~ "</li>\n" ;
