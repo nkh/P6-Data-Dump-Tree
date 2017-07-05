@@ -1,4 +1,5 @@
-*.swp
 lib/.precomp
+*.swp
 *.swo
+*.swn
 
