@@ -17,10 +17,10 @@ See lib/Data/Dump/Tree.pod for a complete documentation.
 	say dump @your_data, :title('A complex structure'), ... ;
 
 	my $d = Data::Dump::Tree.new ;
-	$d.dump @your_data ;
+	$d.dump: @your_data ;
 
-	$dumper does role { .... } ;
-	$d.dump @your_data ;
+	$dumper does role { ... } ;
+	$d.dump: @your_data ;
 
 ```
 
