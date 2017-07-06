@@ -10,10 +10,10 @@ Date::Dump::Tree - Renders data structures in a tree fashion
 	dump @your_data ;
 
 	my $d = Data::Dump::Tree.new(...) ;
-	$d.dump @your_data ;
+	$d.dump: @your_data ;
 
-	$d does role { .... } ;
-	$d.dump @your_data ;
+	$d does role { ... } ;
+	$d.dump: @your_data ;
 	
 =DESCRIPTION
 
