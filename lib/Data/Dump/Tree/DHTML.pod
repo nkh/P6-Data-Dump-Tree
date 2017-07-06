@@ -15,9 +15,11 @@ The role add a B<dump_dhtml> method to the object.
 =INTERFACE
 
 =item $dumper.dump_dhtml($s1, *%options) 
+
 Dump a HTML document with folding capacity.
 
 =item $dumper.get_dhtml_dump($s1, *%options) 
+
 Returns a HTML document with folding capacity on $*OUT.
 
 =USAGE
@@ -33,6 +35,7 @@ You can call I<dump_dhtml> multiple times for different data structures. Each
 dump will have a separate body, class, style, and identifiers.
  
 =head2 Configuration and Overrides
+
 Check B<Data::Dump::Tree> for the options that you can pass the dumper. Not all
 the standard configurations can be used.
 
@@ -46,6 +49,7 @@ filters are called
 - all coloring and format options are ignored
 
 =head3 Width
+
 The default width is set to 1_000 characters, you can override it with I<:width>.
 
 =AUTHOR

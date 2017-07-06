@@ -2,6 +2,7 @@
 =begin pod
 
 =NAME
+
 Date::Dump::Tree::Diff - Renders two data structures in synch
 
 =SYNOPSIS
@@ -65,11 +66,13 @@ Dumps of the synchronized structures on the terminal
 	...
 
 =head2 Configuration and Overrides
+
 Check B<Data::Dump::Tree> for the options that you can pass the dumper. The
 same options will be used on both sides of the dump. All the Data::Dump::Tree
 options are valid 
 
 =head3 title
+
 You can eiter set the title for both sides simulteanously or for each side
 using:
 
@@ -78,10 +81,12 @@ using:
 =item rhs_title
 
 =head3 Width
+
 By default the terminal width will be divided in two, minus the room for
 the diff glyphs column. You can also set option I<width> or use
 
 =item compact_width
+
 Put the two data structures as close to each other as possible
 
 The default glyphs are:
@@ -98,10 +103,12 @@ The default glyphs are:
 	only_rhs             => '  r' ;
 
 =item diff_glyphs 
+
 You can set this  option to False if you do not want the diff glyph column
 to be displayed.
 
 =head3 Displaying only the difference between the data structures
+
 Below is an example where only different elements are displayed; the diff
 glyphs column was also removed from the dump. The example can be found in
 I<examples/diff>.
@@ -122,10 +129,12 @@ I<examples/diff>.
 You can set
 
 =item remove_eq 
+
 set if you want the to remove from the display the objects that are exactely
 the same in both data structures.
  
 =item $remove_eqv
+
 set if you want the to remove from the display the objects that are equivalent 
 in both data structures.
 
@@ -144,6 +153,7 @@ You can alsospecify filters that are specific to a side of the diff
 
 
 =head3 diff synchronization filter 
+
 I<Data::Dump::Tree::Diff> synchronizes Hashes, if you want to synch other type
 of data you can set 
 
