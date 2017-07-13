@@ -185,9 +185,9 @@ class Data::Dump::Tree::Foldable::View
 {
 has Data::Dump::Tree::Foldable $.foldable ;
 
-has Int $.top_line = 0 ;
-has Int $.page_size = 25 ;
-has Int $.selected_line = 0 ;
+has Int $.top_line is readonly = 0;
+has Int $.page_size is readonly = 25 ;
+has Int $.selected_line is readonly = 0 ;
 has @.folds ;
 
 has Bool $.search_folds = True ;
@@ -227,18 +227,22 @@ method page_up() { $.line_up for ^$!page_size }
 
 method line_down()
 {
+my $start_line = $!top_line ;
+
 $!top_line++ ;
   
 while @!folds[$!top_line][PARENT_FOLDED]
 	{ $!top_line++ }
 
-$!top_line min= @!folds - 1 ;
+$!top_line = $start_line if $!top_line >= @!folds ;
 }
 
 method page_down() { $.line_down for ^$!page_size }
 
 method fold_flip_selected()
 { 
+return unless @!folds[$!selected_line][SKIP] ; # only fold foldable
+
 my $state = @!folds[$!selected_line][FOLDED] +^= 1 ;
 
 my @sub_elements = @!folds[ ($!selected_line + 1) .. ($!selected_line + @!folds[$!selected_line][SKIP]) ] ;
@@ -247,20 +251,14 @@ while @sub_elements
 	{
  	$_ = @sub_elements.shift ;
 
-	if $_[FOLDED]
-		{
-		# skip this fold
-		@sub_elements.shift for $_[SKIP] ;	
-		}
-	else
-		{
-		$_[PARENT_FOLDED] = $state ;
-		}
+	$_[PARENT_FOLDED] = $state ;
+
+	if $_[FOLDED] {	@sub_elements.shift for ^$_[SKIP] }
 	}
 }
 
-method fold_all()   { for @!folds { $_[FOLDED] = $_[PARENT_FOLDED] = 1 } }
-method unfold_all() { for @!folds { $_[FOLDED] = $_[PARENT_FOLDED] = 0 } }
+method fold_all()   { for @!folds { $_[PARENT_FOLDED] = 1 ; $_[FOLDED] = 1 if $_[SKIP] } ; @!folds[0][PARENT_FOLDED] = 0 }
+method unfold_all() { for @!folds { $_[PARENT_FOLDED] = $_[FOLDED] = 0 } }
 
 method get_lines()
 {
@@ -278,7 +276,16 @@ while @lines < $!page_size and $current_line < $!foldable.lines
 @lines
 }
 
-method search() {}
+method search()
+{
+# search in folded? return command to unfold each match 
+# search with regex
+# handle colored dumps
+# return list of matches to allow forward and backward searching
+# return path where regex is matched
+# search paths only
+# hi-light matches
+}
 
 } # class
 
