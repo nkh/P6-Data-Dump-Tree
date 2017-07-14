@@ -27,8 +27,6 @@ SYNOPSIS
 DESCRIPTION
 ===========
 
-
-
 Data::Dump::Tree renders your data structures in a tree fashion.
 
 It also
@@ -46,8 +44,6 @@ If you have Term::ANSIColor installed, the output will be so colored.
 INTERFACE
 =========
 
-
-
 sub dump($structure_to_dump, named_argument, ...)
 -------------------------------------------------
 
@@ -63,8 +59,8 @@ sub get_dump_lines($structure_to_dump, named_argument, ...)
 
 Returns an array containing the dump of the data structure
 
-method dump(($structure_to_dump, named_argument, ...)
------------------------------------------------------
+method dump($structure_to_dump, named_argument, ...)
+----------------------------------------------------
 
 'say's the dump of the data structure
 
@@ -81,8 +77,6 @@ Returns an array containing the dump of the data structure
 USAGE
 =====
 
-
-
     use Data::Dump::Tree ;
 
     class MyClass { has Int $.size ; has Str $.name }
@@ -98,7 +92,7 @@ USAGE
 	    'aaa' ~~ m:g/(a)/,
 	    ] ;
 
-    dump $s, :title('A complex structure'), :color(False) ;
+    dump $s, :title<A complex structure>, :!color ;
 
 Output
 ------
@@ -137,7 +131,11 @@ You can control the color of the tree portion and if it is rendered with ASCII, 
 
 ### key
 
-The key is the name of the element being displayed; in the examples above, the container is an array; Data:Dump::Tree gives the index of the element as the  key of the element. IE: '0 =', '3 =', '4 ='
+The key is the name of the element being displayed; in the examples above, the container is an array; Data:Dump::Tree gives the index of the element as the  key of the element. IE: '0', '3', '4'
+
+### binder
+
+The string displayed between the key and the value. 
 
 ### value
 
@@ -171,10 +169,10 @@ It is possible to name containers by using *set_element_name* before dumping  yo
 
     my $d = Data::Dump::Tree.new ;
 
-    $d.set_element_name($s[5], 'some list') ;
-    $d.set_element_name(@a, 'some array') ;
+    $d.set_element_name: $s[5], 'some list' ;
+    $d.set_element_name: @a, 'some array' ;
 
-    $d.dump($s) ;
+    $d.dump: $s ;
 
 If an element is named, its name will be displayed next to his address, the first time it is displayed and when an element refers to it. 
 
@@ -190,16 +188,16 @@ There are multiple ways to configure the Dumper. You can pass a configuration to
     my $dumper = Data::Dump::Tree.new ;
 
     # pass you configuration at every call
-    $dumper.get_dump($s, :width(115), :color(False)) ;
+    $dumper.get_dump: $s, :width(115), :!color ;
 
     # configure object at creation time
-    my $dumper = Data::Dump::Tree.new(:width(79)) ;
+    my $dumper = Data::Dump::Tree.new: :width(79) ;
 
     # use as configured
-    $dumper.dump($s) ;
+    $dumper.dump: $s ;
 
     # or with a call time configuration override
-    $dumper.dump($s, :width(115), :max_depth(3)) ;
+    $dumper.dump: $s, :width(115), :max_depth(3) ;
 
 
     # see roles for roles configuration
@@ -218,9 +216,9 @@ You can pass your own colors. The default are:
 
     %.colors =
 	    <
-	    ddt_address blue     perl_address yellow     link  green
-	    header      magenta  key         cyan        value reset
-	    wrap        yellow
+	    ddt_address blue     perl_address yellow  link   green
+	    header      magenta  key         cyan     binder cyan 
+	    value       reset    wrap        yellow
 
 	    gl_0 yellow   gl_1 reset   gl_2 green   gl_3 red
 	    > ;
@@ -233,19 +231,17 @@ By default the glyphs will not be colored and the key and binder use colors 'key
 
 Will set a default glyph color cycle.
 
-    B<@glyph_colors>.
-     
     my @s = [ ... ] ;
 
     # monochrome glyphs
     dump(@s) ;
 
     # colored glyphs, will cycle 
-    dump(@s, :color_glyphs) ; #uses < gl_0 gl_1 gl_2 gl_3 >
+    dump(@s, :color_glyphs) ; # uses < gl_0 gl_1 gl_2 gl_3 >
 
 #### @glyph_colors
 
-You can also define your own cycle with **@kb_colors**: 
+You can also define your own cycle with **@glyph_colors**: 
 
     my @s = [ ... ] ;
 
@@ -315,7 +311,7 @@ Handling specific types
 
 This section will show you how to write specific handlers in the classes that you create and to create a custom rendering for a specific class, even if it  is not under your control.
 
-### you own classes
+### your own classes
 
 When Data::Dump::Tree renders an object, it first checks if it has an internal handler for that type; if no handler is found, the object is queried and its handler is used, if none; finally, Data::Dump::Tree uses a generic handler.
 
@@ -385,17 +381,17 @@ To make that handler active, make your dumper do the role
     my $d = Data::Dump::Tree.new(:width(80)) ;
     $d does your_hash_handler ;
 
-    $d.dump(@your_data) ;
+    $d.dump: @your_data ;
 
     # by passing roles to the constructor
-    my $d = Data::Dump::Tree.new(does => (DDTR::MatchDetails, your_hash_handler)) ;
+    my $d = Data::Dump::Tree.new: :does(DDTR::MatchDetails, your_hash_handler) ;
 
     # by passing roles to dump() method
     my $d = Data::Dump::Tree.new ;
-    $d.dump($m, does => ( DDTR::MatchDetails, your_hash_handler) ) ;
+    $d.dump: $m, :does( DDTR::MatchDetails, your_hash_handler) ;
 
     # by passing roles to dump() sub 
-    dump($m, does => ( DDTR::MatchDetails, your_hash_handler) ) ;
+    dump: $m, :does( DDTR::MatchDetails, your_hash_handler) ;
 
 ### FINAL elements
 
@@ -436,13 +432,19 @@ To pass a filter to the dumper:
 
 Data::Dump::Tree cycle is:
 
-when the element is to be displayed, DDT calls the element which return a description of itself then * filters DDT_HEADER are called
+when the element is to be displayed, DDT calls the element which return a description of itself then
 
-when sub elements of an element are to be displayed, DDT calls the element which returns a list of the sub elements in the form ('name' 'binder' 'sub_element') * filters DDT_SUB_ELEMENTS are called
+    * DDT_HEADER filters are called
 
-when DDT has rendered the element and will get to the next element * filters DDT_FOOTER are called
+when sub elements of an element are to be displayed, DDT calls the element which returns a list of the sub elements in the form ('name' 'binder' 'sub_element')
 
-  * DDT_HEADER
+    * DDT_SUB_ELEMENTS filters are called
+
+when DDT has rendered the element and will get to the next element
+
+    * DDT_FOOTER filters are called
+
+### DDT_HEADER filter
 
 This is called just after the type's _get_header_ is called, this allows you, EG, to insert something in the tree rendering
 
@@ -484,13 +486,13 @@ or change the **rendering** of the object
 
 Note: You can not filter elements of type _Mu_ with DDT_HEADER filters but you can in DDT_SUB_ELEMENTS filters. 
 
-  * DDT_SUB_ELEMENTS
+### DDT_SUB_ELEMENTS filter
 
 Called after the type's _get_elements_ ; you can change the sub elements.
 
-    sub elements_filter(
+    sub sub_elements_filter(
 	    Hash $s,
-	    ($depth, $glyph, @renderings, ($key, $binder, $, $path),
+	    ($depth, $glyph, @renderings, ($key, $binder, $, $path)),
 	    @sub_elements
 	    )
     {
@@ -498,7 +500,7 @@ Called after the type's _get_elements_ ; you can change the sub elements.
     @sub_elements = (('key', ' => ', 'value'), ('other_key', ': ', 1)) ; 
     }
 
-  * DDT_FOOTER
+### DDT_FOOTER filter
 
 Called when the element rendering is done.
 
@@ -511,19 +513,6 @@ Data::Dump::Tree::Type::Nothing
 -------------------------------
 
 You can use this type to have DDT make some elements of the structure vanish from the rendering
-
-### Type element with only a name 
-
-If you return a Data::Dump::Tree::Type::Nothing in a type handler, only the key will be displayed.
-
-    method ddt_get_elements 
-    { 
-	    [
-	    ... 
-	    ('your key', '', Data::Dump::Tree::Type::Nothing),
-	    ...
-	    ]
-    }
 
 ### Filtering an element away 
 
@@ -545,6 +534,19 @@ See *Type element with only a name* above.
   * Create a filter for containers
 
 If the element you don't want to see only appears in some containers, you can create a type handler, or filter, for that container type and weed out any  reference to the element you don't want to see. This will draw proper glyph lines as the element, you don't want to see, is never seen by DDT.
+
+### Type element with only a name 
+
+If you return a Data::Dump::Tree::Type::Nothing in a type handler, only the key will be displayed.
+
+    method ddt_get_elements 
+    { 
+	    [
+	    ... 
+	    ('your key', '', Data::Dump::Tree::Type::Nothing),
+	    ...
+	    ]
+    }
 
 Roles provided with Data::Dump::Tree
 ------------------------------------
@@ -677,21 +679,26 @@ Please let me know about them so I can add the necessary handlers to the  distri
 AUTHOR
 ======
 
-
-
 Nadim ibn hamouda el Khemir https://github.com/nkh
 
 LICENSE
 =======
-
-
 
 This program is free software; you can redistribute it and/or modify it under the same terms as Perl6 itself.
 
 SEE-ALSO
 ========
 
-P5: Data::TreeDumper
+README.md in the example directory
 
-P6:  Data::Dump Pretty:Printer
+Perl 5:
+
+  * Data::TreeDumper
+
+Perl 6:
+
+  * Data::Dump
+
+  * Pretty:Printer
+
 
