@@ -54,7 +54,7 @@ given $a.^name
 multi method get_elements (Any $a) { self!get_Any_attributes($a) } 
 
 multi method get_header (List $l) { '', '(' ~ $l.elems ~ ')' }
-multi method get_elements (List $l) { $l.list.map: -> $v {$++, ' = ', $v} }
+multi method get_elements (List $l) { $l.list.map: {$++, ' = ', $_} }
 
 multi method get_header (Array $a) { '', '[' ~ $a.elems ~ ']' }
 
@@ -66,6 +66,10 @@ multi method get_elements (Stash $s) { $s.sort(*.key)>>.kv.map: -> ($k, $v) {$k,
 
 multi method get_header (Map $m) { '', '.' ~ $m.^name } 
 multi method get_elements (Map $m) { $m.sort(*.key)>>.kv.map: -> ($k, $v) {$k, ' => ', $v} }
+
+multi method get_header (Set $s) { '', '.' ~ $s.^name ~ '(' ~ $s.elems ~ ')'  }
+multi method get_elements (Set $s) { $s.keys.map: {$++, ' = ', $_} }
+
 }
 
 role DDTR::QuotedString 

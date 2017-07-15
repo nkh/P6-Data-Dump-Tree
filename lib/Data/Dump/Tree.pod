@@ -140,6 +140,8 @@ Data::DumpTree will display
 
 =item  Lists as '(x)' where x is the number of element of the list
 
+=item  Sets as '.Seq(number_of_element)'
+
 =item  Sequences as '.Seq' or '.Seq(*)' for lazy lists
 
 Sequences contents are normally not displayed only a header will be added to
