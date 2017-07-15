@@ -6,8 +6,9 @@ use Data::Dump::Tree::DescribeBaseObjects ;
 use NCurses;
 
 my $win = initscr() or die "Failed to initialize ncurses\n";
-noecho ;
 keypad($win, TRUE) ;
+noecho ;
+raw ;
 
 LEAVE 
 	{
@@ -15,7 +16,7 @@ LEAVE
 	endwin;
 	}
 
-my $f = Data::Dump::Tree::Foldable.new: get_s() , :title<title>, :!color, does => (DDTR::AsciiGlyphs,) ;
+my $f = Data::Dump::Tree::Foldable.new: get_s() , :title<title>, :!color, :does(DDTR::AsciiGlyphs,) ;
 my $g = $f.get_view ; $g.set: :page_size<10> ;
 
 loop
@@ -48,7 +49,7 @@ loop
 	}
 
 
-# -------------------------------
+# ---------------------------------------------------------------------------------
 
 sub display(@lines)
 {	
@@ -61,30 +62,32 @@ for @lines Z 0..* -> ($line, $index)
 
 # ---------------------------------------------------------------------------------
 
-# DDT header filter to show the folding internal data in a better way 
-sub geometry_filter(\r, $s, ($, $path, $glyph, @renderings), (\k, \b, \v, \f, \final, \want_address))
-{
-r = Data::Dump::Tree::Type::Nothing if k ~~ /'$.foldable'/ ;
-
-if k ~~ /'@.folds'/ 
-	{
-	try 
-		{
-		require Text::Table::Simple <&lol2table> ;
-
-		r = lol2table(
-			< index skip folded parent >,
-			($s.List Z 0..*).map: -> ($d, $i) { [$i, |$d] },
-			).join("\n") ;
-		}
-
-	@renderings.push: "$!" if $! ;
-	}
-}
-
 sub debug ($geometry)
 {
-my @lines =  get_dump_lines $geometry, :title<Geometry>, :header_filters(&geometry_filter,), :!color, :!display_info, :does(DDTR::AsciiGlyphs,) ;
+my @lines = get_dump_lines $geometry,
+		:title<Geometry>, :!color, :!display_info, :does(DDTR::AsciiGlyphs,), 
+		:header_filters(
+			 sub (\r, $s, ($, $path, $glyph, @renderings), (\k, \b, \v, \f, \final, \want_address))
+				{
+				# remove foldable object 
+				r = Data::Dump::Tree::Type::Nothing if k ~~ /'$.foldable'/ ;
+
+				# tabulate the folds data 
+				if k ~~ /'@.folds'/ 
+					{
+					try 
+						{
+						require Text::Table::Simple <&lol2table> ;
+
+						r = lol2table(
+							< index skip folded parent >,
+							($s.List Z 0..*).map: -> ($d, $i) { [$i, |$d] },
+							).join("\n") ;
+						}
+
+					@renderings.push: "$!" if $! ;
+					}
+				}) ;
 
 for @lines Z 0..* -> ($line, $index)
 	{
@@ -94,10 +97,10 @@ for @lines Z 0..* -> ($line, $index)
 
 # ---------------------------------------------------------------------------------
 
-class Tomatoe{ has $.color ;}
-
 sub get_s
 {
+my class Tomatoe{ has $.color ;}
+
         [
         Tomatoe,
         [ [ [ Tomatoe, ] ], ],
@@ -108,3 +111,4 @@ sub get_s
 	(^5).list,
         ] ;
 }
+
