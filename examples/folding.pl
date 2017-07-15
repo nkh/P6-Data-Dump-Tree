@@ -22,7 +22,7 @@ loop
 	{
 	clear ;
 	display($g.get_lines) ;
-	#debug($g) ;
+	debug($g) ;
 	nc_refresh ;
 
 	my $command = getch ;
@@ -61,7 +61,7 @@ for @lines Z 0..* -> ($line, $index)
 
 # ---------------------------------------------------------------------------------
 
-# DDT filter to show the folding internal data in a better way 
+# DDT header filter to show the folding internal data in a better way 
 sub geometry_filter(\r, $s, ($, $path, $glyph, @renderings), (\k, \b, \v, \f, \final, \want_address))
 {
 r = Data::Dump::Tree::Type::Nothing if k ~~ /'$.foldable'/ ;
@@ -75,8 +75,7 @@ if k ~~ /'@.folds'/
 		r = lol2table(
 			< index skip folded parent >,
 			($s.List Z 0..*).map: -> ($d, $i) { [$i, |$d] },
-			headers => corner_marker => '+'
-			).join("\n").List ;
+			).join("\n") ;
 		}
 
 	@renderings.push: "$!" if $! ;
@@ -85,8 +84,7 @@ if k ~~ /'@.folds'/
 
 sub debug ($geometry)
 {
-my @lines =  get_dump_lines $geometry, :header_filters(&geometry_filter,), :!color, :does(DDTR::AsciiGlyphs,) ;
-#my @lines =  get_dump_lines $geometry, :!color, :does(DDTR::AsciiGlyphs,) ;
+my @lines =  get_dump_lines $geometry, :title<Geometry>, :header_filters(&geometry_filter,), :!color, :!display_info, :does(DDTR::AsciiGlyphs,) ;
 
 for @lines Z 0..* -> ($line, $index)
 	{

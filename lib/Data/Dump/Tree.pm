@@ -220,7 +220,6 @@ $f = '' unless $.display_type ;
  
 $final //= DDT_NOT_FINAL ;
 
-
 if $.display_address == DDT_DISPLAY_NONE | DDT_DISPLAY_ALL 
 	{
 	$want_address = True ;
@@ -243,7 +242,16 @@ my $s_replacement ;
 	$.filter_header($s_replacement, $s, ($current_depth, $path, $filter_glyph, @!renderings), ($k, $b, $v, $f, $final, $want_address)) ;
 
 $s_replacement ~~ Data::Dump::Tree::Type::Nothing and return(True, True, $s, $continuation_glyph) ;
-$s = $s_replacement.defined ?? $s_replacement !! $s ;
+
+with $s_replacement
+	{
+	($v, $f, $final, $want_address) = 
+		$s.WHAT =:= Mu
+			?? ('', '.Mu', DDT_FINAL ) 
+			!! self.get_element_header($s_replacement) ;
+
+	$s := $s_replacement ;
+	}
 
 $multi_line_glyph = $empty_glyph if $final ;
 
@@ -253,7 +261,7 @@ $multi_line_glyph = $empty_glyph if $final ;
 my ($kvf, @ks, @vs, @fs) := self!split_entry($current_depth, $width, $k, $b, $glyph_width, $v, $f, $address) ;
 
 
-if $kvf.defined
+with $kvf
 	{
 	@!renderings.append: $glyph ~ $kvf ;
 	}

@@ -1,4 +1,7 @@
 
+NCurses
+	render colors
+	render ANSI codes
 dhtml
 	user colors
 	user css override
