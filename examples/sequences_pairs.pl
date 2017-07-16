@@ -10,29 +10,29 @@ use Data::Dump::Tree::Diff ;
 
 my $d = Data::Dump::Tree.new(:compact_width) does DDTR::Diff ;
 
-$d.dump_synched((0...*), Seq(2, 3, 'x', 'y')) ;
+$d.dump_synched: (0...*), Seq(2, 3, 'x', 'y') ;
 
-$d.dump_synched((0...*), Seq(2, 3, 'x', 'y'), :compact_width, does => (DDTR::ConsumeSeq,) ) ;
-$d.dump_synched((0...^15), Seq(2, 3, 'x', 'y'), :compact_width, does => (DDTR::ConsumeSeq,) ) ;
-$d.dump_synched((0...^10), Seq(2, 3, 'x', 'y'), :compact_width, does => (DDTR::ConsumeSeq,) ) ;
-$d.dump_synched(Seq(2, 3, 'x', 'y'), (0...^15), :compact_width, does => (DDTR::ConsumeSeq,) ) ;
+$d.dump_synched: (0...*), Seq(2, 3, 'x', 'y'), :compact_width, :does(DDTR::ConsumeSeq,)  ;
+$d.dump_synched: (0...^15), Seq(2, 3, 'x', 'y'), :compact_width, :does(DDTR::ConsumeSeq,)  ;
+$d.dump_synched: (0...^10), Seq(2, 3, 'x', 'y'), :compact_width, :does(DDTR::ConsumeSeq,)  ;
+$d.dump_synched: Seq(2, 3, 'x', 'y'), (0...^15), :compact_width, :does(DDTR::ConsumeSeq,)  ;
 
 say '' ; say '-' x 30 ; say '' ;
 
 dd Seq(1, 2, 'x') ;
 say (Seq(1, 2, 'x')).gist ;
-$d.dump(Seq(1, 2, 'x')) ;
+$d.dump: Seq(1, 2, 'x') ;
 
 say '' ; say '-' x 30 ; say '' ;
 
 dd (1...*) ;
 say (1...*).gist ;
-$d.dump((1...*)) ;
+$d.dump: (1...*) ;
 
 say '' ; say '-' x 30 ; say '' ;
 
 say (1...10_000).gist ;
-$d.dump((1...10_000)) ;
+$d.dump: (1...10_000) ;
 
 class C {has Int $.x = 3} ;
 my @a = 1, 2, 3, C.new ;
@@ -46,21 +46,21 @@ dd  $s ;
 say $s.gist ;
 
 $d does DDTR::ConsumeSeq(%(vertical => False)) ;
-$d.dump($s) ;
+$d.dump: $s ;
 
 say '' ; say '-' x 30 ; say '' ;
 
 $d.consume_seq<vertical> = True ;
-$d.dump( (0...1000) ) ;
-$d.dump( (0...3) ) ;
+$d.dump: (0...1000)  ;
+$d.dump: (0...3)  ;
 
-$d.dump((1...*)) ;
+$d.dump: (1...*) ;
 
 $d.consume_seq<consume_lazy> = True ;
-$d.dump((1...*)) ;
+$d.dump: (1...*) ;
 
 $d.consume_seq<vertical> = False ;
-$d.dump((1...*)) ;
+$d.dump: (1...*) ;
 
 say '' ; say '-' x 30 ; say '' ;
 
@@ -74,14 +74,12 @@ $d.consume_seq<vertical> = True ;
 $d.dump( c ) ;
 
 $d.consume_seq<vertical> = False ;
-$d.dump( c ) ;
+$d.dump: c  ;
 dd c ;
 say c.gist ;
 
-#is($dump_1.lines.elems, 9, '9 dump lines') or diag $dump_1 ;
-
 my $p = Pair.new(1, 'a') ;
-dump (1 => 'a') ;
+dump(1 => 'a') ;
 
 dump(($p, $p, $p, $p, a => (|< a b c >, ($p,$p)))) ;
 

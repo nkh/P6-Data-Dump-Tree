@@ -1,4 +1,17 @@
 
+Tuples
+	dumping data vertically has the disadvantages of forcing one to scroll down
+	EG: a list of 10 elements each with three elements is 40 lines long
+	often we want to see the three elements by each other which means 20 lines
+	we can also inline the 3 elements with their container which makes the dump ten lines
+
+	in extreme cases, rendering the data as a table is the best solution
+
+	this can be done with filter bu means a lot of boilerplate code
+
+	create a tuple/table plugin filter with simplified interface 
+	
+
 NCurses
 	render colors
 	render ANSI codes

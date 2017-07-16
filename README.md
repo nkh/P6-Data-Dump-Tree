@@ -35,7 +35,9 @@ It also
 
   * can display the difference between two data structures (DDTR::Diff)
 
-  * can display output DHTML (DDTR::DHTML)
+  * can generate DHTM output (DDTR::DHTML)
+
+  * can display a folding structure in Curses (DDTR::Folding)
 
   * can be used to "visit" a data structure and call callbacks you define
 
@@ -152,6 +154,8 @@ Data::DumpTree will display
   * Arrays as '[x]' where x is the number of element of the Array
 
   * Lists as '(x)' where x is the number of element of the list
+
+  * Sets as '.Seq(number_of_element)'
 
   * Sequences as '.Seq' or '.Seq(*)' for lazy lists
 
@@ -276,8 +280,6 @@ You can also define your own cycle with **@kb_colors**:
 
 Note that the width of the glyps is subtracted from the width you pass as we use that space when displaying multiline values in the dump.
 
-When using ANSI colors, the last character of each wrapped line is colored.
-
 ### $max_depth 
 
 Limit the depth of a dump. There is no limit by default.
@@ -302,9 +304,9 @@ By default this option is set.
 
 Display the internal address of the objects. Default is False.
 
-### ANSI vs ASCII vs Unicode tree drawing
+### Unicode vs ANSI tree drawing
 
-The tree is draw with ANSI codes, if possible, otherwise in ASCII. See roles AsciiGyphs and UnicodeGlyphs.
+The tree is draw with Unicode characters + one space by default. See roles AsciiGyphs and CompactUnicodeGlyphs.
 
 Handling specific types
 -----------------------
@@ -456,7 +458,7 @@ This is called just after the type's _get_header_ is called, this allows you, EG
 	    )
     {
     # Add something to the tree
-    @renderings.append: $glyph ~ "HEADER" ;
+    @renderings.push: (|$glyph , ('', "HEADER", '')) ;
     }
 
 or change the **rendering** of the object
@@ -468,7 +470,7 @@ or change the **rendering** of the object
 	    (\k, \b, \v, \f, \final, \want_address) # reference, can change
 	    )
     {
-    @renderings.append: $glyph ~ "Int HEADER " ~ $depth ;
+    @renderings.push: (|$glyph, ('', 'Int HEADER ' ~ $depth, '')) ;
 
     # need to set limit or we would create lists forever
     if $depth < 2 { r = <1 2> } ;
@@ -496,7 +498,7 @@ Called after the type's _get_elements_ ; you can change the sub elements.
 	    @sub_elements
 	    )
     {
-    @renderings.append: $glyph ~ "SUB ELEMENTS" ;
+    @renderings.push: (|$glyph, ('', 'SUB ELEMENTS', '')) ;
     @sub_elements = (('key', ' => ', 'value'), ('other_key', ': ', 1)) ; 
     }
 
@@ -506,7 +508,7 @@ Called when the element rendering is done.
 
     sub footer_filter($s, ($depth, $filter_glyph, @renderings))
     {
-    @renderings.append: $filter_glyph ~ "FOOTER for {$s.^name}" ;
+    @renderings.push: (|$filter_glyph, ('', "FOOTER for {$s.^name}", '')) ;
     }
 
 Data::Dump::Tree::Type::Nothing
@@ -561,9 +563,9 @@ You are welcome to make your own distribution for the roles too, I recommend usi
 
 Uses ASCII codes rather than ANSI to render the tree.
 
-### DDTR::UnicodeGlyphs
+### DDTR::CompactUnicodeGlyphs
 
-Uses Unicode to render the tree. this is the tightest rendering as only one character per level is used to display the tree.
+This is the tightest rendering as only one character per level is used to display the tree glyphs.
 
 ### DDTR::PerlString
 
@@ -700,5 +702,4 @@ Perl 6:
   * Data::Dump
 
   * Pretty:Printer
-
 

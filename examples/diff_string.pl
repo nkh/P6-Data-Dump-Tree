@@ -14,23 +14,22 @@ use Data::Dump::Tree::ExtraRoles ;
 my (@df1, @df2) := get_data_structures() ;
 
 # dumper with diff role
-my $d = Data::Dump::Tree.new() does DDTR::Diff ;
+my $d = Data::Dump::Tree.new does DDTR::Diff ;
 
 # show full structures with glyphs showing what differences exists
-$d.dump_synched(@df1, @df2, compact_width => True, does => (DDTR::MatchDetails,), color_glyphs => True) ;
+$d.dump_synched: @df1, @df2, :compact_width, :does(DDTR::MatchDetails,), :color_glyphs ;
 
 ''.say ;
 
 # show only the differences between the structures
-$d.dump_synched(@df1, @df2, compact_width => True, does => (DDTR::MatchDetails,), color_glyphs => True,
+$d.dump_synched: @df1, @df2, :compact_width, :does(DDTR::MatchDetails,), :color_glyphs,
 		
 		# show only difference
-		diff_glyphs => False, remove_eq => True, remove_eqv => True,
+		:!diff_glyphs, :remove_eq, :remove_eqv,
 		
 		# give names to the data structures
-		rhs_title => <rhs_title>,
-		title => <title>,
-		) ;
+		:title<title>,
+		:rhs_title<rhs_title> ;
 
 say "ran for {now - INIT now} s" ;
 

@@ -13,7 +13,7 @@ my $s =
 
 
 my $d = Data::Dump::Tree.new ;
-$d.dump($s, :keep_paths, header_filters => (&header_filter,)) ;
+$d.dump: $s, :keep_paths, :header_filters(&header_filter,) ;
 
 say "ran for {now - INIT now} s" ;
 
@@ -27,6 +27,8 @@ multi sub header_filter(\r, $s, ($depth, $path, $glyph, @renderings), $)
 # element. Eg: element 3 of an array of 6 elements would be rendered
 # as [6]/3.  
 
-@renderings.append: $glyph ~ 'path:' ~ ($path.map: { $d.get_element_header($_[0])[1] ~ '/' ~ $_[1]}).join(" ") ;
+my $path_rendered = ('', ($path.map: { $d.get_element_header($_[0])[1] ~ '/' ~ $_[1]}).join(' '), '').List ;
+
+@renderings.push: (|$glyph, ('', 'path:', ''), $path_rendered) ;
 }
 

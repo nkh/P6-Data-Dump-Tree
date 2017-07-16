@@ -4,14 +4,14 @@
 
 "name" : "Data::Dump::Tree",
 "license" : "Artistic-2.0",
-"version" : "1.0.3",
+"version" : "1.0.4",
 "authors" : ["Nadim Khemir"],
 
 "description" : "Render data structures as trees; user definable filters",
 "provides" : 
 	{
 	"Data::Dump::Tree" : "lib/Data/Dump/Tree.pm" ,
-	"Data::Dump::Tree::AnsiColor" : "lib/Data/Dump/Tree/AnsiColor.pm",
+	"Data::Dump::Tree::Colorizer" : "lib/Data/Dump/Tree/Colorizer.pm",
 	"Data::Dump::Tree::Enums" : "lib/Data/Dump/Tree/Enums.pm",
 	"Data::Dump::Tree::ExtraRoles" : "lib/Data/Dump/Tree/ExtraRoles.pm",
 	"Data::Dump::Tree::Diff" : "lib/Data/Dump/Tree/Diff.pm",

@@ -22,12 +22,12 @@ my $d = Data::Dump::Tree.new ;
 # addresses must be enabled. Enabling address display is recommended when
 # dumping a structure with linked data
 
-$d.set_element_name($s[2], 'list b') ;
+$d.set_element_name: $s[2], 'list b' ;
 
 # color the name
-$d.set_element_name(@a, color('bold yellow on_red') ~ 'some array') ;
+$d.set_element_name: @a, color('bold yellow on_red') ~ 'some array' ;
 
-$d.dump($s) ;
+$d.dump: $s ;
 
 say "ran for {now - INIT now} s" ;
 

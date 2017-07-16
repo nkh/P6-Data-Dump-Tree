@@ -21,12 +21,12 @@ multi sub header_filter(\r, Hash $s, ($depth, $path, $glyph, @renderings), (\k, 
 
 if k ~~ /color/
 	{
-	@renderings.append: $glyph ~ 'removing ' ~ k ;
+	@renderings.push: (|$glyph, ('', 'removing ' ~ k, '')) ;
 	r = Data::Dump::Tree::Type::Nothing ;
 	}
 else
 	{
-	@renderings.append: $glyph ~ 'not removing ' ~ k ;
+	@renderings.push: (|$glyph, ('', 'not removing ' ~ k, '')) ;
 	}
 }
 
@@ -36,7 +36,7 @@ else
 multi sub elements_filter(Data::Dump::Tree $s, ($depth, $glyph, @renderings, $), @sub_elements)
 {
 # simply show that we were called
-@renderings.append: $glyph ~ "SUB ELEMENTS " ~ $s.^name ;
+@renderings.push: (|$glyph, ('', 'SUB ELEMENTS', '')) ;
 
 # we could have eliminated any sub element from @sub_elements, or even
 # added some elements
@@ -45,7 +45,7 @@ multi sub elements_filter(Data::Dump::Tree $s, ($depth, $glyph, @renderings, $),
 my $d = Data::Dump::Tree.new does DDTR::AsciiGlyphs ;
 my $dump = $d.get_dump($d, :!color, :width<120>, header_filters => (&header_filter,), elements_filters => (&elements_filter,)) ;
 
-is $dump.lines.elems, 38, 'lines output' or diag $dump ;
+is $dump.lines.elems, 37, 'lines output' or diag $dump ;
 like $dump, /removing/, 'removing' or diag $dump ;
 like $dump, /'not removing'/, 'not removing' or diag $dump ;
 like $dump, /'SUB ELEMENTS'/, 'sub elements filter' or diag $dump ;

@@ -1,5 +1,6 @@
 
 use Data::Dump::Tree ;
+use Data::Dump::Tree::Colorizer ;
 use Data::Dump::Tree::DescribeBaseObjects ;
 
 role DDTR::DHTML
@@ -27,10 +28,12 @@ my %s := %options<wrap_data> ;
 
 %s<style> //= qq:to/STYLE/ ;
 <style type='text/css'>
+.button \{font-family:monospace ; outline: 0 ; width: 150px ; background-color: #303030 ; color: #999999 ; border: none;}
 a\{text-decoration: none; white-space: pre; }
 .%s<class> li \{list-style-type:none ; margin:0 ; padding:0 ; line-height: 1em ; }
 .%s<class> ul \{margin:0 ; padding:0 ;}
 ul.%s<class> \{padding:0 ; font-family:monospace ; white-space:nowrap ;}
+body \{ background-color: #000000 ;}
 </style>
 STYLE
 
@@ -54,14 +57,14 @@ qq:to/DHTML/ ;
 {
 (%s<button_collapse>
 	?? %s<collapsed> 
-		?? "   <input type='button' id='%s<collapse_button_id>' onclick='expand_collapse_%s<class>\(true)' value='Expand'/>\n"
-		!! "   <input type='button' id='%s<collapse_button_id>' onclick='expand_collapse_%s<class>\(true)' value='Collapse'/>\n"
+		?? "   <input class='button' type='button' id='%s<collapse_button_id>' onclick='expand_collapse_%s<class>\(true)' value='Expand'/>\n"
+		!! "   <input class='button' type='button' id='%s<collapse_button_id>' onclick='expand_collapse_%s<class>\(true)' value='Collapse'/>\n"
 	!! '')
 
 ~ # append
 
 (%s<button_search>
-	?? "   <input type='button' id='%s<search_button_id>' onclick='search_{%s<class>}()' value='Search'/>\n" 
+	?? "   <input class='button' background-color: #404040 type='button' id='%s<search_button_id>' onclick='search_{%s<class>}()' value='Search'/>\n" 
 	!! '')
 }	
 </div>
@@ -83,12 +86,28 @@ method wrap_dump($s, *%options)
 
 my ($r, $wrap_data) = $.get_dump_lines(
 		$s,
-		:!color,
 		:wrap_data(%options<wrap_data>),
 		:wrap_header(&header_wrap),
 		:wrap_footer(&footer_wrap),
+
+		:colorizer(HtmlColorizer.new),
+		:colors<
+			reset       "black"
+
+			ddt_address #1010BB   link   #004000    perl_address #995535  
+			header      #aa00aa   key    #009999    binder #009999 
+			value       #a5a5a5   wrap   "yellow"
+
+			gl_0 #303030 gl_1 "yellow"  gl_2 "green" gl_3 "red"  gl_4 "blue"
+
+			kb_0 #d7af00   kb_1 #d78700 
+			kb_2 #0087ff   kb_3 #005fff 
+			kb_4 #d787af   kb_5 #d75faf      
+			kb_6 #00af00   kb_7 #008700
+			kb_8 #d70000   kb_9 #af0000 
+			>,
+
 		|%options,
-		does => ( DDTR::UnicodeGlyphs,), #todo: add to does if it exists instead
 		);
 
 $wrap_data<DHTML> 
@@ -96,26 +115,27 @@ $wrap_data<DHTML>
 
 my sub header_wrap(
 	\wd,
-	($glyph, $continuation_glyph, $multi_line_glyph),
-	($kvf, @ks, @vs, @fs),
+	(@head_glyphs, $glyph, $continuation_glyph, $multi_line_glyph),
+	(@kvf, @ks, @vs, @fs),
 	Mu $s,
 	($depth, $path, $filter_glyph, @renderings),
-	($k, $b, $v, $f, $final, $want_address),
+	($k, $b, $v, $f, ($ddt_address, $link, $perl_address), $final, $want_address),
 	) 
 {
 my ($pad, $pad2)  = ( '   ' xx $depth + 1, '   ' xx $depth + 2) ; 
 my ($class, $uuid) = (wd<class>, wd<class> ~ '_' ~ wd<uuid>) ;
 my ($a_uuid, $c_uuid) = ("a_$uuid", "c_$uuid") ;
 
-if $kvf.defined
-	{
-	my $span = $glyph ;
-	$span ~= $final
-			?? "<font color='black'>" ~ "$k$b".trans($a2h) ~ '</font> '
-			!! "$k$b".trans($a2h) ;
+my $head_html = @head_glyphs.map( { $_[0] ~ $_[1].trans($a2h)  ~ '</font>'} ).join ;
+my $head_glyph_html = $head_html ~ $glyph[0] ~ $glyph[1].trans($a2h)  ~ '</font>' ;
+my $head_continuation_html = $head_html~ $continuation_glyph[0] ~  $continuation_glyph[1].trans($a2h) ~ '</font>' ;
+my $head_continuation_multi_html = $head_continuation_html ~ $multi_line_glyph[0] ~ $multi_line_glyph[1] ~ '</font>' ;
 
-	$span ~= '<font color="black">' ~ ($v//'').trans($a2h) ~ '</font> ' 
-		~ '<font color=#bbbbbb>' ~ ($f//'').trans($a2h) ~ '</font>' ;
+if @kvf
+	{
+	my $span = $head_glyph_html ;
+
+	$span ~= @kvf[0].map( { $_[0] ~ $_[1].trans($a2h) ~ '</font>'} ).join  ~ '<br>' ;
 
 	if $final
 		{
@@ -133,39 +153,43 @@ if $kvf.defined
 	}
 else
 	{
+	#TODO: add \n to make the generated html readable
+
 	wd<DHTML> ~= "$pad\<li><a id='$a_uuid'" ;
 
 	wd<DHTML> ~= $final
 		?? " data-final=1>"
 		!! " href='javascript:void(0);' onclick='toggleList_$class\(\"$c_uuid\", \"$a_uuid\")'>" ;
 
-	if @ks	{ wd<DHTML> ~= $glyph ~ @ks[0].trans($a2h) ~ '<br>' ; }
+	# @ks, @vs, @fs contain a line per entry, each line can be made of multiple components
+
+	if @ks	
+		{
+		wd<DHTML> ~= $head_glyph_html ;
+		wd<DHTML> ~= @ks[0].map( { $_[0] ~ $_[1].trans($a2h)  ~ '</font>'} ).join  ~ '<br>' ;
+		}
+
 	if @ks > 1
 		{
 		for @ks[1..*-1] -> $ks
 			{
-			wd<DHTML> ~= $continuation_glyph ~ $ks.trans($a2h) ~ '<br>' ;
-			} ; 
+			wd<DHTML> ~= $head_continuation_html ;
+			wd<DHTML> ~= $ks.map( { $_[0] ~ $_[1].trans($a2h) ~ '</font>'} ).join ~ '<br>' ;
+			}  
 		}
 			
 	for @vs -> $vs
 		{
-		wd<DHTML> ~= $final
-			?? "<font color='black'>$continuation_glyph$multi_line_glyph"
-			!! "$continuation_glyph$multi_line_glyph\<font color='black'>" ;
-
-		wd<DHTML> ~= $vs.trans($a2h) ~ '</font><br>' ;
+		wd<DHTML> ~= $head_continuation_multi_html ;
+		wd<DHTML> ~= $vs.map( { $_[0] ~ $_[1].trans($a2h) ~ '</font>'} ).join ~ '<br>' ;
 		} ; 
-	
+
 	for @fs -> $fs
 		{
 		#todo: next if $.display_info == False ;
 
-		wd<DHTML> ~= $final
-			?? "<font color='black'>$continuation_glyph$multi_line_glyph"
-			!! "$continuation_glyph$multi_line_glyph" ;
-
-		wd<DHTML> ~= "<font color=#cccccc>" ~ $fs.trans($a2h) ~ '</font><br>' ;
+		wd<DHTML> ~= $head_continuation_multi_html ;
+		wd<DHTML> ~= $fs.map( { $_[0] ~ $_[1].trans($a2h) ~ '</font>'} ).join ~ '<br>' ;
 		} ; 
 
 	wd<DHTML> ~= "</a>\n" ;

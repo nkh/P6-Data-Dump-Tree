@@ -126,6 +126,7 @@ Data::Dump::Tree
 
 
 use Data::Dump::Tree ;
+use Data::Dump::Tree::Colorizer ;
 
 enum (SKIP => 0, 'FOLDED', 'PARENT_FOLDED') ;
 
@@ -139,32 +140,47 @@ has @.folds ;
 method new($s, *%attributes)
 {
 
-my $dumper = Data::Dump::Tree.new(|%attributes) ;
+my $dumper = Data::Dump::Tree.new: |%attributes ;
 
 my ($lines, $wrap_data) 
-	= $dumper.get_dump_lines(
+	= $dumper.get_dump_lines:
 			$s, 
 			:wrap_header(&header_wrap),
 			:wrap_footer(&footer_wrap),
-			);
+			:colors<
+				reset 1
+
+				ddt_address 2  link   3    perl_address 4  
+				header      5  key    6    binder 7 
+				value       8  wrap   9
+
+				gl_0 10 gl_1 11  gl_2 12 gl_3 13  gl_4 14
+
+				kb_0 20   kb_1 21 
+				kb_2 22   kb_3 23 
+				kb_4 24   kb_5 25      
+				kb_6 26   kb_7 27
+				kb_8 28   kb_9 29 
+				>,
+			:colorizer(CursesColorizer.new) ;
 
 self.bless: :lines(|$lines), :folds(|$wrap_data<folds>) ;
 }
 
 my sub header_wrap(
 	\wd,
-	($glyph, $continuation_glyph, $multi_line_glyph),
-	($kvf, @ks, @vs, @fs),
+	(@head_glyphs, $glyph, $continuation_glyph, $multi_line_glyph),
+	(@kvf, @ks, @vs, @fs),
 	Mu $s,
 	($depth, $path, $filter_glyph, @renderings),
-	($k, $b, $v, $f, $final, $want_address),
+	($k, $b, $v, $f, $, $final, $want_address),
 	) 
 {
 wd<folds>.push: @renderings.elems ;
 wd<folds>.elems - 1 ; # token passed to footer callback
 }
 
-my sub footer_wrap(\wd, Mu $s, $final, ($depth, $filter_glyph, @renderings), $header_wrap_token)
+my sub footer_wrap(\wd, Mu $s, $final, ($depth, @glyphs, @renderings), $header_wrap_token)
 {
 wd<folds>[$header_wrap_token] [R-]= @renderings.elems ;
 }
@@ -266,7 +282,7 @@ my ($current_line, @lines) = ($!top_line, ) ;
 
 while @lines < $!page_size and $current_line < $!foldable.lines  
 	{
-	@lines.push: (@!folds[$current_line][FOLDED] ?? '*' !! ' ') ~ $!foldable.lines[$current_line] ;
+	@lines.push: $!foldable.lines[$current_line] ;
 
 	$current_line += @!folds[$current_line][FOLDED] 
 				?? @!folds[$current_line][SKIP] + 1

@@ -22,7 +22,7 @@ multi sub my_filter(\r, Hash $s, ($, $path, $glyph, @renderings), (\k, \b, \v, \
 
 if k ~~ /color/
 	{
-	@renderings.append: $glyph ~ color('red') ~ 'removing ' ~ k ;
+	@renderings.push: (|$glyph, (color('red'), 'removing ' ~ k, color('reset')))  ;
 	r = Data::Dump::Tree::Type::Nothing ;
 	}
 }
@@ -33,16 +33,16 @@ if k ~~ /color/
 multi sub my_filter( Data::Dump::Tree $s, ($, $glyph, @renderings, $), @sub_elements)
 {
 # simply show that we were called
-@renderings.append: $glyph ~ "sub elements filter called" ~ $s.^name ;
+@renderings.append: (|$glyph, ('', 'sub elements filter called' ~ $s.^name, '')) ;
 
 # we could have eliminated any sub element from @sub_elements, or even
 # added some elements
 }
 
 # unfiltered dump
-$d.dump($d) ;
+$d.dump: $d ;
 
 # filtering on
-$d.dump($d, header_filters => (&my_filter,), elements_filters => (&my_filter,)) ;
+$d.dump: $d, :header_filters(&my_filter,), :elements_filters(&my_filter,) ;
 
 

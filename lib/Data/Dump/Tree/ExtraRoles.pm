@@ -165,7 +165,7 @@ my %glyphs = $.get_glyphs() ;
 
 my $superscript_level = $.superscribe($level) ;
 
-for <last not_last> { %glyphs{$_}= $superscript_level ~ ' ' ~ %glyphs{$_} }
+for <last not_last> { %glyphs{$_} = $superscript_level ~ ' ' ~ %glyphs{$_} }
 for <last_continuation not_last_continuation multi_line empty>
 	{ %glyphs{$_} = ' ' x $superscript_level.chars ~ ' ' ~ %glyphs{$_} }
 
@@ -182,7 +182,7 @@ $root
 
 %colored_glyphs<__width> = $glyph_width ; #squirel in the width
 
-%colored_glyphs, $glyph_width
+%colored_glyphs
 }
 
 } #role

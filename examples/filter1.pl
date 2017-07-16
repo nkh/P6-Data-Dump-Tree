@@ -1,5 +1,6 @@
 
 use Data::Dump::Tree ;
+use Data::Dump::Tree::DescribeBaseObjects ;
 use Data::Dump::Tree::Enums ;
 
 use Terminal::ANSIColor ;
@@ -28,7 +29,7 @@ my $s2 =
 dump $s2 ;
 
 # dump filtered
-dump $s2, header_filters => (&my_filter,), elements_filters => (&my_filter,), footer_filters => (&my_filter,) ;
+dump $s2, :!color, header_filters => (&my_filter,), elements_filters => (&my_filter,), footer_filters => (&my_filter,) ;
 
 
 # -----------
@@ -43,7 +44,7 @@ dump $s2, header_filters => (&my_filter,), elements_filters => (&my_filter,), fo
 multi sub my_filter(\r, Int $s, ($depth, $path, $glyph, @renderings), (\k, \b, \v, \f, \final, \want_address))
 {
 # add text in the rendering
-@renderings.append: $glyph ~ color('bold white on_yellow') ~ "Int HEADER filter" ~ color('reset') ;
+@renderings.push: (|$glyph, (color('bold white on_yellow'), "Int HEADER filter", color('reset'))) ;
 
 # can replace ourselves with something else, do not forget to update k, b, v, accordingly
 # r = < abc def > ;
@@ -62,7 +63,7 @@ want_address = True ;
 multi sub my_filter($r, $s, ($depth, $path, $glyph, @renderings), ($k, $b, $v, $f, $final, $want_address))
 {
 # add text in the rendering
-@renderings.append: $glyph ~ "<" ~ $s.^name ~ '> @depth ' ~ $depth ;
+@renderings.push: (|$glyph , ( '', "<" ~ $s.^name ~ '> @depth ' ~ $depth, '')) ;
 }
 
 
@@ -71,7 +72,7 @@ multi sub my_filter($r, $s, ($depth, $path, $glyph, @renderings), ($k, $b, $v, $
 multi sub my_filter(\r, Tomatoe $s, ($depth, $path, $glyph, @renderings), $)
 {
 # add text in the rendering
-@renderings.append: $glyph ~ color('red') ~ 'removing tomatoe' ;
+@renderings.push: (|$glyph, (color('red'), 'removing tomatoe', color('reset'))) ;
 
 # remove tomatoe
 r = Data::Dump::Tree::Type::Nothing ;
@@ -83,7 +84,7 @@ r = Data::Dump::Tree::Type::Nothing ;
 multi sub my_filter(Hash $s, ($, $glyph, @renderings, $), @sub_elements)
 {
 # add text in the rendering
-@renderings.append: $glyph ~ "Changing elements of the Hash" ;
+@renderings.push: (|$glyph, ('', "Changing elements of the Hash", '')) ;
 
 # new elements
 @sub_elements = (('new element 1', ': ', 2/3), ('new element 2', ': ', 2), ('new element 3', ': ', 3)) ; 
@@ -96,7 +97,7 @@ multi sub my_filter(Hash $s, ($, $glyph, @renderings, $), @sub_elements)
 multi sub my_filter($s, ($depth, $filter_glyph, @renderings))
 {
 # add text in the rendering
-@renderings.append: $filter_glyph ~ "</{$s.^name}>" ;
+@renderings.push: (|$filter_glyph, ('', "</{$s.^name}>", '')) ;
 }
 
 

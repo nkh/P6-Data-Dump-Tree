@@ -102,7 +102,7 @@ class Data::Dump::Tree::Type::MaxDepth
 has $.glyph ;
 has $.depth ;
 
-multi method ddt_get_header { $.glyph ~ "max depth($.depth)", '', DDT_FINAL }
+multi method ddt_get_header { $.glyph ~ " max depth($.depth)", '', DDT_FINAL }
 }
 
 class Data::Dump::Tree::Type::Nothing
@@ -118,7 +118,7 @@ has $.type = '' ;
 multi method ddt_get_header { $.value, $.type, DDT_FINAL }
 }
 
-role DDTR::UnicodeGlyphs
+role DDTR::CompactUnicodeGlyphs
 {
 
 multi method get_glyphs
@@ -148,16 +148,15 @@ multi method get_glyphs
 #role
 }
 
-role DDTR::AnsiGlyphs
+role DDTR::DefaultGlyphs # unicode + space
 {
 
 multi method get_glyphs
 {
-	{
-	last => "\x1b(0\x6d \x1b(B", not_last => "\x1b(0\x74 \x1b(B",
-	last_continuation => '  ', not_last_continuation => "\x1b(0\x78 \x1b(B",
-	multi_line => "\x1b(0\x78 \x1b(B", empty => '  ', max_depth => '…', 
-	filter => "\x1b(0\x78 \x1b(B" , # not last continuation
+	{ 
+	last => '└ ', not_last => '├ ', last_continuation => '  ', not_last_continuation => '│ ',
+	multi_line => '│ ', empty => '  ', max_depth => '…',
+	filter => '│ ', # not last continuation
 	}
 }
 

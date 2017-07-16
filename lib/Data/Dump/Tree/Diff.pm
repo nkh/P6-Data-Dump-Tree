@@ -56,64 +56,66 @@ $d2.reset ; # setup object
 
 my @diff_glyphs ;
 
+my $empty_glyph = ('', '', '') ;
+my @root_glyphs = 0, |( $empty_glyph xx 5)  ;
+
 $.diff_elements(
-	$d1, ($d1.get_title, '', $s1, ''), 0, (0, '', '', '', '', ''), '', 
+	# $dumper, $header, $depth, @head_glyphs, @glyphs
+	$d1, ($d1.get_title, '', $s1, ''), 0, (), @root_glyphs,
 	@diff_glyphs,
-	$d2, ($d2.get_title, '', $s2, ''), 0, (0, '', '', '', '', ''), '',
+	$d2, ($d2.get_title, '', $s2, ''), 0, (), @root_glyphs,
 	) ;
 
-
-#compute width without ANSI escape codes
-my regex color { \[ \d+ [\;\d+]* <?before [\;\d+]* > m } 
-my regex graph {\( [ 0|B ]}
-my @r1_width = $d1.get_renderings.map: { S:g/ \e [ <color> | <graph> ] //.chars } ;
 
 my ($remove_eqv, $remove_eq) = %options<remove_eqv remove_eq> ;
 
 if %options<compact_width>
 	{
-	my @visible_line_widths ;
-	for @r1_width Z @diff_glyphs -> ($r1w, $dg)
+	my $max_line_width ;
+
+	for $d1.get_renderings Z @diff_glyphs -> ($r1, $dg)
 		{ 
 		next if $remove_eq && $dg eq %diff_glyphs<same_object> ;
 		next if $remove_eqv && $dg eq %diff_glyphs<same_type_same_value> ;
 
-		@visible_line_widths.append: $r1w ;
+		$max_line_width max=  $r1.map( { $_[1] } ).join.chars ;
 		}
 	
-	$width = min $width, max @visible_line_widths ;
+	$width = min $width, $max_line_width ;
 	}
 
-for $d1.get_renderings Z @r1_width Z @diff_glyphs Z $d2.get_renderings -> ($r1, $r1w, $dg is copy, $r2) 
+for $d1.get_renderings Z @diff_glyphs Z $d2.get_renderings -> ($r1, $dg is copy, $r2) 
 	{
-	my $color_width = $r1.chars - $r1w ;
-
 	next if $remove_eq && $dg eq %diff_glyphs<same_object> ;
 	next if $remove_eqv && $dg eq %diff_glyphs<same_type_same_value> ;
 
 	$dg = '' unless $diff_glyphs ;
 
-	$.colorizer.color(
-		sprintf("%-{$width + $color_width}s %-{$diff_glyph_width}s %s",
-			$r1,
-			$.colorizer.color($dg, 'diff_glyphs'),
-			$r2),
-		~$color
-		).say ;
+	my $r1c = $r1.map( { $_.join } ).join ;
+	my $r1w = $r1.map( { $_[1] } ).join.chars ;
+ 
+	my $color_width = $r1c.chars - $r1w ;
+
+	printf "%-{$width + $color_width}s %-{$diff_glyph_width}s %s",
+		$r1c,
+		$dg,
+		$r2.map( { $_.join } ).join ;
+
+	''.say ;
 	}
 }
 
 method diff_elements(
-	$d1, $s1_header, $cd1, $glyphs1, $head_glyph1,
+	$d1, $s1_header, $cd1, $head_glyph1, @glyphs1,
 	@diff_glyphs,
-	$d2, $s2_header, $cd2, $glyphs2, $head_glyph2,
+	$d2, $s2_header, $cd2, $head_glyph2, @glyphs2,
 	)
 {
 my ($final1, $rendered1, $s1, $cont_glyph1) = 
-	$d1.render_element($s1_header, $cd1, $glyphs1, $head_glyph1) ; 
+	$d1.render_element($s1_header, $cd1, $head_glyph1, @glyphs1) ; 
 
 my ($final2, $rendered2, $s2, $cont_glyph2) = 
-	$d2.render_element($s2_header, $cd2, $glyphs2, $head_glyph2) ; 
+	$d2.render_element($s2_header, $cd2, $head_glyph2, @glyphs2) ; 
 
 # handle Seq as they get consumed during the diff
 my sub cache_seq(Seq $s)
@@ -130,8 +132,8 @@ my sub cache_seq(Seq $s)
 $s1 = cache_seq($s1)  if $s1 ~~ Seq ;
 $s2 = cache_seq($s2)  if $s2 ~~ Seq ;
 
+my ($pad_glyph1, $pad_glyph2) = (|$head_glyph1, @glyphs1[2]), (|$head_glyph2, @glyphs2[2]) ;
 
-my ($pad_glyph1, $pad_glyph2) = ($head_glyph1 ~ $glyphs1[2], $head_glyph2 ~ $glyphs2[2]) ;
 my $diff_glyph = ' ? ' ;
 my $is_different = 0 ;
 
@@ -139,13 +141,13 @@ my $is_different = 0 ;
 if $final1 && !$final2  # different types
 	{
 	$diff_glyph = %diff_glyphs<container_left> ;
-	$d2.render_non_final($s2, $cd2, $cont_glyph2, $s2_header) unless $rendered2 ;
+	$d2.render_non_final($s2, $cd2, (|$head_glyph2, $cont_glyph2), $s2_header) unless $rendered2 ;
 	$is_different++ ;
 	}
 elsif !$final1 && $final2  # different types
 	{
 	$diff_glyph = %diff_glyphs<container_right> ;
-	$d1.render_non_final($s1, $cd1, $cont_glyph1, $s1_header) unless $rendered1 ;
+	$d1.render_non_final($s1, $cd1, (|$head_glyph1, $cont_glyph1), $s1_header) unless $rendered1 ;
 	$is_different++ ;
 	} 
 elsif $final1 && $final2
@@ -165,14 +167,14 @@ else
 		if $s1.WHERE == $s2.WHERE
 			{
 			$diff_glyph = %diff_glyphs<same_object> ;
-			$d1.render_non_final($s1, $cd1, $cont_glyph1, $s1_header) ;
-			$d2.render_non_final($s2, $cd2, $cont_glyph2, $s2_header) ;
+			$d1.render_non_final($s1, $cd1, (|$head_glyph1, $cont_glyph1), $s1_header) ;
+			$d2.render_non_final($s2, $cd2, (|$head_glyph2, $cont_glyph2), $s2_header) ;
 			}
 		elsif $s1 eqv $s2
 			{
 			$diff_glyph = %diff_glyphs<same_type_same_value> ;
-			$d1.render_non_final($s1, $cd1, $cont_glyph1, $s1_header) ;
-			$d2.render_non_final($s2, $cd2, $cont_glyph2, $s2_header) ;
+			$d1.render_non_final($s1, $cd1, (|$head_glyph1, $cont_glyph1), $s1_header) ;
+			$d2.render_non_final($s2, $cd2, (|$head_glyph2, $cont_glyph2), $s2_header) ;
 			}
 		else
 			{
@@ -186,15 +188,15 @@ else
 
 			my $index = @diff_glyphs.end ; # may have to change the glyph after rendering sub levels 
 
-			my (@sub_elements1, %glyphs1) := $d1.get_sub_elements($s1, $cd1, $cont_glyph1, $s1_header) ;
-			my (@sub_elements2, %glyphs2) := $d2.get_sub_elements($s2, $cd2, $cont_glyph2, $s2_header) ;
+			my (@sub_elements1, %glyphs1) := $d1.get_sub_elements($s1, $cd1, (|$head_glyph1, $cont_glyph1), $s1_header) ;
+			my (@sub_elements2, %glyphs2) := $d2.get_sub_elements($s2, $cd2, (|$head_glyph2, $cont_glyph2), $s2_header) ;
 
 			if $diff_synch_filter
 				{
 				$diff_synch_filter(
-					$s1, @sub_elements1, $cd1, $d1.get_renderings, $cont_glyph1,
+					$s1, @sub_elements1, $cd1, $d1.get_renderings, (|$head_glyph1, $cont_glyph1),
 					@diff_glyphs,
-					$s2, @sub_elements2, $cd2, $d2.get_renderings, $cont_glyph2
+					$s2, @sub_elements2, $cd2, $d2.get_renderings, (|$head_glyph2, $cont_glyph2),
 					) ;
 				}
 			else
@@ -219,25 +221,22 @@ else
 				if $sub1.defined && $sub2.defined
 					{
 					$is_different +=  $.diff_elements(
-								$d1, $sub1, $cd1 + 1,
-								$sub_element_glyphs1, $cont_glyph1,
+								$d1, $sub1, $cd1 + 1, (|$head_glyph1, $cont_glyph1), $sub_element_glyphs1, 
 								@diff_glyphs,
-
-								$d2, $sub2, $cd2 + 1,
-								$sub_element_glyphs2, $cont_glyph2,
+								$d2, $sub2, $cd2 + 1, (|$head_glyph2, $cont_glyph2), $sub_element_glyphs2,
 								) ;
 					}
 				elsif $sub1.defined
 					{
 					$is_different++ ;
 					$diff_glyph = %diff_glyphs<only_lhs> ;
-					$d1.render_element_structure($sub1, $cd1 +1 , $sub_element_glyphs1, $cont_glyph1) ;
+					$d1.render_element_structure($sub1, $cd1 + 1, (|$head_glyph1, $cont_glyph1), $sub_element_glyphs1) ;
 					}
 				else
 					{
 					$is_different++ ;
 					$diff_glyph = %diff_glyphs<only_rhs> ;
-					$d2.render_element_structure($sub2, $cd2 + 1, $sub_element_glyphs2, $cont_glyph2) ; 
+					$d2.render_element_structure($sub2, $cd2 + 1, (|$head_glyph1, $cont_glyph2), $sub_element_glyphs2) ; 
 					}
 				}
 
@@ -251,14 +250,14 @@ else
 			{
 			$diff_glyph = %diff_glyphs<same_type_same_value> ;
 
-			$d1.render_non_final($s1, $cd1, $cont_glyph1) unless $rendered1 ;
-			$d2.render_non_final($s2, $cd2, $cont_glyph2) unless $rendered2 ;
+			$d1.render_non_final($s1, $cd1, (|$head_glyph1, $cont_glyph1)) unless $rendered1 ;
+			$d2.render_non_final($s2, $cd2, (|$head_glyph2, $cont_glyph2)) unless $rendered2 ;
 			}
 		else
 			{
 			$diff_glyph = %diff_glyphs<diff_container> ;
-			$d1.render_non_final($s1, $cd1, $cont_glyph1) unless $rendered1 ;
-			$d2.render_non_final($s2, $cd2, $cont_glyph2) unless $rendered2 ;
+			$d1.render_non_final($s1, $cd1, (|$head_glyph1, $cont_glyph1)) unless $rendered1 ;
+			$d2.render_non_final($s2, $cd2, (|$head_glyph2, $cont_glyph2)) unless $rendered2 ;
 			$is_different++ ;
 			}
 		}
@@ -266,10 +265,10 @@ else
 
 # footer filter 
 $d1.footer_filters and $s1.WHAT !=:= Mu and 
-	$d1.filter_footer($s1, ($cd1, $cont_glyph1, $d1.get_renderings))  ;
+	$d1.filter_footer($s1, ($cd1, (|$head_glyph1, $cont_glyph1), $d1.get_renderings))  ;
 
 $d2.footer_filters and $s2.WHAT !=:= Mu and 
-	$d2.filter_footer($s2, ($cd2, $cont_glyph2, $d2.get_renderings))  ;
+	$d2.filter_footer($s2, ($cd2, (|$head_glyph2, $cont_glyph2), $d2.get_renderings))  ;
 
 synch_renderings(
 	$d1.get_renderings, $pad_glyph1,
