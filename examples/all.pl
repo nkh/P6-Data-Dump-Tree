@@ -12,7 +12,7 @@ class Strings
 {
 # a class that defines DDT specific methods
 
-method ddt_get_header { "say something about this class\nmultiline", '.' ~ self.^name ~ "\n multiline classes" }
+method ddt_get_header { "say something about this class\nmultiline", '.' ~ self.^name ~ "\nmultiline classes" }
 
 method ddt_get_elements 
 { 
@@ -83,9 +83,17 @@ try
 
 	my @columns = <id name email>;
 	my @rows    = ([1,"John Doe",'johndoe@cpan.org'], [2,'Jane Doe','mrsjanedoe@hushmail.com'],);
-	my @table = lol2table(@columns,@rows);
+	my $table = lol2table(@columns, @rows).join("\n") ;
 
-	@e = ($!title, '', @table.join("\n")), |get_Any_attributes(self),  ;
+	use Data::Dump::Tree::MultiColumns ;
+	my $columnizer = Data::Dump::Tree.new does DDT::MultiColumns ;
+
+	my $element = [1, [2, [3, 4]]] ;
+	my $data = [ $element, ([6, [3]],), $element ] ;
+
+	my $columns = $columnizer.get_columns: (1..7), |($data.map({ get_dump_lines_integrated($_) })) ;
+
+	@e = ($!title, '', $table ~ "\n" ~ $columns), |get_Any_attributes(self),  ;
 	}
 
 $! ?? (('DDT exception', ': ', "$!"),)  !! @e ;

@@ -7,7 +7,7 @@ use Test ;
 plan 26 ;
 
 # DDT filter to show the folding internal data in a better way 
-sub filter(\r, $s, ($, $path, @glyphs, @renderings), (\k, \b, \v, \f, \final, \want_address))
+sub filter($dumper, \r, $s, ($, $path, @glyphs, @renderings), (\k, \b, \v, \f, \final, \want_address))
 {
 r = Data::Dump::Tree::Type::Nothing if k ~~ /'$.foldable'/ ;
 

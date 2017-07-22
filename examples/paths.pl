@@ -17,7 +17,7 @@ $d.dump: $s, :keep_paths, :header_filters(&header_filter,) ;
 
 say "ran for {now - INIT now} s" ;
 
-multi sub header_filter(\r, $s, ($depth, $path, $glyph, @renderings), $)
+multi sub header_filter($dumper, \r, $s, ($depth, $path, $glyph, @renderings), $)
 {
 # $path contains a list of [parent, key (as rendered)]
 

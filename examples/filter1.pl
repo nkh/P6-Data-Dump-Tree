@@ -60,7 +60,7 @@ want_address = True ;
 
 # HEADER FILTER
 # called for every element in the data structure as $s, in the signature, is not typed
-multi sub my_filter($r, $s, ($depth, $path, $glyph, @renderings), ($k, $b, $v, $f, $final, $want_address))
+multi sub my_filter($dumper, $r, $s, ($depth, $path, $glyph, @renderings), ($k, $b, $v, $f, $final, $want_address))
 {
 # add text in the rendering
 @renderings.push: (|$glyph , ( '', "<" ~ $s.^name ~ '> @depth ' ~ $depth, '')) ;
@@ -69,7 +69,7 @@ multi sub my_filter($r, $s, ($depth, $path, $glyph, @renderings), ($k, $b, $v, $
 
 # HEADER FILTER
 # replacement filter, matches Tomatoes, removes them from the dump
-multi sub my_filter(\r, Tomatoe $s, ($depth, $path, $glyph, @renderings), $)
+multi sub my_filter($dumper, \r, Tomatoe $s, ($depth, $path, $glyph, @renderings), $)
 {
 # add text in the rendering
 @renderings.push: (|$glyph, (color('red'), 'removing tomatoe', color('reset'))) ;
@@ -81,7 +81,7 @@ r = Data::Dump::Tree::Type::Nothing ;
 
 # ELEMENTS FILTER
 # Match Hashes and replace their elements
-multi sub my_filter(Hash $s, ($, $glyph, @renderings, $), @sub_elements)
+multi sub my_filter($dumper, Hash $s, ($, $glyph, @renderings, $), @sub_elements)
 {
 # add text in the rendering
 @renderings.push: (|$glyph, ('', "Changing elements of the Hash", '')) ;
@@ -94,7 +94,7 @@ multi sub my_filter(Hash $s, ($, $glyph, @renderings, $), @sub_elements)
 
 # FOOTER FILTER
 # called for every element in the data structure as $s, in the signature, is not typed
-multi sub my_filter($s, ($depth, $filter_glyph, @renderings))
+multi sub my_filter($dumper, $s, ($depth, $filter_glyph, @renderings))
 {
 # add text in the rendering
 @renderings.push: (|$filter_glyph, ('', "</{$s.^name}>", '')) ;

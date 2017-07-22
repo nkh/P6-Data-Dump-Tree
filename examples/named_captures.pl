@@ -48,7 +48,7 @@ $d.dump({ :$config, :$regex, :$match }, title => 'config parsing', elements_filt
 # 	for names <config regex match>
 # 		get the element in hash where the key is the name
 #
-multi sub sorter(Hash $s, $, @sub_elements)
+multi sub sorter($dumper, Hash $s, $, @sub_elements)
 {
 my %h = @sub_elements.map: -> $e { $e[0] => $e } ;
 @sub_elements = <config regex match>.map: -> $e { %h{$e} }

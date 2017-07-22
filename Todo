@@ -1,5 +1,13 @@
+#display sequences by default ?
+#display full sequences or just part ?
 
-Tuples
+
+multi columns
+	#support width and wrapping of columns
+	share seen references between columns and main dumper
+	return heigh and columns' widths
+
+#Tuples
 	dumping data vertically has the disadvantages of forcing one to scroll down
 	EG: a list of 10 elements each with three elements is 40 lines long
 	often we want to see the three elements by each other which means 20 lines
@@ -7,17 +15,19 @@ Tuples
 
 	in extreme cases, rendering the data as a table is the best solution
 
-	this can be done with filter bu means a lot of boilerplate code
+	this can be done with filter but means a lot of boilerplate code
 
 	create a tuple/table plugin filter with simplified interface 
-	
+		also tag an array or list to get it's elements displayed horizontally 
+			if the list elements are too wide, display them on multiple lines
+
+	tuples could also be parts of the dump, with color	
 
 NCurses
-	render colors
-	render ANSI codes
+	render uni codes
 dhtml
-	user colors
 	user css override
+	visual cue for folds
 
 graphs that have entry further than :width are not clipped properly 
 	clip but insert warning in the tree

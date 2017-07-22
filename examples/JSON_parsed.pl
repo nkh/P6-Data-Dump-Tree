@@ -59,7 +59,7 @@ $d.dump: $parsed ;
 
 $d.dump: $parsed, :header_filters(&header_filter,), :elements_filters(&elements_filter,) ;
 
-sub header_filter(\r, $s, ($depth, $path, $glyph, @renderings), (\k, \b, \v, \f, \final, \want_address))
+sub header_filter($dumper, \r, $s, ($depth, $path, $glyph, @renderings), (\k, \b, \v, \f, \final, \want_address))
 {
 # simplifying the dump, this is optional
 
@@ -84,7 +84,7 @@ if k eq "<object>" | "<pairlist>" | "<array>" | '<arraylist>'
 
 }
 
-sub elements_filter($s, ($depth, $glyph, @renderings, $element), @sub_elements)
+sub elements_filter($dumper, $s, ($depth, $glyph, @renderings, $element), @sub_elements)
 {
 # simplifying the dump, this is optional
 

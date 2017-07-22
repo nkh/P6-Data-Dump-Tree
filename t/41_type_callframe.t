@@ -8,13 +8,13 @@ use Data::Dump::Tree::Enums ;
 
 my $d = Data::Dump::Tree.new ;
 
-multi sub Stash_no_sub( Stash $s, ($depth, $glyph, @renderings, $), @sub_elements)
+multi sub Stash_no_sub($dumper,  Stash $s, ($depth, $glyph, @renderings, $), @sub_elements)
 {
 # remove subs from stash
 @sub_elements = @sub_elements.grep: { $_[2] !~~ Sub} ;
 }
 
-multi sub compress_ddt(\r, Data::Dump::Tree $s, @r, (\k, \b, \v, \f, \final, \want_address))
+multi sub compress_ddt($dumper, \r, Data::Dump::Tree $s, @r, (\k, \b, \v, \f, \final, \want_address))
 {
 final = DDT_FINAL ;
 }

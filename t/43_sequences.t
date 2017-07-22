@@ -8,6 +8,7 @@ use Data::Dump::Tree::ExtraRoles ;
 #use Data::Dump::Tree::DescribeBaseObjects ;
 
 my $d = Data::Dump::Tree.new ;
+$d.consume_seq<consume_lazy> = False ;
 
 my $dump = $d.get_dump(Seq(1, 2, 'x')) ;
 is $dump.lines.elems, 1, '1 line' or diag $dump ;
