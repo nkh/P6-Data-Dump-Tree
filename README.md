@@ -27,17 +27,19 @@ SYNOPSIS
 DESCRIPTION
 ===========
 
-Data::Dump::Tree renders your data structures in a tree fashion.
+Data::Dump::Tree renders your data structures in a tree fashion for legibility.
 
 It also
 
-  * can display two data structures side by side
+  * can display two data structures side by side (DDTR::MultiColumns)
 
   * can display the difference between two data structures (DDTR::Diff)
 
   * can generate DHTM output (DDTR::DHTML)
 
   * can display a folding structure in Curses (DDTR::Folding)
+
+  * can display parts of the data structure Horizontally
 
   * can be used to "visit" a data structure and call callbacks you define
 
@@ -46,35 +48,40 @@ If you have Term::ANSIColor installed, the output will be so colored.
 INTERFACE
 =========
 
-sub dump($structure_to_dump, named_argument, ...)
--------------------------------------------------
+sub dump($data_to_dump, $data_to_dump, ..., :named_argument, ...)
+-----------------------------------------------------------------
 
-'say's the dump of the data structure
+'say's the rendering of the data structure
 
-sub get_dump($structure_to_dump, named_argument, ...)
------------------------------------------------------
+sub ddt($data_to_dump, $data_to_dump, ..., :named_argument, ...)
+----------------------------------------------------------------
 
-Returns a string containing the dump of the data structure
+'say's the rendering of the data structure; an alias to *dump()*
 
-sub get_dump_lines($structure_to_dump, named_argument, ...)
------------------------------------------------------------
+sub get_dump($data_to_dump, $data_to_dump, ..., :named_argument, ...)
+---------------------------------------------------------------------
 
-Returns an array containing the dump of the data structure
+Returns a string containing the rendering of the data structure
 
-method dump($structure_to_dump, named_argument, ...)
-----------------------------------------------------
+sub get_dump_lines($data_to_dump, $data_to_dump, ..., :named_argument, ...)
+---------------------------------------------------------------------------
 
-'say's the dump of the data structure
+Returns an array containing the lines of the data structure rendering
 
-method get_dump($structure_to_dump, named_argument, ...)
---------------------------------------------------------
+method dump: $data_to_dump, $data_to_dump, ..., :named_argument, ...
+--------------------------------------------------------------------
 
-Returns a string containing the dump of the data structure
+'say's the rendering of the data structure
 
-method get_dump_lines($structure_to_dump, named_argument, ...)
---------------------------------------------------------------
+method get_dump: $data_to_dump, $data_to_dump, ..., :named_argument, ...
+------------------------------------------------------------------------
 
-Returns an array containing the dump of the data structure
+Returns a string containing the rendering of the data structure
+
+method get_dump_lines: $data_to_dump, $data_to_dump, ..., : named_argument, ...
+-------------------------------------------------------------------------------
+
+Returns an array containing the rendering of the data structure
 
 USAGE
 =====
@@ -94,7 +101,11 @@ USAGE
 	    'aaa' ~~ m:g/(a)/,
 	    ] ;
 
-    dump $s, :title<A complex structure>, :!color ;
+    dump $s, :title<A complex structure> ;
+
+    dump $s1, $s2, $s3, :!color ;
+
+    ddt $s4 ;
 
 Output
 ------
@@ -149,25 +160,27 @@ The type of the variable with a '.' appended. IE: '.Str', '.MyClass'
 
 Data::DumpTree will display
 
-  * Hashes as '{x}' where x is the number of element of the hash
+  * Hashes as '{n}' where n is the number of element of the hash
 
-  * Arrays as '[x]' where x is the number of element of the Array
+  * Arrays as '[n]'
 
-  * Lists as '(x)' where x is the number of element of the list
+  * Lists as '(n)'
 
-  * Sets as '.Seq(number_of_element)'
+  * Sets as '.Set(n)'
 
-  * Sequences as '.Seq' or '.Seq(*)' for lazy lists
+  * Sequences as '.Seq(n)' or '.Seq(*)' for lazy lists
 
-Sequences contents are normally not displayed only a header will be added to the dump. If you want to display sequences, use the role DDTR:ConsumeSeq.  It will allow you to dump sequences and control if the sequences are dumped vertically or horizontally, how much of the sequence is dumped and if lazy sequences are dumped (you decide how many elements for lazy sequences too).
+You control if the sequences are dumped vertically or horizontally, how much of the sequence is dumped and if lazy sequences are dumped (you decide how many elements for lazy sequences too).
 
-Check file *examples/sequences.pl* in the distribution as well as the role implementation in *lib/Data/Dump/Tree/ExtraRoles.pm*.
+Check file *examples/sequences.pl* in the distribution as well as the  implementation in *lib/Data/Dump/Tree/DescribeBaseObjects.pm*.
 
-  * Maches as '[x..y]' where x..y is the match range or [x] for one element
+  * Matches as '[x..y]' where x..y is the match range or [x] for one element
+
+See *Match objects* in the roles section below for configuration of the Match objects rendering.
 
 ### address
 
-The Data::Dump::Tree address is added to every container in the form of a '@' and an index that is incremented for each container. If a container is found multiple times in the output, it will be rendered once only then referred to  by '@current_address = @first_time_seen' 
+The Data::Dump::Tree address is added to every container in the form of a '@' and an index that is incremented for each container. If a container is found multiple times in the output, it will be rendered once only then referred to  as '§first_time_seen' 
 
 It is possible to name containers by using *set_element_name* before dumping  your data structure.
 
@@ -186,7 +199,7 @@ Configuration and Overrides
 There are multiple ways to configure the Dumper. You can pass a configuration to the dump() sub or you can create a dumper object with your configuration. 
 
     # subroutine interface
-    dump($s, :title('text'), :width(115), :color(False))  ;
+    dump($s, :titlei<text>, :width(115), :!color))  ;
 
     # basic object
     my $dumper = Data::Dump::Tree.new ;
@@ -222,7 +235,7 @@ You can pass your own colors. The default are:
 	    <
 	    ddt_address blue     perl_address yellow  link   green
 	    header      magenta  key         cyan     binder cyan 
-	    value       reset    wrap        yellow
+	    value       reset    
 
 	    gl_0 yellow   gl_1 reset   gl_2 green   gl_3 red
 	    > ;
@@ -351,7 +364,7 @@ In the type handler, you can:
 
 If your keys or values are text string and they contain embedded "\n",  Data::Dump::Tree will display them on multiple lines. See the Role section.
 
-The module tests, and examples diretory, and  Data::Dump::Tree::DescribeBaseobjects are a good place to look at for more examples.
+The module tests, and examples directory, and  Data::Dump::Tree::DescribeBaseobjects are a good place to look at for more examples.
 
 ### classes defined by someone else and base types
 
@@ -380,7 +393,7 @@ Both work in the same fashion.
 To make that handler active, make your dumper do the role
 
     # using 'does'
-    my $d = Data::Dump::Tree.new(:width(80)) ;
+    my $d = Data::Dump::Tree.new: :width(80) ;
     $d does your_hash_handler ;
 
     $d.dump: @your_data ;
@@ -390,10 +403,10 @@ To make that handler active, make your dumper do the role
 
     # by passing roles to dump() method
     my $d = Data::Dump::Tree.new ;
-    $d.dump: $m, :does( DDTR::MatchDetails, your_hash_handler) ;
+    $d.dump: $m, :does(DDTR::MatchDetails, your_hash_handler) ;
 
     # by passing roles to dump() sub 
-    dump: $m, :does( DDTR::MatchDetails, your_hash_handler) ;
+    dump: $m, :does(DDTR::MatchDetails, your_hash_handler) ;
 
 ### FINAL elements
 
@@ -427,9 +440,9 @@ To pass a filter to the dumper:
 
     dump(
 	    $s,
-	    header_filters => (&header_filter, ...),
-	    elements_filters => (&elements_filter,),
-	    footer_filters => (&footer_filters,),
+	    :header_filters(&header_filter, ...),
+	    :elements_filters(&elements_filter,),
+	    :footer_filters(&footer_filters,),
 	    ) ;
 
 Data::Dump::Tree cycle is:
@@ -451,6 +464,7 @@ when DDT has rendered the element and will get to the next element
 This is called just after the type's _get_header_ is called, this allows you, EG, to insert something in the tree rendering
 
     sub header_filter(
+	    $dumper,				# the dumper
 	    $r,                                     # replacement
 	    $s,                                     # "read only" object
 	    ($depth, $path, $glyph, @renderings),   # info about tree
@@ -464,6 +478,7 @@ This is called just after the type's _get_header_ is called, this allows you, EG
 or change the **rendering** of the object
 
     sub header_filter(
+	    $dumper,				# the dumper
 	    \r,                                     # replacement
 	    Int $s,                                 # filter Ints
 	    ($depth, $path, $glyph, @renderings),   # info about the tree
@@ -493,6 +508,7 @@ Note: You can not filter elements of type _Mu_ with DDT_HEADER filters but you c
 Called after the type's _get_elements_ ; you can change the sub elements.
 
     sub sub_elements_filter(
+	    $dumper,
 	    Hash $s,
 	    ($depth, $glyph, @renderings, ($key, $binder, $, $path)),
 	    @sub_elements
@@ -506,7 +522,7 @@ Called after the type's _get_elements_ ; you can change the sub elements.
 
 Called when the element rendering is done.
 
-    sub footer_filter($s, ($depth, $filter_glyph, @renderings))
+    sub footer_filter($dumper, $s, ($depth, $filter_glyph, @renderings))
     {
     @renderings.push: (|$filter_glyph, ('', "FOOTER for {$s.^name}", '')) ;
     }
@@ -520,7 +536,7 @@ You can use this type to have DDT make some elements of the structure vanish fro
 
 If you return a Data::Dump::Tree::Type::Nothing replacement in your filter, the element will not be displayed at all.
 
-    sub my_filter(\r, Tomatoe $s, $, $)
+    sub my_filter($, \r, Tomatoe $s, $, $)
     {
     r = Data::Dump::Tree::Type::Nothing ;
     }
@@ -702,4 +718,3 @@ Perl 6:
   * Data::Dump
 
   * Pretty:Printer
-

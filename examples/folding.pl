@@ -38,7 +38,7 @@ if has_colors() && COLOR_PAIRS() >= 13
 	init_pair(13, COLOR_BLACK,	COLOR_BLACK) ; # gl_3
 }
 
-my $f = Data::Dump::Tree::Foldable.new: get_s(), :title<title>, :does(DDTR::AsciiGlyphs,) ;
+my $f = Data::Dump::Tree::Foldable.new: get_s(), :display_info, :title<title>, :does(DDTR::AsciiGlyphs,) ;
 my $g = $f.get_view ; $g.set: :page_size<10> ;
 
 loop
@@ -82,8 +82,10 @@ for @lines Z 0..* -> ($line, $index)
 
 	for $line.Array 
 		{
+		(my $text = $_[1] ) ~~ s:g/'§'/*/ ;
+
 		color_set($_[0].Int, 0);
-		mvaddstr($index, 5 + $pos, $_[1]) ;
+		mvaddstr($index, 5 + $pos, $text) ;
 		$pos += $_[1].chars ;
 		}
 

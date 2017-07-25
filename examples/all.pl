@@ -86,12 +86,11 @@ try
 	my $table = lol2table(@columns, @rows).join("\n") ;
 
 	use Data::Dump::Tree::MultiColumns ;
-	my $columnizer = Data::Dump::Tree.new does DDT::MultiColumns ;
 
 	my $element = [1, [2, [3, 4]]] ;
 	my $data = [ $element, ([6, [3]],), $element ] ;
 
-	my $columns = $columnizer.get_columns: (1..7), |($data.map({ get_dump_lines_integrated($_) })) ;
+	my $columns = get_columns (1..7), |($data.map({ get_dump_lines_integrated($_) })) ;
 
 	@e = ($!title, '', $table ~ "\n" ~ $columns), |get_Any_attributes(self),  ;
 	}

@@ -2,26 +2,24 @@
 use Data::Dump::Tree ;
 use Data::Dump::Tree::MultiColumns ;
 
-my $d = Data::Dump::Tree.new does DDT::MultiColumns ;
+display_columns get_dump_lines_integrated([1..4]), get_dump_lines_integrated([6..12]) ;
 
-$d.display_columns: $d.get_dump_lines_integrated([1..4]), $d.get_dump_lines_integrated([6..12]) ;
+display_columns get_dump_lines_integrated([1..4]), get_dump_lines_integrated([6..12]), :width(50) ;
 
-$d.display_columns: $d.get_dump_lines_integrated([1..4]), $d.get_dump_lines_integrated([6..12]), :width(50) ;
+display_columns get_dump_lines_integrated([1..4]), get_dump_lines_integrated([6..12]), :width(50), :compact ;
 
-$d.display_columns: $d.get_dump_lines_integrated([1..4]), $d.get_dump_lines_integrated([6..12]), :width(50), :compact ;
+display_columns get_dump_lines_integrated([6..12]), get_dump_lines_integrated([1..4]) ;
 
-$d.display_columns: $d.get_dump_lines_integrated([6..12]), $d.get_dump_lines_integrated([1..4]) ;
+display_columns get_dump_lines_integrated([1..7]), get_dump_lines_integrated([4..12]), get_dump_lines_integrated([1..4]) ;
 
-$d.display_columns: $d.get_dump_lines_integrated([1..7]),$d.get_dump_lines_integrated([4..12]), $d.get_dump_lines_integrated([1..4]) ;
+display_columns <line other_line>, get_dump_lines_integrated([6..12]), get_dump_lines_integrated([1..4]) ;
 
-$d.display_columns: <line other_line>, $d.get_dump_lines_integrated([6..12]), $d.get_dump_lines_integrated([1..4]) ;
+display_columns <line other_line>, get_dump_lines_integrated([6..12]), get_dump_lines_integrated([1..4]), :width(20) ;
 
-$d.display_columns: <line other_line>, $d.get_dump_lines_integrated([6..12]), $d.get_dump_lines_integrated([1..4]), :width(20) ;
+display_columns <line other_line>, get_dump_lines_integrated([6..12]), 1..6, :width(20) ;
 
-$d.display_columns: <line other_line>, $d.get_dump_lines_integrated([6..12]), 1..4, 1..6, :width(25) ;
+display_columns 1..4 ;
 
-$d.display_columns: 1..4 ;
-
-$d.display_columns ;
+display_columns ;
 
 

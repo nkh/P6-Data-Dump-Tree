@@ -1,8 +1,7 @@
 
 =begin pod
 
-=NAME
-Date::Dump::Tree - Renders data structures in a tree fashion
+=NAME Date::Dump::Tree - Renders data structures in a tree fashion
 
 =SYNOPSIS
 	use Data::Dump::Tree ;
@@ -17,11 +16,11 @@ Date::Dump::Tree - Renders data structures in a tree fashion
 	
 =DESCRIPTION
 
-Data::Dump::Tree renders your data structures in a tree fashion.
+Data::Dump::Tree renders your data structures in a tree fashion for legibility.
 
 It also
 
-=item can display two data structures side by side
+=item can display two data structures side by side (DDTR::MultiColumns)
 
 =item can display the difference between two data structures (DDTR::Diff)
 
@@ -29,35 +28,41 @@ It also
 
 =item can display a folding structure in Curses  (DDTR::Folding)
 
+=item can display parts of the data structure Horizontally
+
 =item can be used to "visit" a data structure and call callbacks you define
 
 If you have Term::ANSIColor installed, the output will be so colored.
 
 =INTERFACE
 
-=head2 sub dump($structure_to_dump, named_argument, ...)
+=head2 sub dump($data_to_dump, $data_to_dump, ..., :named_argument, ...)
 
-'say's the dump of the data structure
+'say's the rendering of the data structure
 
-=head2 sub get_dump($structure_to_dump, named_argument, ...)
+=head2 sub ddt($data_to_dump, $data_to_dump, ..., :named_argument, ...)
 
-Returns a string containing the dump of the data structure
+'say's the rendering of the data structure; an alias to I<dump()>
 
-=head2 sub get_dump_lines($structure_to_dump, named_argument, ...)
+=head2 sub get_dump($data_to_dump, $data_to_dump, ..., :named_argument, ...)
 
-Returns an array containing the dump of the data structure
+Returns a string containing the rendering of the data structure
 
-=head2 method dump($structure_to_dump, named_argument, ...)
+=head2 sub get_dump_lines($data_to_dump, $data_to_dump, ..., :named_argument, ...)
 
-'say's the dump of the data structure
+Returns an array containing the lines of the data structure rendering
 
-=head2 method  get_dump($structure_to_dump, named_argument, ...)
+=head2 method dump: $data_to_dump, $data_to_dump, ..., :named_argument, ...
 
-Returns a string containing the dump of the data structure
+'say's the rendering of the data structure
 
-=head2 method get_dump_lines($structure_to_dump, named_argument, ...)
+=head2 method  get_dump: $data_to_dump, $data_to_dump, ..., :named_argument, ...
 
-Returns an array containing the dump of the data structure
+Returns a string containing the rendering of the data structure
+
+=head2 method get_dump_lines: $data_to_dump, $data_to_dump, ..., : named_argument, ...
+
+Returns an array containing the rendering of the data structure
 
 =USAGE
 
@@ -76,7 +81,11 @@ Returns an array containing the dump of the data structure
 		'aaa' ~~ m:g/(a)/,
 		] ;
 
-	dump $s, :title<A complex structure>, :!color ;
+	dump $s, :title<A complex structure> ;
+
+	dump $s1, $s2, $s3, :!color ;
+	
+	ddt $s4 ;
 
 =head2 Output
 	

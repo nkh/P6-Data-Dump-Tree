@@ -77,13 +77,26 @@ multi method get_header (Pair $p)
 	{
 	if $p.key ~~ Str | Int && $p.value ~~ Str | Int 
 		{
-		'(' ~ $p.key ~ ' => ' ~ $p.value ~ ')', '.' ~ $p.^name, DDT_FINAL
+		'(' ~ $p.key ~ ', ' ~ $p.value ~ ')', '.' ~ $p.^name, DDT_FINAL
 		}
 	else
 		{
 		'', '.' ~ $p.^name
 		}
 	}
+
+multi method get_elements (Pair $p)
+	{
+	if $p.key ~~ Str | Int 
+		{
+		( ('k:' ~ $p.key ~ ", v:", '', $p.value), )
+		}
+	else
+		{
+		( ('key', ': ', $p.key), ('value', ' = ', $p.value), )
+		}
+	} 
+
 multi method get_header (Junction $j) { $j.gist, '.' ~ $j.^name, DDT_FINAL }
 
 multi method get_header (Match $m) 

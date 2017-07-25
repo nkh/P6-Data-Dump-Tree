@@ -71,13 +71,13 @@ has Bool $.max_depth_message is rw = True ;
 has @!renderings ;
 method get_renderings() { @!renderings }
 
-method new(:@does, *%attributes)
+method new(*%attributes)
 {
 my %colors = %attributes<colors> // (), %default_colors ;
  
 my $object = self.bless(|%attributes);
 
-for @does // () -> $role { $object does $role }
+for %attributes<does> // () -> $role { $object does $role }
 
 $object does DDTR::DefaultGlyphs unless $object.can('get_glyphs') ;
 
@@ -90,38 +90,45 @@ unless $object.display_info
 $object 
 }
 
-sub dump(Mu $s, *%options) is export { say get_dump($s, |%options) }
-sub get_dump(Mu $s, *%options) is export { Data::Dump::Tree.new(|%options).get_dump($s)}
-sub get_dump_lines(Mu $s, *%options) is export { Data::Dump::Tree.new(|%options).get_dump_lines($s)}
-sub get_dump_lines_integrated(Mu $s, *%options) is export { Data::Dump::Tree.new(|%options).get_dump_lines_integrated($s)}
+sub dump(|args) is export { say get_dump(|args) }
+sub ddt(|args) is export { say get_dump(|args) }
 
-method dump(Mu $s, *%options) { say self.get_dump($s, |%options) }
+sub get_dump(|args) is export { Data::Dump::Tree.new(|args.hash).get_dump(|args.list)}
+sub get_dump_lines(|args) is export { Data::Dump::Tree.new(|args.hash).get_dump_lines(|args.list)}
+sub get_dump_lines_integrated(|args) is export { Data::Dump::Tree.new(|args.hash).get_dump_lines_integrated(|args.list)}
 
-method get_dump(Mu $s, *%options)
+method dump(|args) { say self.get_dump(|args) }
+
+method get_dump(|args)
 {
-self.get_dump_lines($s, |%options).map( { $_.map({ $_.join} ).join ~ "\n" } ).join ;
+self.get_dump_lines(|args).map( { $_.map({ $_.join} ).join ~ "\n" } ).join ;
 }
 
-method get_dump_lines_integrated(Mu $s, *%options)
+method get_dump_lines_integrated(|args)
 {
-self.get_dump_lines($s, |%options).map( { $_.map({ $_.join} ).join } ) ;
+self.get_dump_lines(|args).map( { $_.map({ $_.join} ).join } ) ;
 }
 
-method get_dump_lines(Mu $s, *%options)
+method get_dump_lines(|args)
 {
 # roles can be passed in new() or as options to dump
 # make a clone so we do not pollute the object
-my $clone = self.clone(|%options) ;
+my $clone = self.clone(|args.hash) ;
 
-for %options<does> // () -> $role { $clone does $role } 
+for args.hash<does> // () -> $role { $clone does $role } 
 
-if %options<display_info> 
+if args.hash<display_info> 
 	{
 	$clone.display_type = False ;
 	$clone.display_address = DDT_DISPLAY_NONE ; 
 	}
 
-$clone.render_root($s) ;
+given args.list.elems
+	{
+	when 0 { return 'DDT called without arguments @ ' ~ callframe(2).file ~ ':' ~ callframe(2).line ~ ' ' }
+	when 1 { $clone.render_root: args.list[0] }
+	default { $clone.render_root: args.list }
+	}
 
 $clone.wrap_data.defined
 	?? ($clone.get_renderings(), $clone.wrap_data) 

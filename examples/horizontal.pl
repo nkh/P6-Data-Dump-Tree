@@ -1,36 +1,8 @@
 #!/usr/bin/env perl6
 
 use Data::Dump::Tree ;
-use Data::Dump::Tree::DescribeBaseObjects ;
-use Data::Dump::Tree::Enums ;
 use Data::Dump::Tree::MultiColumns ;
-
-class DDT_Columns
-{
-has Str $.title = '' ;
-has $.total_width ;
-has $.dumper ;
-has $.element ;
-
-method ddt_get_header
-{ 
-my $columnizer = Data::Dump::Tree.new does DDT::MultiColumns ;
-
-my $columns = $columnizer.get_columns:   
-				:$.total_width,
-				|($!element.map(
-					{ 
-					get_dump_lines_integrated(
-						$_,
-						:title($++ ~ ' ='),
-						:address_from($!dumper),
-						)
-					 })) ;
-
-($!title ne '' ?? "$!title\n" !! '') ~ $columns, '', DDT_FINAL 
-}
-
-} #class
+use Data::Dump::Tree::Horizontal ;
 
 test1 ;
 test2 ;
@@ -38,35 +10,31 @@ test3 ;
 
 sub test1
 {
-dump (1, 3, 4), :elements_filters(lay_flat(0)) ;
-dump( 
-	get_test_structure(),
-	:title<horizontal>,
-	:elements_filters(lay_flat(0)),
-	) ;
+dump 1, 3, 4 ;
+dump [1, 3, 4,], :elements_filters(lay_flat(0),) ;
+
+dump get_small_test_structure() ;
+dump get_small_test_structure(),:elements_filters(lay_flat(0)) ;
+
+dump get_small_test_structure_hash() ;
+dump get_small_test_structure_hash(),:elements_filters(lay_flat(0)) ;
 }
 
 sub test2
 {
-dump( 
-	get_test_structure(),
-	:title<horizontal>,
-	:elements_filters(lay_flat(1),),
-	) ;
+dump get_test_structure(), :elements_filters(lay_flat(0)) ;
+dump get_test_structure(), :elements_filters(lay_flat(1)) ;
 }
 
 sub test3
 {
-my $columnizer = Data::Dump::Tree.new does DDT::MultiColumns ;
-$columnizer.display_columns:	get_dump_lines_integrated( 
-					get_test_structure(),
-					:title<horizontal>,
+display_columns get_dump_lines_integrated( 
+				get_test_structure(),
 					:width(75),
 					:elements_filters(lay_flat(1),),
 					),
 				get_dump_lines_integrated(
 					get_test_structure(),
-					:title<horizontal>,
 					:width(75),
 					:header_filters(),
 					) ;
@@ -84,7 +52,7 @@ return
 		{
 		my $total_width = $d.width - (($depth  + 2 ) * 3) ;
 
-		@sub_elements = ( ( '', '', DDT_Columns.new(:xtitle<title>, :dumper($d), :element($s), :$total_width )), ) ;
+		@sub_elements = ( ( '', '', Data::Dump::Tree::Horizontal.new(:dumper($d), :element($s), :$total_width)), ) ;
 		}
 	}
 }
@@ -109,6 +77,42 @@ my $s = (
 	) ;
 
 $s ;
+}
+
+sub get_small_test_structure
+{
+my $element  = [1, [2, [3, 4]]] ;
+my $element2 = [1, 2, Pair.new(3, [4, 5])] ;
+my $element3 = [ $element2, $element xx 11] ;
+
+my $data = [ $element, ([6, [3]],), $element ] ;
+
+my $s = (
+	[ $element xx 2 ],
+	$element3,
+	'12345678',
+	$element3,
+	) ;
+
+$s ;
+}
+
+sub get_small_test_structure_hash
+{
+my $element  = [1, [2, [3, 4]]] ;
+my $element2 = [1, 2, Pair.new(3, [4, 5])] ;
+my $element3 = [ $element2, $element xx 11] ;
+
+my $data = [ $element, ([6, [3]],), $element ] ;
+
+my %s = (
+	engine => [ $element xx 2 ],
+	tires => $element3,
+	ID => '12345678',
+	components => $element3,
+	) ;
+
+%s ;
 }
 
 
