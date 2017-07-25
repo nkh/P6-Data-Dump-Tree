@@ -31,7 +31,7 @@ like $dump, /'.Seq(*)'/, 'class name' or diag $dump ;
 
 $d.consume_seq<vertical> = False ;
 $dump = $d.get_dump((1...*), :width<80>) ;
-is $dump.lines.elems, 7, '7 line' or diag $dump ;
+is $dump.lines.elems, 6, '6 line' or diag $dump ;
 like $dump, /'.Seq(*)'/, 'class name' or diag $dump ;
 
 $d.consume_seq<vertical> = False ;
@@ -41,12 +41,12 @@ like $dump, /'(1, 2, 3).Seq'/, 'dump and class name' or diag $dump ;
 
 $d.consume_seq<vertical> = False ;
 $dump = $d.get_dump((1...50), :width<80>) ;
-is $dump.lines.elems, 5, '5 line' or diag $dump ;
+is $dump.lines.elems, 4, '4 line' or diag $dump ;
 like $dump, /'.Seq'/, 'class name' or diag $dump ;
 
 $d.consume_seq<vertical> = False ;
 $dump = $d.get_dump((1...120), :width<80>) ;
-is $dump.lines.elems, 7, '7 line' or diag $dump ;
+is $dump.lines.elems, 6, '6 line' or diag $dump ;
 like $dump, /'.Seq'/, 'class name' or diag $dump ;
 like $dump, /'100'/, '100 elements' or diag $dump ;
 unlike $dump, /'101'/, 'limited to 100 elements' or diag $dump ;

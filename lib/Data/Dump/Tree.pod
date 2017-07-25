@@ -136,15 +136,15 @@ The type of the variable with a '.' appended. IE: '.Str', '.MyClass'
 
 Data::DumpTree will display
 
-=item  Hashes as '{x}' where x is the number of element of the hash
+=item  Hashes as '{n}' where n is the number of element of the hash
 
-=item  Arrays as '[x]' where x is the number of element of the Array
+=item  Arrays as '[n]'
 
-=item  Lists as '(x)' where x is the number of element of the list
+=item  Lists as '(n)'
 
-=item  Sets as '.Set(number_of_element)'
+=item  Sets as '.Set(n)'
 
-=item  Sequences as '.Seq' or '.Seq(*)' for lazy lists
+=item  Sequences as '.Seq(n)' or '.Seq(*)' for lazy lists
 
 You control if the sequences are dumped vertically or horizontally, how much
 of the sequence is dumped and if lazy sequences are dumped (you decide how

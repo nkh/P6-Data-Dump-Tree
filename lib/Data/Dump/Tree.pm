@@ -276,11 +276,11 @@ my (@kvf, @ks, @vs, @fs) := self!split_entry($current_depth, $width, $k, $b, $gl
 
 if @kvf # single line rendering
 	{
-	@!renderings.push: (|@head_glyphs, $glyph , | @kvf[0]) ;
+	@!renderings.push: (|@head_glyphs, $glyph , |@kvf[0]) ;
 	}
 else
 	{
-	@!renderings.push: (|@head_glyphs, $glyph, (|@ks[0] if @ks)) ;
+ 	+@ks and @!renderings.push: (|@head_glyphs, $glyph, |@ks[0]) ;
 
 	if @ks > 1
 		{
@@ -528,7 +528,7 @@ multi method split_text(Cool:D $text, $width)
 
 return $text if $width < 1 ;
 
-$text.lines.flatmap: { .comb($width) }
+$text.lines.map({ .chars ?? |.comb($width) !! ''}) ;
 }
 
 multi method split_colored_text(Cool:D $text, $width)

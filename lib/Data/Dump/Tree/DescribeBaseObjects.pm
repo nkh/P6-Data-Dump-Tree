@@ -39,14 +39,14 @@ multi method get_header (Seq $s)
 		{
 		if %.consume_seq<vertical> 
 			{ 
-			( '', '.' ~ $s.^name)
+			( '', '.' ~ $s.^name ~ '(' ~ $s.elems ~ ')' )
 			}
 		else
 			{ 
 			my @elements = ($s)[0..^%.consume_seq<max_element_horizontal>].grep({.defined}).map({.gist})  ;
 			@elements.push: '...' if ($s)[%.consume_seq<max_element_horizontal>].defined ;
 
-			( '(' ~ @elements.join(', ') ~ ')', '.' ~ $s.^name, DDT_FINAL )
+			( '(' ~ @elements.join(', ') ~ ')', '.' ~ $s.^name ~ '(' ~ $s.elems ~ ')', DDT_FINAL )
 			}
 		}
 	}

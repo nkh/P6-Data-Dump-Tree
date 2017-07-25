@@ -34,25 +34,35 @@ my $columns = $columnizer.get_columns:
 
 test1 ;
 test2 ;
+test3 ;
 
 sub test1
 {
-dump (1, 3, 4), :elements_filters(&lay_flat,) ;
+dump (1, 3, 4), :elements_filters(lay_flat(0)) ;
 dump( 
 	get_test_structure(),
 	:title<horizontal>,
-	:elements_filters(&lay_flat,),
+	:elements_filters(lay_flat(0)),
 	) ;
 }
 
 sub test2
+{
+dump( 
+	get_test_structure(),
+	:title<horizontal>,
+	:elements_filters(lay_flat(1),),
+	) ;
+}
+
+sub test3
 {
 my $columnizer = Data::Dump::Tree.new does DDT::MultiColumns ;
 $columnizer.display_columns:	get_dump_lines_integrated( 
 					get_test_structure(),
 					:title<horizontal>,
 					:width(75),
-					:elements_filters(&lay_flat,),
+					:elements_filters(lay_flat(1),),
 					),
 				get_dump_lines_integrated(
 					get_test_structure(),
@@ -64,14 +74,18 @@ $columnizer.display_columns:	get_dump_lines_integrated(
 dd get_test_structure ;
 }
 
-multi sub lay_flat($d, $s, ($depth, $glyph, @renderings, $), @sub_elements)
+sub lay_flat($flatten_at_depth)
 {
-if $depth == 1  
+return
+	# sub elements filter
+	sub ($d, $s, ($depth, $glyph, @renderings, $), @sub_elements)
 	{
-	my $total_width = $d.width - (($depth  + 2 ) * 3) ;
+	if $depth == $flatten_at_depth  
+		{
+		my $total_width = $d.width - (($depth  + 2 ) * 3) ;
 
-	#@sub_elements = ( ( '', '', DDT_Columns.new(:xtitle<title>, :dumper($d), :element($s), :$total_width )), ) ;
-	@sub_elements = ( ( '', '', DDT_Columns.new(:xtitle<title>, :dumper($d), :element($s), :$total_width )), ) ;
+		@sub_elements = ( ( '', '', DDT_Columns.new(:xtitle<title>, :dumper($d), :element($s), :$total_width )), ) ;
+		}
 	}
 }
 
@@ -81,7 +95,7 @@ sub get_test_structure
 {
 my $element  = [1, [2, [3, 4]]] ;
 my $element2 = [1, 2] ;
-my $element3 = [ $element2, $element xx 22] ;
+my $element3 = [ $element2, $element xx 11] ;
 
 my $data = [ $element, ([6, [3]],), $element ] ;
 
