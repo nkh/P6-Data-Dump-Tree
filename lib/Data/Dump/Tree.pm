@@ -114,7 +114,6 @@ method get_dump_lines(Mu $s, *%options)
 my $clone = self.clone(|%options) ;
 
 for %options<does> // () -> $role { $clone does $role } 
-$clone  does DDTR::ConsumeSeq ;
 
 if %options<display_info> 
 	{

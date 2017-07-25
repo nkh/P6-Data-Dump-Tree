@@ -120,7 +120,7 @@ my ($final2, $rendered2, $s2, $cont_glyph2) =
 # handle Seq as they get consumed during the diff
 my sub cache_seq(Seq $s)
 	{
-	my $seq_display_size = $d1 ~~ DDTR::ConsumeSeq ?? $d1.consume_seq<max_element_vertical> !! 10 ;
+	my $seq_display_size = $d1.consume_seq<max_element_vertical> ;
 	my $size = $s.is-lazy ?? ~Inf !! $s.elems ;
 
 	my @l = $s.cache[0..^$seq_display_size].grep({.defined}) ;

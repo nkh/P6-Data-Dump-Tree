@@ -12,10 +12,10 @@ my $d = Data::Dump::Tree.new(:compact_width) does DDTR::Diff ;
 
 $d.dump_synched: (0...*), Seq(2, 3, 'x', 'y') ;
 
-$d.dump_synched: (0...*), Seq(2, 3, 'x', 'y'), :compact_width, :does(DDTR::ConsumeSeq,)  ;
-$d.dump_synched: (0...^15), Seq(2, 3, 'x', 'y'), :compact_width, :does(DDTR::ConsumeSeq,)  ;
-$d.dump_synched: (0...^10), Seq(2, 3, 'x', 'y'), :compact_width, :does(DDTR::ConsumeSeq,)  ;
-$d.dump_synched: Seq(2, 3, 'x', 'y'), (0...^15), :compact_width, :does(DDTR::ConsumeSeq,)  ;
+$d.dump_synched: (0...*), Seq(2, 3, 'x', 'y'), :compact_width  ;
+$d.dump_synched: (0...^15), Seq(2, 3, 'x', 'y'), :compact_width  ;
+$d.dump_synched: (0...^10), Seq(2, 3, 'x', 'y'), :compact_width  ;
+$d.dump_synched: Seq(2, 3, 'x', 'y'), (0...^15), :compact_width  ;
 
 say '' ; say '-' x 30 ; say '' ;
 
@@ -45,7 +45,7 @@ my $s = Seq.from-loop(&body, &cond) ;
 dd  $s ;
 say $s.gist ;
 
-$d does DDTR::ConsumeSeq(%(vertical => False)) ;
+$d.consume_seq<vertical> = False ;
 $d.dump: $s ;
 
 say '' ; say '-' x 30 ; say '' ;

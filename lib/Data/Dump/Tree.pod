@@ -142,27 +142,28 @@ Data::DumpTree will display
 
 =item  Lists as '(x)' where x is the number of element of the list
 
-=item  Sets as '.Seq(number_of_element)'
+=item  Sets as '.Set(number_of_element)'
 
 =item  Sequences as '.Seq' or '.Seq(*)' for lazy lists
 
-Sequences contents are normally not displayed only a header will be added to
-the dump. If you want to display sequences, use the role DDTR:ConsumeSeq. 
-It will allow you to dump sequences and control if the sequences are dumped
-vertically or horizontally, how much of the sequence is dumped and if lazy
-sequences are dumped (you decide how many elements for lazy sequences too).
+You control if the sequences are dumped vertically or horizontally, how much
+of the sequence is dumped and if lazy sequences are dumped (you decide how
+many elements for lazy sequences too).
 
-Check file I<examples/sequences.pl> in the distribution as well as the role
-implementation in I<lib/Data/Dump/Tree/ExtraRoles.pm>.
+Check file I<examples/sequences.pl> in the distribution as well as the 
+implementation in I<lib/Data/Dump/Tree/DescribeBaseObjects.pm>.
 
-=item  Maches as '[x..y]' where x..y is the match range or [x] for one element
+=item  Matches as '[x..y]' where x..y is the match range or [x] for one element
+
+See I<Match objects> in the roles section below for configuration of the Match
+objects rendering.
 
 =head3 address
 
 The Data::Dump::Tree address is added to every container in the form of a '@'
 and an index that is incremented for each container. If a container is found
 multiple times in the output, it will be rendered once only then referred to 
-by '@current_address = @first_time_seen' 
+as '§first_time_seen' 
 
 It is possible to name containers by using I<set_element_name> before dumping 
 your data structure.
@@ -183,7 +184,7 @@ There are multiple ways to configure the Dumper. You can pass a configuration
 to the dump() sub or you can create a dumper object with your configuration. 
 
 	# subroutine interface
-	dump($s, :title('text'), :width(115), :color(False))  ;
+	dump($s, :titlei<text>, :width(115), :!color))  ;
 
 	# basic object
 	my $dumper = Data::Dump::Tree.new ;
@@ -219,7 +220,7 @@ You can pass your own colors. The default are:
 		<
 		ddt_address blue     perl_address yellow  link   green
 		header      magenta  key         cyan     binder cyan 
-		value       reset    wrap        yellow
+		value       reset    
 
 		gl_0 yellow   gl_1 reset   gl_2 green   gl_3 red
 		> ;
@@ -362,7 +363,7 @@ In the type handler, you can:
 If your keys or values are text string and they contain embedded "\n", 
 Data::Dump::Tree will display them on multiple lines. See the Role section.
 
-The module tests, and examples diretory, and 
+The module tests, and examples directory, and 
 Data::Dump::Tree::DescribeBaseobjects are a good place to look at for more
 examples.
 
@@ -395,7 +396,7 @@ Both work in the same fashion.
 To make that handler active, make your dumper do the role
 
 	# using 'does'
-	my $d = Data::Dump::Tree.new(:width(80)) ;
+	my $d = Data::Dump::Tree.new: :width(80) ;
 	$d does your_hash_handler ;
 
 	$d.dump: @your_data ;
@@ -405,10 +406,10 @@ To make that handler active, make your dumper do the role
 
 	# by passing roles to dump() method
 	my $d = Data::Dump::Tree.new ;
-	$d.dump: $m, :does( DDTR::MatchDetails, your_hash_handler) ;
+	$d.dump: $m, :does(DDTR::MatchDetails, your_hash_handler) ;
 
 	# by passing roles to dump() sub 
-	dump: $m, :does( DDTR::MatchDetails, your_hash_handler) ;
+	dump: $m, :does(DDTR::MatchDetails, your_hash_handler) ;
 
 =head3 FINAL elements
 
@@ -449,9 +450,9 @@ To pass a filter to the dumper:
 
 	dump(
 		$s,
-		header_filters => (&header_filter, ...),
-		elements_filters => (&elements_filter,),
-		footer_filters => (&footer_filters,),
+		:header_filters(&header_filter, ...),
+		:elements_filters(&elements_filter,),
+		:footer_filters(&footer_filters,),
 		) ;
 
 
@@ -477,6 +478,7 @@ This is called just after the type's U<get_header> is called, this allows you, E
 to insert something in the tree rendering
 
 	sub header_filter(
+		$dumper,				# the dumper
 		$r,                                     # replacement
 		$s,                                     # "read only" object
 		($depth, $path, $glyph, @renderings),   # info about tree
@@ -490,6 +492,7 @@ to insert something in the tree rendering
 or change the B<rendering> of the object
 
 	sub header_filter(
+		$dumper,				# the dumper
 		\r,                                     # replacement
 		Int $s,                                 # filter Ints
 		($depth, $path, $glyph, @renderings),   # info about the tree
@@ -520,6 +523,7 @@ you can in DDT_SUB_ELEMENTS filters.
 Called after the type's U<get_elements> ; you can change the sub elements.
 
 	sub sub_elements_filter(
+		$dumper,
 		Hash $s,
 		($depth, $glyph, @renderings, ($key, $binder, $, $path)),
 		@sub_elements
@@ -533,7 +537,7 @@ Called after the type's U<get_elements> ; you can change the sub elements.
 
 Called when the element rendering is done.
 	
-	sub footer_filter($s, ($depth, $filter_glyph, @renderings))
+	sub footer_filter($dumper, $s, ($depth, $filter_glyph, @renderings))
 	{
 	@renderings.push: (|$filter_glyph, ('', "FOOTER for {$s.^name}", '')) ;
 	}
@@ -548,7 +552,7 @@ from the rendering
 If you return a Data::Dump::Tree::Type::Nothing replacement in your filter,
 the element will not be displayed at all.
 
-	sub my_filter(\r, Tomatoe $s, $, $)
+	sub my_filter($, \r, Tomatoe $s, $, $)
 	{
 	r = Data::Dump::Tree::Type::Nothing ;
 	}
