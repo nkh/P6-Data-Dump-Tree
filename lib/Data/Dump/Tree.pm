@@ -157,6 +157,7 @@ else
 	{
 	@.glyph_colors = < gl_0 > ;
 	}
+
 @!glyph_colors_cycle = |@.glyph_colors xx  * ;
 
 unless @.kb_colors.elems
@@ -174,11 +175,7 @@ $.reset ;
 
 my %glyphs = $.get_level_glyphs(0, True) ; 
 my $width = %glyphs<__width> ;
-
-my ($v, $f, $final, $want_address) = 
-	$s.WHAT =:= Mu
-		?? ('', '.Mu', DDT_FINAL ) 
-		!! self.get_element_header($s) ;
+my ($, $, $final, $) = 	$s.WHAT =:= Mu ?? ('', '.Mu', DDT_FINAL ) !! self.get_element_header($s) ;
 
 my $empty_glyph = ('', '', '') ;
 
@@ -200,7 +197,7 @@ self.render_non_final($s, $current_depth, (|@head_glyphs, $continuation_glyph), 
 @!footer_filters and $s.WHAT !=:= Mu and 
 	$.filter_footer(self, $s, ($current_depth, (|@head_glyphs, $continuation_glyph), @!renderings))  ;
 	
-my $wf = $.wrap_footer  ;
+my $wf = $.wrap_footer ;
 $wf.defined and $wf($.wrap_data, $s, $final, ($current_depth, (|@head_glyphs, $continuation_glyph), @!renderings), $wh_token)  ;
 }
 
@@ -257,7 +254,6 @@ my ($address, $rendered) =
 		!! (Nil, True) ;
 
 $address = Nil if $.display_address == DDT_DISPLAY_NONE ;
-
 
 with $s_replacement
 	{
@@ -718,7 +714,7 @@ my Str $t = '' ;
 if $.title // False
 	{
 	if $.caller // False { $t = $.title ~  ' @ ' ~ callframe(3).file ~ ':' ~ callframe(3).line ~ ' ' }
-	else                 { $t = $.title ~ ' ' }
+	else                 { $t = $.title }
 	}
 else
 	{	

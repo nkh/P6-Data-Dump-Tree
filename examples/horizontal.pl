@@ -22,8 +22,10 @@ dump get_small_test_structure_hash(),:elements_filters(lay_flat(0)) ;
 
 sub test2
 {
+dump get_test_structure() ;
 dump get_test_structure(), :elements_filters(lay_flat(0)) ;
 dump get_test_structure(), :elements_filters(lay_flat(1)) ;
+dump get_test_structure(), :elements_filters(lay_flat(2)) ;
 }
 
 sub test3
@@ -52,7 +54,7 @@ return
 		{
 		my $total_width = $d.width - (($depth  + 2 ) * 3) ;
 
-		@sub_elements = ( ( '', '', Data::Dump::Tree::Horizontal.new(:dumper($d), :element($s), :$total_width)), ) ;
+		@sub_elements = ( ( '', '', Data::Dump::Tree::Horizontal.new(:dumper($d), :elements(@sub_elements), :$total_width)), ) ;
 		}
 	}
 }

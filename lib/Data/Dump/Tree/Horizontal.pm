@@ -26,7 +26,7 @@ Date::Dump::Tree::Horizontal - wrap an object to render it horizontally
 				'',
 				'',
 				# render the current element's data horizontally
-				Data::Dump::Tree::Horizontal.newi(:dumper($d), :element($s)),
+				Data::Dump::Tree::Horizontal.newi(:dumper($d), :elements(@elements)),
 				),
 			)
 		}
@@ -115,10 +115,9 @@ separately, and aligns them horizontally.
 
 =head2 Arguments
 
-=item :element
+=item :elements
 
-The elements to wrap, its sub elements will be rendered horizontally, each in
-a column
+The elements to wrap,they will be rendered horizontally, in columns
 
 =item :title
 
@@ -161,18 +160,21 @@ has Str $.title = '' ;
 has Int $.total_width ;
 has Data::Dump::Tree $.dumper ;
 has %.dumper_options ;
-has $.element ;
+has @.elements ;
 
 method ddt_get_header
 { 
 my $columns = get_columns :$.total_width,
-				|($!element.map(
-					{ 
+				|(@.elements.map(
+					{
+					my ($k, $b, $sub_element) = $_ ;
+					my $title = $k ~ $b ;
+
 					if %!dumper_options
 						{
 						get_dump_lines_integrated(
-							$_,
-							:title($++ ~ ' ='),
+							$sub_element,
+							:$title,
 							:address_from($!dumper),
 							|%!dumper_options,
 							)
@@ -180,8 +182,8 @@ my $columns = get_columns :$.total_width,
 					else
 						{
 						get_dump_lines_integrated(
-							$_,
-							:title($++ ~ ' ='),
+							$sub_element,
+							:$title,
 							:address_from($!dumper),
 							)
 						}
