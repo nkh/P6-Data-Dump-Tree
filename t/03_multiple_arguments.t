@@ -17,5 +17,5 @@ $dump = $d.get_dump: 1 ;
 is $dump.lines.elems, 1, '1 line' or diag $dump ;
 
 $dump = $d.get_dump:  1, 2, 3, :!color, 4, 5, (12, 3) ;
-is $dump.lines.elems, 9, '9 line' or diag $dump ;
+is $dump.lines.elems, 8, '8 line' or diag $dump ;
 
