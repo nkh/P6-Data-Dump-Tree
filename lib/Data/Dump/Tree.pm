@@ -25,7 +25,7 @@ my %default_colors =
 	kb_8 160   kb_9 124 
 	> ;
 
-has $.title ;
+has $.title is rw ;
 has Bool $.caller is rw = False ;
 
 has Bool $.color is rw = True ;
@@ -127,7 +127,23 @@ given args.list.elems
 	{
 	when 0 { return 'DDT called without arguments @ ' ~ callframe(2).file ~ ':' ~ callframe(2).line ~ ' ' }
 	when 1 { $clone.render_root: args.list[0] }
-	default { $clone.render_root: args.list }
+	default 
+		{
+		$clone.reset ;
+
+		$.title andthen $clone.render_root: Data::Dump::Tree::Type::Nothing.new ;
+
+		args.list.map:
+			{
+			$clone.title = $_.VAR.can('name') 
+					?? $_.VAR.name !=== Nil
+						?? "{$_.VAR.name} = " 
+						!! '' 
+					!! '' ;
+			
+			$clone.render_root: $_, False ;
+			}
+		}
 	}
 
 $clone.wrap_data.defined
@@ -169,9 +185,9 @@ unless @.kb_colors.elems
 $.width //= %+((qx[stty size] || '0 80') ~~ /\d+ \s+ (\d+)/)[0] ; 
 }
 
-method render_root(Mu $s)
+method render_root(Mu $s, $reset? = True)
 {
-$.reset ;
+$.reset if $reset ;
 
 my %glyphs = $.get_level_glyphs(0, True) ; 
 my $width = %glyphs<__width> ;
