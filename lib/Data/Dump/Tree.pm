@@ -63,6 +63,7 @@ has Bool $.display_perl_address is rw = False ;
 has %.paths ;
 has Bool $.keep_paths is rw = False ;
 
+has @.flat ;
 has $.width is rw ; 
 
 has $.max_depth is rw = -1 ;
@@ -122,6 +123,13 @@ if args.hash<display_info>
 	$clone.display_type = False ;
 	$clone.display_address = DDT_DISPLAY_NONE ; 
 	}
+
+if @.flat && (try require Data::Dump::Tree::LayHorizontal <&lay_horizontal>) !=== Nil 
+	{
+	$clone.elements_filters.push: lay_horizontal(@.flat)
+	}
+$!.note if $! ;
+
 
 given args.list.elems
 	{

@@ -6,6 +6,7 @@ Date::Dump::Tree - Renders data structures in a tree fashion with colors
 
 ![Imgur](http://i.imgur.com/P7eRSwl.png?1)
 
+
 NAME
 ====
 
@@ -39,24 +40,24 @@ It also
 
   * can display a folding structure in Curses (DDTR::Folding)
 
-  * can display parts of the data structure Horizontally
+  * can display parts of the data structure Horizontally ( :flat() )
 
   * can be used to "visit" a data structure and call callbacks you define
 
-If you have Term::ANSIColor installed, the output will be so colored.
+  * install Term::ANSIColor and get colored output (highly recommended)
 
 INTERFACE
 =========
-
-sub dump($data_to_dump, $data_to_dump, ..., :named_argument, ...)
------------------------------------------------------------------
-
-'say's the rendering of the data structure
 
 sub ddt($data_to_dump, $data_to_dump, ..., :named_argument, ...)
 ----------------------------------------------------------------
 
 'say's the rendering of the data structure; an alias to *dump()*
+
+sub dump($data_to_dump, $data_to_dump, ..., :named_argument, ...)
+-----------------------------------------------------------------
+
+'say's the rendering of the data structure
 
 sub get_dump($data_to_dump, $data_to_dump, ..., :named_argument, ...)
 ---------------------------------------------------------------------
@@ -320,6 +321,45 @@ Display the internal address of the objects. Default is False.
 ### Unicode vs ANSI tree drawing
 
 The tree is draw with Unicode characters + one space by default. See roles AsciiGyphs and CompactUnicodeGlyphs.
+
+### Horizontal layout
+
+You can use *:flat( conditions ...)* to render parts of your data horizontally. Horizontal layout is documented in the *LayoutHorizontal.pm* modeule and you can find multiple examples in *examples/flat.pm*.
+
+You can chose which elements, which type of element or even dynamically chose to flatten, say, Arrays with more than 15 elements. 
+
+    dd's example output:
+
+    $($[[1, [2, [3, 4]]], ([6, [3]],), [1, [2, [3, 4]]]], [[1, [2, [3, 4]]], [1, [2, [3
+    , 4]]]], $[[1, 2], ([1, [2, [3, 4]]], [1, [2, [3, 4]]], [1, [2, [3, 4]]], [1, [2, [
+    3, 4]]], [1, [2, [3, 4]]], [1, [2, [3, 4]]], [1, [2, [3, 4]]], [1, [2, [3, 4]]], [1
+    , [2, [3, 4]]], [1, [2, [3, 4]]], [1, [2, [3, 4]]]).Seq], [[1, [2, [3, 4]]], [1, [2
+    , [3, 4]]], [1, 2], [1, 2, 3], [1, [2, [3, 4]]], [1, [2, [3, 4]]], [1, [2, [3, 4]]]
+    , [1, [2, [3, 4]]], [1, [2, [3, 4]]], [1, [2, [3, 4]]]], $[[1, 2], ([1, [2, [3, 4]]
+    ], [1, [2, [3, 4]]], [1, [2, [3, 4]]], [1, [2, [3, 4]]], [1, [2, [3, 4]]], [1, [2, 
+    [3, 4]]], [1, [2, [3, 4]]], [1, [2, [3, 4]]], [1, [2, [3, 4]]], [1, [2, [3, 4]]], [
+    1, [2, [3, 4]]]).Seq], "12345678")
+
+    Same data rendered with ddt and :flat(0)
+
+    (6) @0
+    0 = [3] @1        1 = [2] @9   2 = [2] @12        3 = [10] @25
+    ├ 0 = [2] @2      ├ 0 = [2] §2 ├ 0 = [2] @13      ├ 0 = [2] §2
+    │ ├ 0 = 1.Int     └ 1 = [2] §2 │ ├ 0 = 1.Int      ├ 1 = [2] §2
+    │ └ 1 = [2] @3                 │ └ 1 = 2.Int      ├ 2 = [2] §13
+    │   ├ 0 = 2.Int                └ 1 = .Seq(11) @14 ├ 3 = [3] @29
+    │   └ 1 = [2] @4                 ├ 0 = [2] §2     │ ├ 0 = 1.Int
+    │     ├ 0 = 3.Int                ├ 1 = [2] §2     │ ├ 1 = 2.Int
+    │     └ 1 = 4.Int                ├ 2 = [2] §2     │ └ 2 = 3.Int
+    ├ 1 = (1) @5                     ├ 3 = [2] §2     ├ 4 = [2] §2
+    │ └ 0 = [2] @6                   ├ 4 = [2] §2     ├ 5 = [2] §2
+    │   ├ 0 = 6.Int                  ├ 5 = [2] §2     ├ 6 = [2] §2
+    │   └ 1 = [1] @7                 ├ 6 = [2] §2     ├ 7 = [2] §2
+    │     └ 0 = 3.Int                ├ 7 = [2] §2     ├ 8 = [2] §2
+    └ 2 = [2] §2                     ├ 8 = [2] §2     └ 9 = [2] §2
+                                     ├ 9 = [2] §2
+                                     └ ...
+    4 = [2] §12 5 = 12345678.Str
 
 Handling specific types
 -----------------------
@@ -718,3 +758,4 @@ Perl 6:
   * Data::Dump
 
   * Pretty:Printer
+

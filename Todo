@@ -1,3 +1,13 @@
+
+extra attributes
+	display origin
+	display readonly, default, required deprecate
+
+but roles
+	ie: MaxLine is a role added to an array but is not visible when the array is dumped
+	Can we [] but role1 but role2 ?
+
+
 #display sequences by default ?
 #display full sequences or just part ?
 
@@ -5,16 +15,16 @@ flat
 	pass options to sub dumper
 	flatten all
 
-	ddt $s, :flat, ... # flatten level 0
-	ddt $s, :flat(4,5) # flatten level 4 and 5, where 5 is in a sub dumper and it is its level 0
-	ddt $s, :flat(Array, sub($s, $d){}, ...), # arguments to flat
-	ddt $s, :flat($s{name}[12]), # flatten specfic element
+	#ddt $s, :flat, ... # flatten level 0
+	#ddt $s, :flat(4,5) # flatten level 4 and 5, where 5 is in a sub dumper and it is its level 0
+	#ddt $s, :flat(Array, sub($s, $d){}, ...), # arguments to flat
+	#ddt $s, :flat($s{name}[12]), # flatten specfic element
 	ddt $s, :flat<3>, :flat_title<some banner>
 
 
 multiple arguments
 	handle options override
-	option to have them bunched together rather than separate 
+	!option to have them bunched together rather than separate 
 
 multi columns
 	#support width and wrapping of columns

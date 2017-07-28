@@ -97,9 +97,8 @@ my @blocks = $current_block ;
 
 for |@rs
 	{
-	$current_block.max_lines max= $_.elems ; 
-
 	my @lines_width ;
+	my $elements = $_.elems ; 
 
 	# compute width without ANSI escape codes
 	my $r_max_width = (.map: { my $w = S:g/ \e <COLOR> //.chars ; @lines_width.push: $w ; $w }).max ;
@@ -113,6 +112,7 @@ for |@rs
 		@blocks.push: $current_block ; 
 		}
 
+	$current_block.max_lines max= $elements ; 
 	$current_length += $r_width + 1 ; # joined with a single space later
 	$current_block.push: $r_width, @lines_width, $_ ;
 	}
@@ -140,5 +140,5 @@ $o ;
 } 
 
 
-DOC INIT {use Pod::To::Text ; pod2text($=pod) ; }
+DOC INIT { use Pod::To::Text ; pod2text($=pod) }
 

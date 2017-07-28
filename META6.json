@@ -20,6 +20,7 @@
 	"Data::Dump::Tree::Diff" : "lib/Data/Dump/Tree/Diff.pm",
 	"Data::Dump::Tree::DHTML.pm" : "lib/Data/Dump/Tree/DHTML.pm",
 	"Data::Dump::Tree::Foldable.pm" : "lib/Data/Dump/Tree/Foldable.pm",
+	"Data::Dump::Tree::LayHorizontal.pm" : "lib/Data/Dump/Tree/LayHorizontal.pm",
 	"Data::Dump::Tree::Horizontal.pm" : "lib/Data/Dump/Tree/Horizontal.pm",
 	"Data::Dump::Tree::MultiColumns.pm" : "lib/Data/Dump/Tree/MultiColumns.pm"
 	},

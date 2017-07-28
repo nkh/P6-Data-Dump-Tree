@@ -9,7 +9,7 @@ filter2.pl 		filter example
 folding.pl 		NCurses example with data structure folding
 glyphs_color.pl 	different rendering of the glyphs
 highlight.pl 		how to highligh specific elements of the dump with colors
-horizontal.pl		horizontal layout filter
+flat.pl			horizontal layout examples
 JSON_parsed.pl	 	dump of the parsing of a JSON structure
 junctions.pl 		dump of junctions
 match.pl		dump of a match object with different options
