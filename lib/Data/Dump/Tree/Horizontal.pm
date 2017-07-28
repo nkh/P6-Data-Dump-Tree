@@ -26,7 +26,7 @@ Date::Dump::Tree::Horizontal - wrap an object to render it horizontally
 				'',
 				'',
 				# render the current element's data horizontally
-				Data::Dump::Tree::Horizontal.newi(:dumper($d), :elements(@elements)),
+				Data::Dump::Tree::Horizontal.new(:dumper($d), :elements(@elements)),
 				),
 			)
 		}

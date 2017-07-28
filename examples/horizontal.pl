@@ -4,16 +4,17 @@ use Data::Dump::Tree ;
 use Data::Dump::Tree::MultiColumns ;
 use Data::Dump::Tree::Horizontal ;
 
-#test1 ;
-#test2 ;
-#test3 ;
-#test4 ;
-#test5 ;
+test1 ;
+test2 ;
+test3 ;
+test4 ;
+test5 ;
 test6 ;
 
 sub test1
 {
 dump 1, 3, 4 ;
+dump (1, 3, 4) ;
 dump [1, 3, 4,], :elements_filters(lay_flat(0),) ;
 
 dump get_small_test_structure() ;
@@ -52,16 +53,16 @@ sub test4
 my %h1 = <a 1 b 2> ;
 my @a1 = 11, 12 ;
 
-dump :title<test_1>, [1..3], %h1, @a1, 123, [4..6], :elements_filters(lay_flat([1..3],) ) ;
-dump :title<test_2>, [1..3], %h1, @a1, 123, [4..6], :elements_filters(lay_flat(Hash) ) ;
-dump :title<test_3_1>, [1..3], %h1, @a1, 123, [4..6], :elements_filters(lay_flat(0) ) ;
-dump :title<test_3_2>, [[[[1..3],],],], %h1, @a1, 123, [4..6], :elements_filters(lay_flat(3) ) ;
-dump :title<test_4>, [1..3], %h1, @a1, 123, [4..6], :elements_filters(lay_flat(%(a => 1, b => 2),) ) ;
-dump :title<test_5_1>, [1..3], %h1, @a1, 123, [4..6], :elements_filters(lay_flat(%h1,) ) ;
-dump :title<test_5_2>, [1..3], %h1, @a1, 123, [4..6], :elements_filters(lay_flat(@a1,) ) ;
-dump :title<test_6_1>, [1..3], %h1, @a1, 123, [4..6], :elements_filters(lay_flat(sub ($s, $d){$s ~~ Hash},) ) ;
-dump :title<test_6_2>, [1..3], %h1, @a1, 123, [4..6], :elements_filters(lay_flat(sub ($s, $d){$s ~~ Array && $s.first: 4},) ) ;
-dump :title<test_6_3>, [1..3], %h1, @a1, 123, [4..6], :elements_filters(lay_flat(sub ($s, $d){$s === %h1},) ) ;
+dump :title<test [1..3]>, [1..3], %h1, @a1, 123, [4..6], :elements_filters(lay_flat([1..3],) ) ;
+dump :title<test Hash>, [1..3], %h1, @a1, 123, [4..6], :elements_filters(lay_flat(Hash) ) ;
+dump :title<test 0>, [1..3], %h1, @a1, 123, [4..6], :elements_filters(lay_flat(0) ) ;
+dump :title<test 3>, [[[[1..3],],],], %h1, @a1, 123, [4..6], :elements_filters(lay_flat(3) ) ;
+dump :title<<test %(a => 1, b => 2)>>, [1..3], %h1, @a1, 123, [4..6], :elements_filters(lay_flat(%(a => 1, b => 2),) ) ;
+dump :title<test %h1>, [1..3], %h1, @a1, 123, [4..6], :elements_filters(lay_flat(%h1,) ) ;
+dump :title<test @a1>, [1..3], %h1, @a1, 123, [4..6], :elements_filters(lay_flat(@a1,) ) ;
+dump :title<test sub: Hash>, [1..3], %h1, @a1, 123, [4..6], :elements_filters(lay_flat(sub ($s, $d){$s ~~ Hash},) ) ;
+dump :title<test sub Array && $s.first: 4>, [1..3], %h1, @a1, 123, [4..6], :elements_filters(lay_flat(sub ($s, $d){$s ~~ Array && $s.first: 4},) ) ;
+dump :title<test sub: $s == %1>, [1..3], %h1, @a1, 123, [4..6], :elements_filters(lay_flat(sub ($s, $d){$s === %h1},) ) ;
 }
 
 sub test5

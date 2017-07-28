@@ -25,7 +25,7 @@ my %default_colors =
 	kb_8 160   kb_9 124 
 	> ;
 
-has $.title is rw ;
+has @.title is rw ;
 has Bool $.caller is rw = False ;
 
 has Bool $.color is rw = True ;
@@ -131,7 +131,7 @@ given args.list.elems
 		{
 		$clone.reset ;
 
-		$.title andthen $clone.render_root: Data::Dump::Tree::Type::Nothing.new ;
+		@.title andthen $clone.render_root: Data::Dump::Tree::Type::Nothing.new ;
 
 		args.list.map:
 			{
@@ -729,8 +729,8 @@ my Str $t = '' ;
 
 if $.title // False
 	{
-	if $.caller // False { $t = $.title ~  ' @ ' ~ callframe(3).file ~ ':' ~ callframe(3).line ~ ' ' }
-	else                 { $t = $.title }
+	if $.caller // False { $t = (@.title.join(' ')) ~  ' @ ' ~ callframe(3).file ~ ':' ~ callframe(3).line ~ ' ' }
+	else                 { $t = @.title.join(' ') }
 	}
 else
 	{	
