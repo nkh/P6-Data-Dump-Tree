@@ -65,6 +65,7 @@ has %.paths ;
 has Bool $.keep_paths is rw = False ;
 
 has @.flat ;
+has $.flat_depth = 0 ;
 has $.width is rw ; 
 
 has $.max_depth is rw = -1 ;
@@ -92,8 +93,8 @@ unless $object.display_info
 $object 
 }
 
-sub dump(|args) is export { say get_dump(|args) }
-sub ddt(|args) is export { say get_dump(|args) }
+sub dump(|args) is export { print get_dump(|args) }
+sub ddt(|args) is export { print get_dump(|args) }
 
 sub get_dump(|args) is export { Data::Dump::Tree.new(|args.hash).get_dump(|args.list)}
 sub get_dump_lines(|args) is export { Data::Dump::Tree.new(|args.hash).get_dump_lines(|args.list)}
@@ -102,7 +103,7 @@ sub get_dump_lines_integrated(|args) is export
 Data::Dump::Tree.new(|args.hash).get_dump_lines(|args.list).map( { $_.map({ $_.join} ).join } ) ;
 }
 
-method dump(|args) { say self.get_dump(|args) }
+method dump(|args) { print self.get_dump(|args) }
 
 method get_dump(|args)
 {
@@ -130,7 +131,7 @@ if args.hash<display_info>
 
 if $clone.flat && (try require Data::Dump::Tree::LayHorizontal <&lay_horizontal>) !=== Nil 
 	{
-	$clone.elements_post_filters.push: lay_horizontal(@.flat)
+	$clone.elements_post_filters = lay_horizontal($clone.flat)
 	}
 else
 	{
@@ -325,6 +326,7 @@ else
 
 	if $.display_info  
 		{
+
 		for @fs { @!renderings.push: (|@head_glyphs, $continuation_glyph, $multi_line_glyph, |$_) }
 		}
 	}
@@ -480,7 +482,6 @@ else
 
 	# add binder to last key line
 	if @ks { @ks[*-1] = (|@ks[*-1], $!colorizer.color($b, $.color_kbs ?? @.kb_colors_cycle[$current_depth] !! 'binder')) }
-
 	if $v2_width == $v2.chars
 		{
 		@vs = self.split_text($v2, $width).map: { ($!colorizer.color($_, 'value'), ) }
@@ -491,58 +492,63 @@ else
 		}
 
 	# put the footer and addresses on a single line if there is room
-	if $f2 !~~ /\n/ && (($f2 ~ ' ' ~ $ddt_address ~ $link ~ ' ' ~ $perl_address).chars <= $width)
-		{
-		@fs[0] = #single line
-			(
-				(
-				($f2, 		$.superscribe_type($f2),	'header'),
-				($ddt_address, 	' ' ~ $ddt_address,		'ddt_address'),
-				($link, 	$link,				'link'), 
-				($perl_address, ' ' ~ $perl_address,		'perl_address')
-				).map: -> ($entry, $text, $color)
-				{
-				$!colorizer.color($text, $color) if $entry ne '' ;
-				} 
-			).List ;
-		}
-	else 
-		{
-		for self.split_text($.superscribe_type($f2), $width) Z 0..* -> ($e, $i)
-			{
-			my $l = $!colorizer.color($e, 'header') ;
-			@fs[$i] =  ($l,).List  ;
-			}
+	my $f2_ddt_link_perl_length = $f2.chars +  $ddt_address.chars +  $link.chars + $perl_address.chars ;
 
-		if (' ' ~ $ddt_address ~ $link ~ ' ' ~ $perl_address).chars <= $width
+	if $f2_ddt_link_perl_length
+		{
+		if $f2 !~~ /\n/ && $f2_ddt_link_perl_length + 2 <= $width
 			{
-			@fs.push: 
+			@fs[0] = #single line
 				(
 					(
+					($f2, 		$.superscribe_type($f2),	'header'),
 					($ddt_address, 	' ' ~ $ddt_address,		'ddt_address'),
 					($link, 	$link,				'link'), 
 					($perl_address, ' ' ~ $perl_address,		'perl_address')
 					).map: -> ($entry, $text, $color)
 					{
 					$!colorizer.color($text, $color) if $entry ne '' ;
-					}
+					} 
 				).List ;
 			}
 		else 
 			{
-			@fs.push: ( 
-					(
-					($ddt_address, 	' ' ~ $ddt_address,		'ddt_address'),
-					($link, 	$link,				'link'), 
-					).map: -> ($entry, $text, $color)
-					{
-					$!colorizer.color($text, $color) if $entry ne '' ;
-					}
-				).List ;
-
-			if $.display_perl_address
+			for self.split_text($.superscribe_type($f2), $width) Z 0..* -> ($e, $i)
 				{
-				@fs.push: $!colorizer.color( $.split_text($perl_address, $width), 'perl_address').List ;
+				my $l = $!colorizer.color($e, 'header') ;
+				@fs[$i] =  ($l,).List  ;
+				}
+
+			if $ddt_address.chars +  $link.chars + $perl_address.chars + 2 <= $width
+				{
+				@fs.push: 
+					(
+						(
+						($ddt_address, 	' ' ~ $ddt_address,		'ddt_address'),
+						($link, 	$link,				'link'), 
+						($perl_address, ' ' ~ $perl_address,		'perl_address')
+						).map: -> ($entry, $text, $color)
+						{
+						$!colorizer.color($text, $color) if $entry ne '' ;
+						}
+					).List ;
+				}
+			else 
+				{
+				@fs.push: ( 
+						(
+						($ddt_address, 	' ' ~ $ddt_address,		'ddt_address'),
+						($link, 	$link,				'link'), 
+						).map: -> ($entry, $text, $color)
+						{
+						$!colorizer.color($text, $color) if $entry ne '' ;
+						}
+					).List ;
+
+				if $.display_perl_address
+					{
+					@fs.push: $!colorizer.color($.split_text($perl_address, $width), 'perl_address').List ;
+					}
 				}
 			}
 		}
@@ -559,7 +565,7 @@ multi method split_text(Cool:D $text, $width)
 
 return $text if $width < 1 ;
 
-$text.lines.map({ .chars ?? |.comb($width) !! ''}) ;
+$text.lines.map({ |.comb($width)}) ;
 }
 
 multi method split_colored_text(Cool:D $text, $width)
@@ -623,11 +629,11 @@ else
 	}
 }
 
-method !get_address(Mu $e)
-{
-my $address_from = $!address_from // self ;
+method !get_address(Mu $e) { ($.address_from // self)!get_global_address($e) }
 
-my $ddt_address = $address_from.address++ ;
+method !get_global_address(Mu $e)
+{
+my $ddt_address = $!address++ ;
 my $perl_address = $e.WHICH ;
 
 if ! $e.defined 
@@ -641,19 +647,19 @@ else
 
 my ($link, $rendered) = ('', False) ;
 
-if $address_from.rendered{$perl_address}:exists
+if $.rendered{$perl_address}:exists
 	{
 	$ddt_address = '' ;
 	$rendered++ ;
-	$link = ' §' ~ $address_from.rendered{$perl_address} ;
-	$link ~= ' ' ~ $address_from.element_names{$perl_address} if $address_from.element_names{$perl_address}:exists
+	$link = ' §' ~ $.rendered{$perl_address} ;
+	$link ~= ' ' ~ %!element_names{$perl_address} if %!element_names{$perl_address}:exists
 	}
 else
 	{
-	$address_from.rendered{$perl_address} = $ddt_address ;
+	$.rendered{$perl_address} = $ddt_address ;
 	$ddt_address = '@' ~ $ddt_address ;
 
-	$ddt_address ~= ' ' ~ $address_from.element_names{$perl_address} if $address_from.element_names{$perl_address}:exists
+	$ddt_address ~= ' ' ~ %!element_names{$perl_address} if %!element_names{$perl_address}:exists
 	}
 
 my $address = 

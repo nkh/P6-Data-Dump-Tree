@@ -85,7 +85,7 @@ separately, and aligns them horizontally.
 	├ 2 = 12345678.Str
 	└ 3 = [2] §6
 
-	# rendering wrapped in Data::Dump::Tree::Horizontal
+	# rendering in horizontal layout
 	(4) @0
 	    0 = [2] @1        1 = [2] @6          2 = 12345678.Str 3 = [2] §6
 	    ├ 0 = [2] @2      ├ 0 = [3] @7
@@ -108,7 +108,6 @@ separately, and aligns them horizontally.
 				├ 9 = [2] §2
 				└ ...
 
-
 =INTERFACE
 
 =item method new: :element($s), [ :other_named_arguments, ...]
@@ -128,15 +127,20 @@ Title to be displayed over the sub elements renderings
 The maximum width the horizontal rendering can take, the rendering will be
 wrapped into multiple rows
 
+=item :rows
+
+columnize the flattened output with this many rows in each column.
+
 =item :dumper
 
 The dumper to be used to render the sub elements, Passing a dumper allows the
 referenced to match between columns. You want to pass the dumper of the top
 container for the best results. A new dumper is created if this is not set.
 
-=item :dumper_options
+=item :flat_depth
 
-Options to pass to the dumper rendering the sub elements
+Options passed between renderers to handle lower renderers starting at depth
+zero while in the top rendering context they are at lower levels
 
 =AUTHOR
 
@@ -158,27 +162,74 @@ DDT::MultiColumns
 
 has Str $.title = '' ;
 has Int $.total_width ;
+has Int $.rows ;
 has Data::Dump::Tree $.dumper ;
 has @.elements ;
+has $.flat_depth ;
 
 method ddt_get_header
 { 
-my $columns = get_columns :$.total_width,
-				|(@.elements.map(
-					{
-					my ($k, $b, $sub_element) = $_ ;
-					my $title = $k ~ $b ;
+my @blocks = @.elements.map: -> ($k, $b, $sub_element)
+			{
+			$!dumper.get_dump_lines_integrated:
+					$sub_element,
+					:title( S/(' ')$// given $k ~ $b ) ,
+					:width($.total_width),
+					:address_from($!dumper),
+					:flat_depth($.flat_depth + 1),
+					#:flat() # would remove all previous
+					# nothing means reuse previous, levels should be adjusted 
+			} 
 
-					$.dumper.get_dump_lines_integrated(
-							$sub_element,
-							:$title,
-							:address_from($!dumper),
-							:flat()
-							)
-					})) ;
+#$.rows andthen @blocks = @blocks.rotor($.rows, :partial).map: { .map: { |$_ } }
+#$columns = |@blocks ;
+
+my $columns ;
+
+with $.rows
+	{
+	my @columns = ([], ) ;
+	my Bool $has_interline ;
+
+	my $lines = 0 ;
+
+	for @blocks -> $block 
+		{
+		if @columns[*-1].elems >= $.rows
+			{
+			@columns[*-1].push: '' ;
+			$has_interline++ ;
+
+			@columns.push: [ ] ;
+			$lines = 0 ;
+			}
+
+		if $lines + $block.elems >  $.rows
+			{
+			@columns[*-1].push: '' xx $.rows - $lines ;
+
+			@columns.push: [ |$block ] ;
+			$lines = $block.elems ;
+			}
+		else
+			{
+			@columns[*-1].push: |$block ;
+			$lines += $block.elems ;
+			} 
+		}
+
+	@columns[*-1].push: '' unless $has_interline++ ;
+
+	$columns = get_columns :$.total_width, |@columns
+	}
+else
+	{
+	$columns = get_columns :$.total_width, |(@blocks.map: { |$_, '' })
+	}
 
 ($!title ne '' ?? "$!title\n" !! '') ~ $columns, '', DDT_FINAL 
 }
+
 
 } #class
 

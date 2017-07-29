@@ -1,31 +1,47 @@
 
-flat
-	pass options to sub dumper
-	flatten all
-
-	#ddt $s, :flat, ... # flatten level 0
-	#ddt $s, :flat(4,5) # flatten level 4 and 5, where 5 is in a sub dumper and it is its level 0
-	#ddt $s, :flat(Array, sub($s, $d){}, ...), # arguments to flat
-	#ddt $s, :flat($s{name}[12]), # flatten specfic element
-	ddt $s, :flat<3>, :flat_title<some banner>
-
 role added to DDT handled classes
 	ie: MaxLine is a role added to an array but is not visible when the array is dumped
-
-multiple arguments
-	handle options override
-	!option to have them bunched together rather than separate 
 
 object size
 
 NCurses
 	render uni codes
+
 dhtml
 	user css override
 	visual cue for folds
 
 graphs that have entry further than :width are not clipped properly 
 	clip but insert warning in the tree
+
+#flat
+	#when element if seen in sub element rendering for the first time, it gets
+		index 0 rather than the next index
+
+	#in column mode, if a sub element rendering passes the column max row
+		move next element to next column
+
+		eg: if a column contains 5 elements with each a sub element that takes
+		10 lines to render, then the column will be 50 in hight, instead, if a
+		element passes the column row limit, the next element is shifted to next column
+		
+		in the eg above this could become 5 column of ten(ish) lines rather than one
+		column of 50+lines. 
+
+	#simplified Block interface
+
+	#pass options to sub dumper
+	#flatten all
+
+	#ddt $s, :flat, ... # flatten level 0
+	#ddt $s, :flat(4,5) # flatten level 4 and 5, where 5 is in a sub dumper and it is its level 0
+	#ddt $s, :flat(Array, sub($s, $d){}, ...), # arguments to flat
+	#ddt $s, :flat($s{name}[12]), # flatten specfic element
+	#ddt $s, :flat<3>, :flat_title<some banner>
+
+#multiple arguments
+	#handle options override
+	!option to have them bunched together rather than separate 
 
 #extra attributes
 	#display origin

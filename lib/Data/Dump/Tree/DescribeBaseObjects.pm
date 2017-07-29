@@ -127,6 +127,7 @@ multi method get_header (List:U $l) { '', '()', DDT_FINAL }
 multi method get_header (List:D $l) { '', '(' ~ $l.elems ~ ')' }
 multi method get_elements (List $l) { $l.list.map: {$++, ' = ', $_} }
 
+multi method get_header (Array:U $a) { '', '[]', DDT_FINAL }
 multi method get_header (Array:D $a) { '', '[' ~ $a.elems ~ ']' ~ $a.^name.subst(/^.**5/, '') }
 multi method get_elements (Array $a) 
 { 

@@ -26,6 +26,7 @@ for $h.kv -> $k, $v { %colored_hash{$k} = (%!color_lookup{$name} // '') , $v , %
 %colored_hash ;
 }
 
+multi method color(Seq $l, Str $name --> Seq) { $l.map: { (%!color_lookup{$name} // '') , $_ , %!color_lookup<reset> // ''} }
 multi method color(List $l, Str $name --> Seq) { $l.map: { (%!color_lookup{$name} // '') , $_ , %!color_lookup<reset> // ''} }
 multi method color(Str $string, Str $name --> List) { (%!color_lookup{$name} // '') , $string , %!color_lookup<reset> // ''}
 }

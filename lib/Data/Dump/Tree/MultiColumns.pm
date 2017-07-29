@@ -79,7 +79,7 @@ Data::Dump::Tree
 
 sub display_columns(**@rs, Int :$total_width, Int :$width, Bool :$compact) is export
 {
-get_columns(|@rs, :$total_width, :$width, :$compact).say ;
+print get_columns(|@rs, :$total_width, :$width, :$compact) ;
 }
 
 my regex COLOR { \[ \d+ [\;\d+]* <?before [\;\d+]* > m } 
