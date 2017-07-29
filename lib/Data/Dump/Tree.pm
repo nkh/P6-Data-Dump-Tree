@@ -45,6 +45,7 @@ has $.wrap_footer ;
 
 has @.header_filters ;
 has @.elements_filters ;
+has @.elements_post_filters ;
 has @.footer_filters ;
 
 has $.address_from ;
@@ -96,7 +97,10 @@ sub ddt(|args) is export { say get_dump(|args) }
 
 sub get_dump(|args) is export { Data::Dump::Tree.new(|args.hash).get_dump(|args.list)}
 sub get_dump_lines(|args) is export { Data::Dump::Tree.new(|args.hash).get_dump_lines(|args.list)}
-sub get_dump_lines_integrated(|args) is export { Data::Dump::Tree.new(|args.hash).get_dump_lines_integrated(|args.list)}
+sub get_dump_lines_integrated(|args) is export
+{
+Data::Dump::Tree.new(|args.hash).get_dump_lines(|args.list).map( { $_.map({ $_.join} ).join } ) ;
+}
 
 method dump(|args) { say self.get_dump(|args) }
 
@@ -124,10 +128,15 @@ if args.hash<display_info>
 	$clone.display_address = DDT_DISPLAY_NONE ; 
 	}
 
-if @.flat && (try require Data::Dump::Tree::LayHorizontal <&lay_horizontal>) !=== Nil 
+if $clone.flat && (try require Data::Dump::Tree::LayHorizontal <&lay_horizontal>) !=== Nil 
 	{
-	$clone.elements_filters.push: lay_horizontal(@.flat)
+	$clone.elements_post_filters.push: lay_horizontal(@.flat)
 	}
+else
+	{
+	$clone.elements_post_filters = ()
+	}
+
 $!.note if $! ;
 
 
@@ -143,12 +152,7 @@ given args.list.elems
 
 		args.list.map:
 			{
-			$clone.title = $_.VAR.can('name') 
-					?? $_.VAR.name !=== Nil
-						?? "{$_.VAR.name} = " 
-						!! '' 
-					!! '' ;
-			
+			$clone.title = $_.VAR.?name !=== Nil ?? "{$_.VAR.name} =" !! '' ;
 			$clone.render_root: $_, False ;
 			}
 		}
@@ -373,7 +377,7 @@ if $.keep_paths
 		}
 	}
 
-@!elements_filters and $s.WHAT !=:= Mu and
+(@!elements_filters || @!elements_post_filters) and $s.WHAT !=:= Mu and
 	$.filter_sub_elements(self, $s, ($current_depth, (|@head_glyphs , %glyphs<filter>), @!renderings, $element), @sub_elements)  ;
 
 
@@ -398,7 +402,7 @@ for @.header_filters -> $filter
 
 method filter_sub_elements($self, Mu $s, ($current_depth, @glyphs, @renderings, $element), @sub_elements)
 {
-for @.elements_filters -> $filter
+for |@.elements_filters, |@.elements_post_filters -> $filter
 	{
 	$filter($self, $s, ($current_depth, @glyphs, @renderings, $element), @sub_elements) ;
 	
@@ -736,7 +740,7 @@ method get_title()
 {
 my Str $t = '' ;
 
-if $.title // False
+if @.title
 	{
 	if $.caller // False { $t = (@.title.join(' ')) ~  ' @ ' ~ callframe(3).file ~ ':' ~ callframe(3).line ~ ' ' }
 	else                 { $t = @.title.join(' ') }
@@ -746,6 +750,8 @@ else
 	if $.caller // False { $t = '@ ' ~ callframe(3).file ~ ':' ~ callframe(3).line ~ ' ' }
 	else                 { $t = '' }
 	}
+
+$t ~= ' ' if $t ne '' ;
 
 $t
 }

@@ -159,7 +159,6 @@ DDT::MultiColumns
 has Str $.title = '' ;
 has Int $.total_width ;
 has Data::Dump::Tree $.dumper ;
-has %.dumper_options ;
 has @.elements ;
 
 method ddt_get_header
@@ -170,23 +169,12 @@ my $columns = get_columns :$.total_width,
 					my ($k, $b, $sub_element) = $_ ;
 					my $title = $k ~ $b ;
 
-					if %!dumper_options
-						{
-						get_dump_lines_integrated(
+					$.dumper.get_dump_lines_integrated(
 							$sub_element,
 							:$title,
 							:address_from($!dumper),
-							|%!dumper_options,
+							:flat()
 							)
-						}
-					else
-						{
-						get_dump_lines_integrated(
-							$sub_element,
-							:$title,
-							:address_from($!dumper),
-							)
-						}
 					})) ;
 
 ($!title ne '' ?? "$!title\n" !! '') ~ $columns, '', DDT_FINAL 

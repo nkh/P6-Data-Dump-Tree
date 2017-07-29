@@ -87,7 +87,7 @@ This allows you to mix vertical and horizontal layout  in the same rendering.
  [3, 4]]], [1, [2, [3, 4]]], [1, [2, [3, 4]]], [1, [2, [3, 4]]], [1, [2, [3, 4]]], [
  1, [2, [3, 4]]]).Seq], "12345678")
 
- Rendered with :flat(0)
+ Rendered with :flat which is equivalent to :flat(0)
 
  (6) @0
  0 = [3] @1        1 = [2] @9   2 = [2] @12        3 = [10] @25
@@ -108,9 +108,17 @@ This allows you to mix vertical and horizontal layout  in the same rendering.
  			          └ ...
  4 = [2] §12 5 = 12345678.Str
 
+The flattened portions of the dump is rendered using another dumper object
+and the results stitched together. The flattening works in the first renderer
+only. Sub rendering have the same options as the top renderer and references
+are handled properly. If you have filters, they will be shared with the sub
+renderers but the depth level restarts at 0. 
 
+Sharing I<:flat> options between levels is possible but configuring what each
+level does would demand a complicated interface. If you really need such a
+functionality you can flatten data yourself in a sub elements filter where you
+have complete control.
 
-	 
 =INTERFACE
 
 =item :flat( conditions and options )
@@ -143,12 +151,6 @@ structure, you can dynamically choose if you want the data flattened or not.
 
 In the above example Arrays with more than 15 elements are flattened.
 
-=head2 Options 
-
-=item TBD
-
-=item TBD
-
 =AUTHOR
 
 Nadim ibn hamouda el Khemir
@@ -172,6 +174,8 @@ return
 	sub ($d, $s, ($depth, $glyph, @renderings, $), @sub_elements)
 	{
 	if
+		#todo move grep of @targets outside the callback loop
+
 		$depth ~~ any( @targets.grep: { $_ ~~ Int })
 		|| $s ~~ any( @targets.grep: { $_ ~~ none(Pair | Int | Hash:D | Sub) })
 		|| @targets.grep(Sub).first( { $_($s, $d) } )
@@ -184,10 +188,10 @@ return
 					(
 					'',
 					'',
-					Data::Dump::Tree::Horizontal.new(
-						:dumper($d),
-						:elements(@sub_elements),
-						:$total_width)
+					Data::Dump::Tree::Horizontal.new:
+							:dumper($d),
+							:elements(@sub_elements),
+							:$total_width
 					),
 				) ;
 		}

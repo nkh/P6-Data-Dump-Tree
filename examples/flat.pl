@@ -3,29 +3,46 @@
 use Data::Dump::Tree ;
 use Data::Dump::Tree::MultiColumns ;
 
+test_flat_column ;
 test1 ;
 test2 ;
 test3 ;
 test4 ;
 test5 ;
 
+sub test_flat_column
+{
+ddt :title<flat()>, [1..10], [|(1..10), [1..10]], :flat() ;
+ddt :title<flat>, [1..10], [|(1..10), [1..10]], :flat ;
+ddt :title<flat((A, 5))>, [1..10], [|(1..10), [1..10]], :flat((Array, 5),) ;
+ddt :title<flat((s, 5))>, [1..10], [|(1..10), [1..10]], :flat((sub ($s, $d){$_ ~~ Array}, 5)) ;
+
+
+exit
+}
+
 sub test1
 {
+ddt 1, 3, [[4..3], 1], :!color, :flat ;
+ddt 1, 3, [[4..3], 1], :!color ;
 ddt 1, 3, 4 ;
 ddt (1, 3, 4) ;
-ddt [1, 3, 4,], :flat(0) ;
-
-ddt get_small_test_structure ;
-ddt get_small_test_structure, :flat(0) ;
-
-ddt get_small_test_structure_hash ;
-ddt get_small_test_structure_hash,:flat(0) ;
+ddt [1, 3, 4,], :flat ;
 }
 
 sub test2
 {
+ddt get_small_test_structure ;
+ddt get_small_test_structure, :flat ;
+
+ddt get_small_test_structure_hash ;
+ddt get_small_test_structure_hash, :flat ;
+}
+
+sub xtest2
+{
 #dd get_test_structure ;
-#ddt get_test_structure, :flat(0) ;
+#ddt get_test_structure, :flat ;
 }
 
 sub test3
@@ -92,7 +109,9 @@ sub test5
 my %h1 = <a 1 b 2> ;
 my %h2 = <d 3 e 4> ;
 
-ddt [1..3], %h1, %h2, 123, [1, [2, 3]], :flat(0), :display_perl_address ;
+ddt [1..3], %h1, %h2, 123, [1, [2, 3]], :display_perl_address ;
+ddt [1..3], %h1, %h2, 123, [1, [2, 3]], :flat, :display_perl_address ;
+ddt [1..3], %h1, %h2, 123, [1, [2, 3]], :flat(), :display_perl_address ;
 }
 
 # ------------- helpers  -------------
