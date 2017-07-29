@@ -719,15 +719,16 @@ $a.^attributes.grep({$_.^isa(Attribute)}).map:
 	my $name = $_.name ;
 	$name ~~ s~^(.).~$0.~ if $_.has_accessor ;
 
-	my $value = $a.defined 
-		?? $_.get_value($a) // 'Nil'
-		!! $_.type ; 
+	my $value = $a.defined 	?? $_.get_value($a) // 'Nil' !! $_.type ; 
+
+	# display where attribute is coming from or nothing if base class
+	my $p = $_.package.^name ~~ / ( '+' <- [^\+]> * ) $/ ?? " $0" !! '' ;
+	my $rw = $_.readonly ?? '' !! ' is rw' ;
 
    	#weeding out perl internal, thanks to jnth 
-	if $value.HOW.^name eq 'NQPClassHOW'
-		{ ($name, ' = ', Data::Dump::Tree::Type::NQP.new(:class($value.^name))) }
-	else
-		{ ($name, ' = ', $value) }
+	$value.HOW.^name eq 'NQPClassHOW'
+		?? ($name, ' = ', Data::Dump::Tree::Type::NQP.new(:class($value.^name))) 
+		!! ("$name$rw$p", ' = ', $value) 
 	}
 }
 

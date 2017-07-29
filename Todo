@@ -1,16 +1,4 @@
 
-extra attributes
-	display origin
-	display readonly, default, required deprecate
-
-but roles
-	ie: MaxLine is a role added to an array but is not visible when the array is dumped
-	Can we [] but role1 but role2 ?
-
-
-#display sequences by default ?
-#display full sequences or just part ?
-
 flat
 	pass options to sub dumper
 	flatten all
@@ -21,16 +9,36 @@ flat
 	#ddt $s, :flat($s{name}[12]), # flatten specfic element
 	ddt $s, :flat<3>, :flat_title<some banner>
 
+role added to DDT handled classes
+	ie: MaxLine is a role added to an array but is not visible when the array is dumped
 
 multiple arguments
 	handle options override
 	!option to have them bunched together rather than separate 
 
-multi columns
+object size
+
+NCurses
+	render uni codes
+dhtml
+	user css override
+	visual cue for folds
+
+graphs that have entry further than :width are not clipped properly 
+	clip but insert warning in the tree
+
+#extra attributes
+	#display origin
+	#display readonly, default, required deprecate
+
+#display sequences by default ?
+#display full sequences or just part ?
+
+#multi columns
 	#support width and wrapping of columns
 	#share seen references between columns and main dumper
 	return heigh and columns' widths
-	what when width is much larger, seems that some text is lost
+	#what when width is much larger, seems that some text is lost
 
 #Tuples
 	#dumping data vertically has the disadvantages of forcing one to scroll down
@@ -47,15 +55,6 @@ multi columns
 			if the list elements are too wide, display them on multiple lines
 
 	#tuples could also be parts of the dump, with color	
-
-NCurses
-	render uni codes
-dhtml
-	user css override
-	visual cue for folds
-
-graphs that have entry further than :width are not clipped properly 
-	clip but insert warning in the tree
 
 #override default colors without having to redefine all of them
 
@@ -115,8 +114,6 @@ Create a handler DDTR
 
 # └ @!renderings = [0] @14
 # remove
-
-object size
 
 #ColorStr class
 	keeps color and string separated, or colored string and length of uncolored string

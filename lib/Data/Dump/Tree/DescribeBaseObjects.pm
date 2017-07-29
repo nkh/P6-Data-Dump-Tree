@@ -116,9 +116,9 @@ multi method get_header (Any $a)
 {
 given $a.^name 
 	{
-	when 'any' { ( '', '.' ~ $a.^name, DDT_FINAL ) }
-	when any(self.get_P6_internal()) { ( '', '.' ~ $a.^name, DDT_FINAL ) }
-	default { ( '', self!get_class_and_parents($a) ) } # some object 
+	when 'any' { '', '.' ~ $a.^name, DDT_FINAL }
+	when any(self.get_P6_internal()) { '', '.' ~ $a.^name, DDT_FINAL }
+	default { '', self!get_class_and_parents($a) } # some object 
 	}
 }
 multi method get_elements (Any $a) { self!get_Any_attributes($a) } 
@@ -127,7 +127,40 @@ multi method get_header (List:U $l) { '', '()', DDT_FINAL }
 multi method get_header (List:D $l) { '', '(' ~ $l.elems ~ ')' }
 multi method get_elements (List $l) { $l.list.map: {$++, ' = ', $_} }
 
-multi method get_header (Array:D $a) { '', '[' ~ $a.elems ~ ']' }
+multi method get_header (Array:D $a) { '', '[' ~ $a.elems ~ ']' ~ $a.^name.subst(/^.**5/, '') }
+multi method get_elements (Array $a) 
+{ 
+if $a.^name eq 'Array'	{ $a.list.map: {$++, ' = ', $_} }
+	else 
+	{
+	my @a = self!get_Array_attributes($a) ;
+	@a.push: |$a.list.map({$++, ' = ', $_}) ;
+
+	@a
+	}
+}
+
+method !get_Array_attributes(Array $a)
+{
+my @attributes ;
+for $a.^attributes.grep({$_.^isa(Attribute)})
+   #weeding out perl internal, thanks to moritz 
+	{
+	my $name = $_.name ;
+	next if $name ~~ / (descriptor|reified|todo) $/ ;
+
+	$name ~~ s~^(.).~$0.~ if $_.has_accessor ;
+
+	my $value = $a.defined 	?? $_.get_value($a) // 'Nil' !! $_.type ; 
+
+	my $p = $_.package.^name ~~ / ( '+' <- [^\+]> * ) $/ ?? " $0" !! '' ;
+	my $rw = $_.readonly ?? '' !! ' is rw' ;
+
+	@attributes.push: ("$name$rw$p", ' = ', $value) ; 
+	}
+
+@attributes
+}
 
 multi method get_header (Hash:U $h) { '', '{}', DDT_FINAL }
 multi method get_header (Hash:D $h) { '', '{' ~ $h.elems ~ '}' }

@@ -26,7 +26,10 @@ method ddt_get_elements
 #class
 }
 
+# class with elements and methods but has not type handler nor DDT specific methods
 class GenericClass { has $.x ; has $!z ; method zz {} }
+role GenericRole { has $.role }
+role Whatnot { has $.whatnot is rw = 13 }
 
 class Dog { has $.name; }
 role DescribeDog
@@ -68,7 +71,7 @@ my $dump = $d.get_dump(
 		width => 75,
 		);
 
-is( $dump.lines.elems, 79, 'all lines') or diag $dump ;
+is( $dump.lines.elems, 83, 'all lines') or diag $dump ;
 
 # ------------- helpers  -------------
 
@@ -102,7 +105,7 @@ my $s = [
 		b => 'string',
 	},
 	Cool.new(),
-	GenericClass.new(:x(5), :z('hi there')),
+	(GenericClass.new(:x(5), :z('hi there')) does GenericRole) but Whatnot,
 	Mangled.new(),
 	Dog.new(name => 'fido'), 
 	Shy.new(secret => 'I will not say'),

@@ -32,6 +32,8 @@ method ddt_get_elements
 
 # class with elements and methods but has not type handler nor DDT specific methods
 class GenericClass { has $.x ; has $!z ; method zz {} }
+role GenericRole { has $.role }
+role Whatnot { has $.whatnot is rw = 13 }
 
 # class with role that can be added to DDT
 class Dog { has $.name; }
@@ -109,7 +111,7 @@ dump
 	caller => True,
 	display_perl_address => True,
 	width => 75,
-	does => (DDTR::AsciiGlyphs, DescribeDog, DescribeShyFinal),
+	does => (DescribeDog, DescribeShyFinal),
 	max_depth => 3 ;
 
 # ------------- helpers  -------------
@@ -145,7 +147,7 @@ my $s = [
 	},
 	Cool.new(),
 	Table.new(),
-	GenericClass.new(:x(5), :z('hi there')),
+	(GenericClass.new(:x(5), :z('hi there')) does GenericRole) but Whatnot,
 	Mangled.new(),
 	Dog.new(name => 'fido'), 
 	Shy.new(secret => 'I will not say'),
