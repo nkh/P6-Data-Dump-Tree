@@ -250,14 +250,14 @@ else
 			{
 			$diff_glyph = %diff_glyphs<same_type_same_value> ;
 
-			$d1.render_non_final($s1, $cd1, (|$head_glyph1, $cont_glyph1)) unless $rendered1 ;
-			$d2.render_non_final($s2, $cd2, (|$head_glyph2, $cont_glyph2)) unless $rendered2 ;
+			$d1.render_non_final($s1, $cd1, (|$head_glyph1, $cont_glyph1), $s1) unless $rendered1 ;
+			$d2.render_non_final($s2, $cd2, (|$head_glyph2, $cont_glyph2), $s2) unless $rendered2 ;
 			}
 		else
 			{
 			$diff_glyph = %diff_glyphs<diff_container> ;
-			$d1.render_non_final($s1, $cd1, (|$head_glyph1, $cont_glyph1)) unless $rendered1 ;
-			$d2.render_non_final($s2, $cd2, (|$head_glyph2, $cont_glyph2)) unless $rendered2 ;
+			$d1.render_non_final($s1, $cd1, (|$head_glyph1, $cont_glyph1), $s1) unless $rendered1 ;
+			$d2.render_non_final($s2, $cd2, (|$head_glyph2, $cont_glyph2), $s2) unless $rendered2 ;
 			$is_different++ ;
 			}
 		}
