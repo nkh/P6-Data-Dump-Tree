@@ -4,7 +4,7 @@
 =NAME Date::Dump::Tree - Renders data structures in a tree fashion
 
 =SYNOPSIS
-	use Data::Dump::Tree ;
+	use Data::Dump::Tree ; # or use DDT ;
 
 	dump @your_data ;
 
@@ -36,31 +36,31 @@ It also
 
 =INTERFACE
 
-=head2 sub ddt($data_to_dump, $data_to_dump, ..., :named_argument, ...)
+=head2 sub ddt($data_to_dump, $data_to_dump, :named_argument, ...)
 
 'say's the rendering of the data structure; an alias to I<dump()>
 
-=head2 sub dump($data_to_dump, $data_to_dump, ..., :named_argument, ...)
+=head2 sub dump($data_to_dump, $data_to_dump, :named_argument, ...)
 
 'say's the rendering of the data structure
 
-=head2 sub get_dump($data_to_dump, $data_to_dump, ..., :named_argument, ...)
+=head2 sub get_dump($data_to_dump, $data_to_dump, :named_argument, ...)
 
 Returns a string containing the rendering of the data structure
 
-=head2 sub get_dump_lines($data_to_dump, $data_to_dump, ..., :named_argument, ...)
+=head2 sub get_dump_lines($data_to_dump, $data_to_dump, :named_argument, ...)
 
 Returns an array containing the lines of the data structure rendering
 
-=head2 method dump: $data_to_dump, $data_to_dump, ..., :named_argument, ...
+=head2 method dump: $data_to_dump, $data_to_dump, :named_argument, ...
 
 'say's the rendering of the data structure
 
-=head2 method  get_dump: $data_to_dump, $data_to_dump, ..., :named_argument, ...
+=head2 method  get_dump: $data_to_dump, $data_to_dump, :named_argument, ...
 
 Returns a string containing the rendering of the data structure
 
-=head2 method get_dump_lines: $data_to_dump, $data_to_dump, ..., : named_argument, ...
+=head2 method get_dump_lines: $data_to_dump, $data_to_dump, :named_argument, ...
 
 Returns an array containing the rendering of the data structure
 

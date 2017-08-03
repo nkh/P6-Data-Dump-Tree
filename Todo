@@ -1,4 +1,8 @@
 
+re-integrate Test::META
+add Horizontal in META6.json
+
+
 object size
 
 NCurses
