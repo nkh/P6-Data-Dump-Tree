@@ -21,9 +21,9 @@
 	"Data::Dump::Tree::Colorizer" : "lib/Data/Dump/Tree/Colorizer.pm",
 
 	"Data::Dump::Tree::Diff" : "lib/Data/Dump/Tree/Diff.pm",
-	"Data::Dump::Tree::DHTML.pm" : "lib/Data/Dump/Tree/DHTML.pm",
-	"Data::Dump::Tree::Foldable.pm" : "lib/Data/Dump/Tree/Foldable.pm",
-	"Data::Dump::Tree::MultiColumns.pm" : "lib/Data/Dump/Tree/MultiColumns.pm"
+	"Data::Dump::Tree::DHTML" : "lib/Data/Dump/Tree/DHTML.pm",
+	"Data::Dump::Tree::Foldable" : "lib/Data/Dump/Tree/Foldable.pm",
+	"Data::Dump::Tree::MultiColumns" : "lib/Data/Dump/Tree/MultiColumns.pm"
 
 	},
 
