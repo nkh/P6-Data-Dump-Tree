@@ -94,7 +94,7 @@ try
 
 	my $columns = get_columns (1..7), |($data.map({ get_dump_lines_integrated($_) })) ;
 
-	@e = ($!title, '', $table ~ "\n" ~ $columns), |get_Any_attributes(self),  ;
+	@e = ($!title, '', $table ~ "\n" ~ $columns), |get_attributes(self),  ;
 	}
 
 $! ?? (('DDT exception', ': ', "$!"),)  !! @e ;

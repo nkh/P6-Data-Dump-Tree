@@ -60,7 +60,7 @@ $m.caps.elems
 	!! ( $.limit_string(~$m, $.match_string_limit), Q/[/ ~ $m.from ~ '..' ~ $m.to ~ '|', DDT_FINAL, DDT_HAS_ADDRESS ) 
 }
 
-multi method get_elements (Match $m) { get_Any_attributes($m) } 
+multi method get_elements (Match $m) { get_attributes($m) } 
 
 } #role
 }}

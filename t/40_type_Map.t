@@ -12,4 +12,4 @@ my $dump = $d.get_dump(
 		width => 75,
 		);
 
-is $dump.lines.elems, 3, '3 lines of dump for Map' ;
+is $dump.lines.elems, 3, '3 lines of dump for Map' or diag $dump ;

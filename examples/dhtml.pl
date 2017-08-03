@@ -149,7 +149,7 @@ try
 	my @rows    = ([1,"John Doe",'johndoe@cpan.org'], [2,'Jane Doe','mrsjanedoe@hushmail.com'],);
 	my @table = lol2table(@columns,@rows);
 
-	@e = ($!title, '', @table.join("\n")), |get_Any_attributes(self),  ;
+	@e = ($!title, '', @table.join("\n")), |get_attributes(self),  ;
 	}
 
 $! ?? (('DDT exception', ': ', "$!"),)  !! @e ;

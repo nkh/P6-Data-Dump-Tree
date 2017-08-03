@@ -3,6 +3,8 @@ use Data::Dump::Tree::Enums ;
 
 class Data::Dump::Tree::Type::Nothing {...}
 
+my sub is_final($element, $name) { $element.^name eq $name ??  (DDT_FINAL,) !! (DDT_NOT_FINAL, DDT_HAS_NO_ADDRESS) }
+
 role DDTR::DescribeBaseObjects
 {
 method get_P6_internal { ('!UNIT_MARKER', 'GLOBAL', 'EXPORT', 'Data', 'Test') }
@@ -62,39 +64,41 @@ multi method get_elements (Seq $s)
 	@elements
 	} 
 
-# get_headers: "final" objects return their value and type
-multi method get_header (IntStr $i) { $i.Int ~ ' / "' ~ $i.Str ~ '"',  '.' ~ $i.^name, DDT_FINAL }
-multi method get_header (Int $i) { $i,  '.' ~ $i.^name, DDT_FINAL }
+multi method get_header (IntStr $i) { $i.Int ~ ' / "' ~ $i.Str ~ '"',  '.' ~ $i.^name, |is_final($i, 'IntStr')}
+multi method get_elements (IntStr $e) { self!get_attributes($e) }
+
+multi method get_header (Int $i) { $i,  '.' ~ $i.^name, |is_final($i, 'Int') }
+multi method get_elements (Int $e) { self!get_attributes($e) }
+
 multi method get_header (Str:U $s) { '', '.' ~ $s.^name, DDT_FINAL }
-multi method get_header (Str:D $s) { $s, '.' ~ $s.^name, DDT_FINAL } 
-multi method get_header (Rat $r) { $r  ~ ' (' ~ $r.numerator ~ '/' ~ $r.denominator ~ ')', '.' ~ $r.^name, DDT_FINAL }
-multi method get_header (Range $r) { $r.gist , '.' ~ $r.^name, DDT_FINAL }
-multi method get_header (Seq $s) { '', '.' ~ $s.^name ~ ( $s.is-lazy ?? '(*)' !! ''), DDT_FINAL }
-multi method get_header (Bool $b) { ( $b, '.' ~ $b.^name, DDT_FINAL ) }
-multi method get_header (Regex $r) { $r.perl.substr(6) ,  '.' ~ $r.^name, DDT_FINAL, } 
+multi method get_header (Str:D $s) { $s, '.' ~ $s.^name, |is_final($s, 'Str') } 
+multi method get_elements (Str $e) { self!get_attributes($e) }
+
+multi method get_header (Rat $r) { $r  ~ ' (' ~ $r.numerator ~ '/' ~ $r.denominator ~ ')', '.' ~ $r.^name, |is_final($r, 'Rat') }
+multi method get_elements (Rat $e) { self!get_attributes($e, <numerator denominator>) }
+
+multi method get_header (Range $r) { $r.gist , '.' ~ $r.^name, |is_final($r, 'Range') }
+multi method get_elements (Range $e) { self!get_attributes($e, <is-int min max excludes-min excludes-max infinite>) }
+
+multi method get_header (Bool $b) { ( $b, '.' ~ $b.^name, |is_final($b, 'Bool') ) }
+multi method get_elements (Bool $e) { self!get_attributes($e, <key value>) }
+
+multi method get_header (Regex $r) { $r.perl.substr(6) ,  '.' ~ $r.^name, DDT_FINAL } 
 
 multi method get_header (Pair $p) 
 	{
-	if $p.key ~~ Str | Int && $p.value ~~ Str | Int 
-		{
-		'(' ~ $p.key ~ ', ' ~ $p.value ~ ')', '.' ~ $p.^name, DDT_FINAL
-		}
-	else
-		{
-		'', '.' ~ $p.^name
-		}
+	$p.key ~~ Str | Int && $p.value ~~ Str | Int 
+		?? ( '(' ~ $p.key ~ ', ' ~ $p.value ~ ')', '.' ~ $p.^name, |is_final($p, 'Pair') )
+		!! ('', '.' ~ $p.^name )
 	}
 
 multi method get_elements (Pair $p)
 	{
-	if $p.key ~~ Str | Int 
-		{
-		( ('k:' ~ $p.key ~ ", v:", '', $p.value), )
-		}
-	else
-		{
-		( ('key', ': ', $p.key), ('value', ' = ', $p.value), )
-		}
+	|self!get_attributes($p, <key value>,),
+
+	$p.key ~~ Str | Int 
+		?? ('k:' ~ $p.key ~ ", v:", '', $p.value) 
+		!! (('key', ': ', $p.key), ('value', ' = ', $p.value))
 	} 
 
 multi method get_header (Junction $j) { $j.gist, '.' ~ $j.^name, DDT_FINAL }
@@ -111,7 +115,6 @@ multi method get_header (Block $b) { $b.perl, '.' ~ $b.^name, DDT_FINAL }
 multi method get_header (Routine $r) { '' , '.' ~ $r.^name, DDT_FINAL }
 multi method get_header (Sub $s) { ( $s.name || '<anon>'), '.' ~ $s.^name, DDT_FINAL }
 
-# get_headers: containers return some information and their type
 multi method get_header (Any $a) 
 {
 given $a.^name 
@@ -121,60 +124,40 @@ given $a.^name
 	default { '', self!get_class_and_parents($a) } # some object 
 	}
 }
-multi method get_elements (Any $a) { self!get_Any_attributes($a) } 
+multi method get_elements (Any $a) { self!get_attributes($a) } 
 
 multi method get_header (List:U $l) { '', '()', DDT_FINAL }
 multi method get_header (List:D $l) { '', '(' ~ $l.elems ~ ')' }
-multi method get_elements (List $l) { $l.list.map: {$++, ' = ', $_} }
+multi method get_elements (List $l) {
+	|self!get_attributes($l, <reified todo>),
+	|$l.list.map: {$++, ' = ', $_} }
 
 multi method get_header (Array:U $a) { '', '[]', DDT_FINAL }
-multi method get_header (Array:D $a) { '', '[' ~ $a.elems ~ ']' ~ $a.^name.subst(/^.**5/, '') }
-multi method get_elements (Array $a) 
-{ 
-if $a.^name eq 'Array'	{ $a.list.map: {$++, ' = ', $_} }
-	else 
-	{
-	my @a = self!get_Array_attributes($a) ;
-	@a.push: |$a.list.map({$++, ' = ', $_}) ;
-
-	@a
-	}
-}
-
-method !get_Array_attributes(Array $a)
-{
-my @attributes ;
-for $a.^attributes.grep({$_.^isa(Attribute)})
-   #weeding out perl internal, thanks to moritz 
-	{
-	my $name = $_.name ;
-	next if $name ~~ / (descriptor|reified|todo) $/ ;
-
-	$name ~~ s~^(.).~$0.~ if $_.has_accessor ;
-
-	my $value = $a.defined 	?? $_.get_value($a) // 'Nil' !! $_.type ; 
-
-	my $p = $_.package.^name ~~ / ( '+' <- [^\+]> * ) $/ ?? " $0" !! '' ;
-	my $rw = $_.readonly ?? '' !! ' is rw' ;
-
-	@attributes.push: ("$name$rw$p", ' = ', $value) ; 
-	}
-
-@attributes
-}
+multi method get_header (Array:D $a) { '', '[' ~ $a.elems ~ ']' ~ $a.^name.substr(5) }
+multi method get_elements (Array $a) { 
+	|self!get_attributes($a, <descriptor reified todo>),
+	|$a.list.map: {$++, ' = ', $_} }
 
 multi method get_header (Hash:U $h) { '', '{}', DDT_FINAL }
-multi method get_header (Hash:D $h) { '', '{' ~ $h.elems ~ '}' }
-multi method get_elements (Hash:D $h) { $h.sort(*.key)>>.kv.map: -> ($k, $v) {$k, ' => ', $v} }
+multi method get_header (Hash:D $h) { '', '{' ~ $h.elems ~ '}' ~ $h.^name.substr(4) }
+multi method get_elements (Hash:D $h) {
+	|self!get_attributes($h, <descriptor storage>),
+	|($h.sort(*.key)>>.kv.map: -> ($k, $v) {$k, ' => ', $v}) }
 
 multi method get_header (Stash $s) { '', '.' ~ $s.^name ~ ' {' ~ ($s.keys.flat.elems) ~ '}' }
 multi method get_elements (Stash $s) { $s.sort(*.key)>>.kv.map: -> ($k, $v) {$k, ' => ', $v} }
 
 multi method get_header (Map $m) { '', '.' ~ $m.^name } 
-multi method get_elements (Map $m) { $m.sort(*.key)>>.kv.map: -> ($k, $v) {$k, ' => ', $v} }
+multi method get_elements (Map $m) {
+	|self!get_attributes($m, (<storage>,)),
+	|$m.sort(*.key)>>.kv.map: -> ($k, $v) {$k, ' => ', $v} }
 
 multi method get_header (Set:D $s) { '', '.' ~ $s.^name ~ '(' ~ $s.elems ~ ')'  }
-multi method get_elements (Set $s) { $s.keys.map: {$++, ' = ', $_} }
+multi method get_elements (Set $s) {
+	|self!get_attributes($s, <WHICH elems>),
+	|$s.keys.map: {$++, ' = ', $_} }
+
+multi method get_header (Enumeration $e) { '', '.' ~ $e.^name, DDT_FINAL } 
 
 } #role
 
@@ -200,13 +183,13 @@ else
 role DDTR::QuotedString 
 {
 multi method get_header (IntStr $i) { $i.Int ~ ' / "' ~ $i.Str ~ '"',  '.' ~ $i.^name, DDT_FINAL }
-multi method get_header (Str:D $s) { "'$s'", '.' ~ $s.^name, DDT_FINAL } 
+multi method get_header (Str:D $s) { "'$s'", '.' ~ $s.^name, |is_final($s, 'Str') } 
 }
 
-role DDTR::PerlString 
+role DDTR::PerlString
 {
 multi method get_header (IntStr $i) { $i.Int ~ ' / "' ~ $i.Str ~ '"',  '.' ~ $i.^name, DDT_FINAL }
-multi method get_header (Str:D $s) { $_ = $s.perl ; S:g/^\"(.*)\"$/$0/, '.' ~ $s.^name, DDT_FINAL } 
+multi method get_header (Str:D $s) { $_ = $s.perl ; S:g/^\"(.*)\"$/$0/, '.' ~ $s.^name, |is_final($s, 'Str') } 
 }
 
 role DDTR::PerlSub

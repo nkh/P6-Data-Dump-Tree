@@ -715,18 +715,22 @@ my @a = try { @a = $a.^parents.map({ $_.^name }) }  ;
 $! ?? (('DDT exception', ': ', "$!"),)  !! @a ;
 }
 
-method !get_Any_attributes (Any $a)
+method !get_attributes (Any $a, @ignore?)
 {
-my @a = try { @a = get_Any_attributes($a) }  ;
-$! ?? (('DDT exception', ': ', "$!"),)  !! @a ;
+my @a = try { @a = get_attributes($a, @ignore) }  ;
+$! ?? (('DDT exception', ': ', $!.message),)  !! @a ;
 }
 
-multi sub get_Any_attributes (Any $a) is export 
+multi sub get_attributes (Any $a, @ignore?) is export 
 {
-$a.^attributes.grep({$_.^isa(Attribute)}).map:
+my @attributes ;
+for $a.^attributes.grep({$_.^isa(Attribute)})
    #weeding out perl internal, thanks to moritz 
 	{
 	my $name = $_.name ;
+	
+	next if @ignore.first: -> $ignore { $name ~~ /$ignore$/ } ;
+
 	$name ~~ s~^(.).~$0.~ if $_.has_accessor ;
 
 	my $value = $a.defined 	?? $_.get_value($a) // 'Nil' !! $_.type ; 
@@ -736,10 +740,12 @@ $a.^attributes.grep({$_.^isa(Attribute)}).map:
 	my $rw = $_.readonly ?? '' !! ' is rw' ;
 
    	#weeding out perl internal, thanks to jnth 
-	$value.HOW.^name eq 'NQPClassHOW'
-		?? ($name, ' = ', Data::Dump::Tree::Type::NQP.new(:class($value.^name))) 
-		!! ("$name$rw$p", ' = ', $value) 
+	@attributes.push: $value.HOW.^name eq 'NQPClassHOW'
+				?? ($name, ' = ', Data::Dump::Tree::Type::NQP.new(:class($value.^name))) 
+				!! ("$name$rw$p", ' = ', $value) 
 	}
+
+@attributes ;
 }
 
 method get_title()

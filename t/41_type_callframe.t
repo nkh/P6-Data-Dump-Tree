@@ -19,7 +19,7 @@ multi sub compress_ddt($dumper, \r, Data::Dump::Tree $s, @r, (\k, \b, \v, \f, \f
 final = DDT_FINAL ;
 }
 
-my $dump = $d.get_dump([callframe()], color => False, width => 75, elements_filters => (&Stash_no_sub,), header_filters =>(&compress_ddt,)) ;
+my $dump = $d.get_dump: [callframe()], :color, :width(75), :elements_filters[&Stash_no_sub], :header_filters[&compress_ddt] ;
 
 is($dump.lines.elems, 35, 'lines of filtered callframedump') or diag $dump ;
 

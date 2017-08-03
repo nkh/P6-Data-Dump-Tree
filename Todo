@@ -1,7 +1,4 @@
 
-role added to DDT handled classes
-	ie: MaxLine is a role added to an array but is not visible when the array is dumped
-
 object size
 
 NCurses
@@ -13,6 +10,9 @@ dhtml
 
 graphs that have entry further than :width are not clipped properly 
 	clip but insert warning in the tree
+
+#role added to DDT handled classes
+	ie: MaxLine is a role added to an array but is not visible when the array is dumped
 
 #flat
 	#when element if seen in sub element rendering for the first time, it gets
