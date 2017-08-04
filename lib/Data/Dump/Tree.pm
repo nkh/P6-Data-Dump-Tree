@@ -361,10 +361,9 @@ else
 		@sub_elements =	((
 				'',
 				'',
-				Data::Dump::Tree::Type::MaxDepth.new(
-					glyph => %glyphs<max_depth>[1],
-					depth => $.max_depth,
-					),
+				Data::Dump::Tree::Type::MaxDepth.new:
+					:glyph(%glyphs<max_depth>[1]),
+					:depth($.max_depth),
 				),) ;
 		}
 	}
