@@ -64,10 +64,15 @@ multi method get_elements (Seq $s)
 	@elements
 	} 
 
-multi method get_header (IntStr $i) { $i.Int ~ ' / "' ~ $i.Str ~ '"',  '.' ~ $i.^name, |is_final($i, 'IntStr')}
+multi method get_header (IntStr $i) 
+{
+~$i.Int eq $i.Str 
+	?? ( $i.Int ,  '.' ~ $i.^name, DDT_FINAL )
+	!! ( $i.Int ~ ' / "' ~ $i.Str ~ '"',  '.' ~ $i.^name, DDT_FINAL )
+}
 multi method get_elements (IntStr $e) { self!get_attributes($e) }
 
-multi method get_header (Int $i) { $i,  '.' ~ $i.^name, |is_final($i, 'Int') }
+multi method get_header (Int $i) { $i,  $i.^name eq 'Int' ?? '   ' !! '.' ~ $i.^name, |is_final($i, 'Int') }
 multi method get_elements (Int $e) { self!get_attributes($e) }
 
 multi method get_header (Str:U $s) { '', '.' ~ $s.^name, DDT_FINAL }

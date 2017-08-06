@@ -177,54 +177,50 @@ my @blocks = @.elements.map: -> ($k, $b, $sub_element)
 					:width($.total_width),
 					:address_from($!dumper),
 					:flat_depth($.flat_depth + 1),
-					#:flat() # would remove all previous
-					# nothing means reuse previous, levels should be adjusted 
 			} 
-
-#$.rows andthen @blocks = @blocks.rotor($.rows, :partial).map: { .map: { |$_ } }
-#$columns = |@blocks ;
 
 my $columns ;
 
+
 with $.rows
 	{
-	my @columns = ([], ) ;
-	my Bool $has_interline ;
-
-	my $lines = 0 ;
+	my @columns = $[] ;
 
 	for @blocks -> $block 
 		{
-		if @columns[*-1].elems >= $.rows
+		@columns.push: [] if @columns[*-1].elems >= $.rows ;
+
+		my $column = @columns[*-1] ;
+
+		if $column.elems + $block.elems > $.rows
 			{
-			@columns[*-1].push: '' ;
-			$has_interline++ ;
-
-			@columns.push: [ ] ;
-			$lines = 0 ;
-			}
-
-		if $lines + $block.elems >  $.rows
-			{
-			@columns[*-1].push: '' xx $.rows - $lines ;
-
-			@columns.push: [ |$block ] ;
-			$lines = $block.elems ;
+			if $column.elems > 0
+				{
+				$column.push: '' xx $.rows - $column.elems ;
+				@columns.push: [ |$block ] ;
+				}
+			else
+				{
+				$column.push: |$block ;
+				}
 			}
 		else
 			{
-			@columns[*-1].push: |$block ;
-			$lines += $block.elems ;
+			$column.push: |$block ;
 			} 
-		}
 
-	@columns[*-1].push: '' unless $has_interline++ ;
+		if $column.elems >= $.rows
+			{
+			$column.push: '' ;
+			}
+		}
 
 	$columns = get_columns :$.total_width, |@columns
 	}
 else
 	{
-	$columns = get_columns :$.total_width, |(@blocks.map: { |$_, '' })
+	$columns = get_columns :$.total_width, |@blocks ;
+	$columns ~= "\n" ;
 	}
 
 ($!title ne '' ?? "$!title\n" !! '') ~ $columns, '', DDT_FINAL 

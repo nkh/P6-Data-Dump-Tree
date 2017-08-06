@@ -184,22 +184,6 @@ is flattened.
 
 =head2 Conditions 
 
-=item integer: :flat(0) or :flat
-
-Will flatten at the given level in your data structure. flat(0) is what you
-will use most of the time. depending on your data structure you may want to
-flatten at a different level.
-
-=item object type: :flat(Array, List, ...)
-
-Will flatten any object in your data structure that matches one of the types
-passed as a condition. Flattening Hashes looks particularly good.
-
-=item object: :flat($object, $object2, ..)
-
-If $object, $object2, ... are found in the data structure, they will be
-flattened, this allows a selective flattening.
-
 =item blocks: :flat({ $_ ~~ Array && $_.elems > 15 }, ...) 
 
 You can pass Blocks to I<:flat>, they are called for each object in your data
@@ -210,10 +194,30 @@ In the above example Arrays with more than 15 elements are flattened.
 
 Inside your block:
 
+=over 2
+
 =item $_ is a reference to the data being rendered
 
 =item $*d is the depth at which the data is
+
+=back
  
+=item integer: :flat(0) or :flat
+
+Will flatten at the given level in your data structure.
+
+=item object: :flat($object, $object2, ..)
+
+If $object, $object2, ... are found in the data structure, they will be
+flattened, this allows a selective flattening.
+
+=item object type: :flat(Array, List, ...)
+
+Will flatten any object in your data structure that matches one of the types
+passed as a condition. Flattening Hashes looks particularly good.
+
+=item other conditions are smart-matched 
+
 =head2 Columns 
 
 Splitting uses the same interface as the conditions but rather than pass a
@@ -265,11 +269,14 @@ for @targets -> $target is copy
 			} 
 		}
 
-	if $target ~~ Int && $depth == $target { $matched = True ; last } 
+	# Int can only match depth
+	if $target ~~ Int { $matched = $depth == $target ; last } 
 	
-	if $target ~~ Hash:D && $s === $target { $matched = True ; last }
+	if $target ~~ (Array:D | Hash:D | List:D) && $s === $target
+		 { $matched = True ; last }
 
-	if $target ~~ none(Int | Pair | Block | Hash:D) && $s ~~ $target	{ $matched = True ; last }
+	if $target ~~ none( Pair | Block | Hash:D | Array:D | List:D) && $s ~~ $target
+		 { $matched = True ; last }
 	
 	$rows = Int ; # reset if no match 
 	}

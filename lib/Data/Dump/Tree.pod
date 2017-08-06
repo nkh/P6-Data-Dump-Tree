@@ -145,6 +145,8 @@ The type of the variable with a '.' appended. IE: '.Str', '.MyClass'
 
 Data::DumpTree will display
 
+=item  Ints have their type set to a white space string to reduce noise
+
 =item  Hashes as '{n}' where n is the number of element of the hash
 
 =item  Arrays as '[n]'
