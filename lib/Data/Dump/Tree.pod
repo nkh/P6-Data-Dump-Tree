@@ -668,10 +668,6 @@ display the tree glyphs.
 Renders string containing control codes (eg: \n, ANSI, ...) with backslashed
 codes and hex values.
 
-=head3 DDTR::PerlSub
-
-Sub objects will be rendered with .perl
-
 =head3 DDTR::FixedGlyphs 
 
 Replace all the glyphs by a single glyph; default is a three spaces glyph.

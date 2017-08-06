@@ -1,7 +1,7 @@
 
-re-integrate Test::META
-add Horizontal in META6.json
+NativeCall
 
+re-integrate Test::META
 
 object size
 
@@ -14,6 +14,11 @@ dhtml
 
 graphs that have entry further than :width are not clipped properly 
 	clip but insert warning in the tree
+
+#add Horizontal in META6.json
+
+#Sub, Block, Method, ..
+	better rendering
 
 #role added to DDT handled classes
 	ie: MaxLine is a role added to an array but is not visible when the array is dumped

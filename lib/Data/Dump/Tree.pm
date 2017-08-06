@@ -258,6 +258,22 @@ my ($v, $f, $final, $want_address) =
 		!! self.get_element_header($s) ;
 
 $f ~= ':U' unless $s.defined ;
+
+my Str $repr = '' ~ $s.REPR ;
+
+given $repr
+	{
+	when 'CArray' 
+		{
+		$f ~= $s.defined  ?? '[' ~ $s.elems ~ '] <' ~ $repr ~ '>' !! ' <' ~ $repr ~ '>'
+		}
+
+	when 'CPointer' | 'CStruct' 
+		{
+		$f ~= ' <' ~ $repr ~ '>'
+		}
+	}
+
 $f = '' unless $.display_type ; 
  
 my $s_replacement ;
@@ -704,13 +720,16 @@ $is_last
 method !get_class_and_parents ($a) { get_class_and_parents($a) }
 sub get_class_and_parents (Any $a) is export 
 {
-(($a.^name, |get_Any_parents_list($a).grep({ ! $a.^name.match($_) })).map: {'.' ~ $_}).join(' ') 
+(($a.^name, |get_Any_parents_list($a).grep({ ! $a.^name.match($_) })).map:
+	{'.' ~ S:g/'NativeCall::Types::'// with $_}).join(' ') 
 }
  
 method !get_Any_parents_list(Any $a) { get_Any_parents_list($a) }
 sub get_Any_parents_list(Any $a) is export 
 {
-my @a = try { @a = $a.^parents.map({ $_.^name }) }  ;
+
+my @a = try { $a.^parents.map: { $_.^name } } 
+
 $! ?? (('DDT exception', ': ', "$!"),)  !! @a ;
 }
 
@@ -722,7 +741,32 @@ $! ?? (('DDT exception', ': ', $!.message),)  !! @a ;
 
 multi sub get_attributes (Any $a, @ignore?) is export 
 {
+my %types ;
+
+if $a.defined && $a.REPR eq 'CArray'
+	{
+	return |$a.list.map: {$++, ' = ', $_} 
+	}
+
+if $a.defined && $a.REPR eq 'CStruct' | 'CUnion'
+	{
+	_get_attributes($a.WHAT).map:
+		{
+		my $type = S/':U'$// with $_[2].?type ;
+		$type //= '.' ~ $_[2].^name ; 
+		$type = S:g/'NativeCall::Types::'// with $type ; 
+		
+		%types{$_[0]} = $type  ; 
+		}  
+	}
+
+_get_attributes($a, @ignore, %types) ; 
+}
+
+sub _get_attributes (Any $a, @ignore?, %types?) 
+{
 my @attributes ;
+
 for $a.^attributes.grep({$_.^isa(Attribute)})
    #weeding out perl internal, thanks to moritz 
 	{
@@ -732,16 +776,38 @@ for $a.^attributes.grep({$_.^isa(Attribute)})
 
 	$name ~~ s~^(.).~$0.~ if $_.has_accessor ;
 
+	my $t = %types{$name} // '' ;
+
 	my $value = $a.defined 	?? $_.get_value($a) // 'Nil' !! $_.type ; 
 
 	# display where attribute is coming from or nothing if base class
 	my $p = $_.package.^name ~~ / ( '+' <- [^\+]> * ) $/ ?? " $0" !! '' ;
 	my $rw = $_.readonly ?? '' !! ' is rw' ;
 
-   	#weeding out perl internal, thanks to jnth 
-	@attributes.push: $value.HOW.^name eq 'NQPClassHOW'
-				?? ($name, ' = ', Data::Dump::Tree::Type::NQP.new(:class($value.^name))) 
-				!! ("$name$rw$p", ' = ', $value) 
+ 	given  $value.HOW.^name
+		{
+   		#weeding out perl internal, thanks to jnth 
+		when 'NQPClassHOW' 
+			{
+ 			@attributes.push: ( $name, ' = ', Data::Dump::Tree::Type::P6.new: :value($value.^name), :type<NQP> ) 
+			}
+
+		when 'Perl6::Metamodel::NativeHOW' 
+			{
+ 			@attributes.push: 
+				(
+				$name, ' = ',
+				Data::Dump::Tree::Type::P6.new:
+					:value($value),
+					:type('.' ~ (S:g/'NativeCall::Types::'// with $value.^name) ~ ':U')
+				) 
+			}
+
+		default
+ 			{
+			@attributes.push: ( "$name$t$rw$p", ' = ', $value ) 
+			}
+		}
 	}
 
 @attributes ;
