@@ -26,6 +26,8 @@ my %default_colors =
 	> ;
 
 has @.title is rw ;
+has $.indent = '' ;
+has Bool $.nl ; # add empty line to the rendering
 has Bool $.caller is rw = False ;
 
 has Bool $.color is rw = True ;
@@ -214,6 +216,8 @@ self.render_element_structure(
 	() , 
 	($final ?? 0 !! $width, $empty_glyph, $empty_glyph, %glyphs<multi_line>, $empty_glyph, $empty_glyph),
 	) ;
+			
+@!renderings.push: ('', $!indent, '') if $!nl ; 
 }
 
 method render_element_structure($element, $current_depth, @head_glyphs, @glyphs)
@@ -245,8 +249,10 @@ for @sub_elements Z 0..* -> ($sub_element, $index)
 	}
 }
 
-method render_element($element, $current_depth, @head_glyphs, @glyphs)
+method render_element($element, $current_depth, @head_glyphs_no_indent, @glyphs)
 {
+my @head_glyphs = ('', $.indent, ''), |@head_glyphs_no_indent ;
+
 my ($k, $b, $s, $path) = $element ;
 my ($glyph_width, $glyph, $continuation_glyph, $multi_line_glyph, $empty_glyph, $filter_glyph) = @glyphs ;
 
@@ -265,12 +271,18 @@ given $repr
 	{
 	when 'CArray' 
 		{
-		$f ~= $s.defined  ?? '[' ~ $s.elems ~ '] <' ~ $repr ~ '>' !! ' <' ~ $repr ~ '>'
+		$f ~~ s/^'.CArray'// ;
+		$f = ( $s.defined  ?? '[' ~ $s.elems ~ ']' !! '' ) ~ $f ~ ' <' ~ $repr ~ '>' ;
 		}
 
-	when 'CPointer' | 'CStruct' 
+	when 'CPointer' | 'CStruct' | 'CUnion' 
 		{
 		$f ~= ' <' ~ $repr ~ '>'
+		}
+
+	when 'VMArray' 
+		{
+		$f ~= ' <array>'
 		}
 	}
 
@@ -778,7 +790,7 @@ for $a.^attributes.grep({$_.^isa(Attribute)})
 
 	my $t = %types{$name} // '' ;
 
-	my $value = $a.defined 	?? $_.get_value($a) // 'Nil' !! $_.type ; 
+	my $value = $a.defined 	?? $_.get_value($a) // Data::Dump::Tree::Type::Nil.new !! $_.type ; 
 
 	# display where attribute is coming from or nothing if base class
 	my $p = $_.package.^name ~~ / ( '+' <- [^\+]> * ) $/ ?? " $0" !! '' ;

@@ -8,22 +8,6 @@ use Data::Dump::Tree::DescribeBaseObjects ;
 
 role my_role { has $.something } # test that Int+something type displays correctly 
 
-role DDT_NR
-{
-}
-
-
-my int32 $int32 = 7 ;
-my int32 @int32 = $int32, 7, 8 ; 
-my int64 @int64 = $int32, 7, 8 ; 
-my @with_int32 = $int32, 7, 8 ; 
-
-my Pointer[int32] $pointer ;
-
-class FooHandle is repr('CPointer')
-{
-}
-
 class Point is repr('CStruct') {
     has num64 $.x;
     has num32 $.y;
@@ -44,17 +28,29 @@ class MyStruct is repr('CStruct') {
 	has int32 $.flags;
 }
 
+say nativesizeof(MyStruct.new); 
+say nativesizeof(MyStruct); 
+
+my $mystruct = MyStruct.new ;
+#$mystruct.point = $point ;
+
 class MyStruct2 is repr('CStruct') {
 	HAS Point $.point;  # embedded 
 	has int32 $.flags;
 }
 
+say nativesizeof(MyStruct2.new); 
+say nativesizeof(MyStruct2); 
+
+my $mystruct2 = MyStruct2.new ;
+#$mystruct2.point = $point ;
+
+
+sub add_p6(Int, Int) returns Int { 1 }
 sub some_argless_function() is native('something') { * }
 our sub init() is native('foo') is symbol('FOO_INIT') { * }
 sub add(int32, int32) returns int32 is native("calculator") { * }
-sub add_p6(Int, Int) returns Int { 1 }
-sub add_p62(Int, Int) { 1 }
-sub add_p63(Int, Int --> Int) { 1 }
+sub Foo_init() returns Pointer is native("foo") { * }
 
 class Types is repr('CStruct') {
 	has int8 $.a1 ;
@@ -79,17 +75,53 @@ class Types is repr('CStruct') {
 	has ssize_t $.a20 ;
 }
 
+my $types = Types.new ;
+
+class MyHandle is repr('CPointer') {}
+my Pointer[int32] $pointer ;
+
+my int32 $int32 = 7 ;
+my @with_int32 = $int32, 7, 8 ; 
+my int32 @int32 = $int32, 7, 8 ; 
+
 my $string = "FOO";
-my @array := CArray[uint8].new($string.encode.list);
+my @carray := CArray[uint8].new($string.encode.list);
 
-my $titles = CArray[Str].new;
-$titles[0] = 'Me';
-$titles[1] = 'You';
+my $carray_titles = CArray[Str].new;
+$carray_titles[0] = 'Me';
+$carray_titles[1] = 'You';
 
-my $d3 = (MyStruct, MyStruct.new, MyStruct2, MyStruct2.new, @array, $titles, Types, Types.new, &add_p6, &add_p62, &add_p63, &add, &init, &some_argless_function, Point, FooHandle, $pointer, @int32, @with_int32, $int32, @int64, $point, $union) ;
-ddt $d3 ;
+class StructiWithHandler is repr('CStruct') 
+{
+	has int32 $.flags;
+}
+
+role DDT_SWH
+{
+multi method get_header (StructiWithHandler $s)
+	{ 'In DDT Handler', '.' ~ $s.^name, DDT_FINAL  }
+}
+
+my $d1 = (&add_p6, &add, &init, &some_argless_function, &Foo_init) ;
+
+my $d2 = (MyHandle, $pointer) ;
+my $d3 = ($int32, @with_int32, @int32, @carray, $carray_titles, ) ;
+
+my $d4 = (Types, $types) ;
+
+my $d5 = (Point, $point, $union, MyStruct) ;
+
+my $d6 = StructiWithHandler ;
+my $d7 = (StructiWithHandler, MyStruct, MyStruct.new) ;
 
 ''.say ;
+ddt $d1, :indent('  '), :nl ;
+ddt $d2, :indent('  '), :nl ;
+ddt $d3, :indent('  '), :nl  ;
+ddt $d4, :indent('  '), :flat(0), :nl  ;
+
+ddt $d5, :indent('  '), :nl  ;
+ddt $d6, :does[DDT_SWH], :indent('  '), :nl  ;
 
 dd $d3 ;
 
@@ -105,5 +137,20 @@ dd $d3 ;
 [16:55] <camelia> rakudo-moar aca4b9: OUTPUT: «(Int)␤(IntPosRef)␤»
 
 [22:04] <Skarsnik> nadim, this can maybe help figure stuff about native type https://github.com/rakudo/rakudo/blob/nom/lib/NativeCall.pm6#L233
+
+
+[11:24] <nadim> IE: $mystruct2.point = $point ; gave me error: Cannot modify an immutable Point ((Point))
+[11:33] <nine> nadim: you'll probably have to initialize the fields individually: $mystruct2.point.x = 1; $mystruct2.point.y = 2;
+[11:35] <lookatme> nadim, you can write a read-only accessor
+[11:40] <lookatme> m: use NativeCall; class Point is repr("CStruct") { has num64 $.x; has num64 $.y; submethod TWEAK() { $!x = num64.new(10); $!y = num64.new(10);}; }; class MS is repr("CStruct") { has Point $.point; has int32 $.flags; submethod TWEAK() { $!point := Point.new; $!flags = 1; }; }; say MS.new
+[11:40] <camelia> rakudo-moar a91ad2: OUTPUT: «MS.new(point => Point.new(x => 10e0, y => 10e0), flags => 1)␤»
+[11:41] <lookatme> m: use NativeCall; class Point is repr("CStruct") { has num64 $.x; has num64 $.y; submethod TWEAK() { $!x = num64.new(10); $!y = num64.new(10);}; }; class MS is repr("CStruct") { has Point $.point; has int32 $.flags; submethod TWEAK() { $!point := Point.new; $!flags = 1; }; }; my $ms = MS.new; $ms.point.x = num64.new(32); say $ms;
+[11:41] <camelia> rakudo-moar a91ad2: OUTPUT: «Cannot modify an immutable Num (10)␤  in block <unit> at <tmp> line 1␤␤»
+[11:42] <lookatme> m: use NativeCall; class Point is repr("CStruct") { has num64 $.x is rw; has num64 $.y; submethod TWEAK() { $!x = num64.new(10); $!y = num64.new(10);}; }; class MS is repr("CStruct") { has Point $.point; has int32 $.flags; submethod TWEAK() { $!point := Point.new; $!flags = 1; }; }; my $ms = MS.new; $ms.point.x = num64.new(32); say $ms;
+[11:42] <camelia> rakudo-moar a91ad2: OUTPUT: «MS.new(point => Point.new(x => 32e0, y => 10e0), flags => 1)␤»
+[11:42] <lookatme> nadim, does ^^ helpful ?
+[11:46] <lookatme> off work now
+
 >>>
+
 

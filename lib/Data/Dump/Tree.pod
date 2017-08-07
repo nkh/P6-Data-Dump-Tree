@@ -292,6 +292,14 @@ You can also define your own cycle with B<@kb_colors>:
 Note that the width of the glyps is subtracted from the width you pass as we
 use that space when displaying multiline values in the dump.
 
+=head3 $indent = Str
+
+The string is prepended in the rendering
+
+=head3 $nl = Bool
+
+Add an empty line to the rendering
+
 =head3 $max_depth 
 
 Limit the depth of a dump. There is no limit by default.

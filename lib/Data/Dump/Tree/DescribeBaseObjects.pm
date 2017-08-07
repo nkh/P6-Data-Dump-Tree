@@ -72,7 +72,8 @@ multi method get_header (IntStr $i)
 }
 multi method get_elements (IntStr $e) { self!get_attributes($e) }
  
-multi method get_header (Int $i) { $i,  $i.^name eq 'Int' ?? '   ' !! '.' ~ $i.^name, |is_final($i, 'Int') }
+multi method get_header (Int:U $i) { '',  'Int', DDT_FINAL }
+multi method get_header (Int:D $i) { $i,  $i.^name eq 'Int' ?? '   ' !! '.' ~ $i.^name, |is_final($i, 'Int') }
 multi method get_elements (Int $e) { self!get_attributes($e) }
 
 multi method get_header (Str:U $s) { '', '.' ~ $s.^name, DDT_FINAL }
@@ -175,6 +176,11 @@ multi method get_elements (Set $s) {
 multi method get_header (Enumeration $e) { '', '.' ~ $e.^name, DDT_FINAL } 
 
 } #role
+
+class Data::Dump::Tree::Type::Nil
+{
+multi method ddt_get_header { 'Nil', '', DDT_FINAL }
+}
 
 role DDTR::StringLimiter
 {

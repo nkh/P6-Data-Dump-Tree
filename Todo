@@ -1,4 +1,8 @@
 
+:flat
+	missing interline, in32 example :flat(0)
+	:flat(0, 1) flattens 0 only
+
 NativeCall
 
 re-integrate Test::META
