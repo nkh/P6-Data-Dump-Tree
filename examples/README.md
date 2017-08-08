@@ -12,6 +12,7 @@ highlight.pl 		how to highligh specific elements of the dump with colors
 flat.pl			horizontal layout examples
 JSON_parsed.pl	 	dump of the parsing of a JSON structure
 junctions.pl 		dump of junctions
+in32.pl			NativeCall support examples
 match.pl		dump of a match object with different options
 named_captures.pl 	dump of a regex match with named captures
 named_elements.pl 	name specific elements and have the names displayed in the dump

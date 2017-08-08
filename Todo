@@ -1,10 +1,4 @@
 
-:flat
-	missing interline, in32 example :flat(0)
-	:flat(0, 1) flattens 0 only
-
-NativeCall
-
 re-integrate Test::META
 
 object size
@@ -16,8 +10,7 @@ dhtml
 	user css override
 	visual cue for folds
 
-graphs that have entry further than :width are not clipped properly 
-	clip but insert warning in the tree
+#NativeCall
 
 #add Horizontal in META6.json
 

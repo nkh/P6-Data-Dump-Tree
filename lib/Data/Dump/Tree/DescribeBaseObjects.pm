@@ -179,8 +179,17 @@ multi method get_header (Enumeration $e) { '', '.' ~ $e.^name, DDT_FINAL }
 
 class Data::Dump::Tree::Type::Nil
 {
-multi method ddt_get_header { 'Nil', '', DDT_FINAL }
+method ddt_get_header { 'Nil', '', DDT_FINAL }
 }
+
+class DDTT_VO
+{
+has $.v = '' ;
+
+method new ($v) { self.bless: :v($v) }
+multi method ddt_get_header { "$.v", '', DDT_FINAL }
+}
+sub DVO($v) is export { DDTT_VO.new($v) }
 
 role DDTR::StringLimiter
 {

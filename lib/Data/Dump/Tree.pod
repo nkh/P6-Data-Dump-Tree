@@ -30,6 +30,8 @@ It also
 
 =item can display parts of the data structure Horizontally ( :flat() )
 
+=item supports NativeCall data types and representations (see int32 example)
+
 =item can be used to "visit" a data structure and call callbacks you define
 
 =item install Term::ANSIColor and get colored output (highly recommended)

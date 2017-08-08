@@ -9,7 +9,7 @@ use Data::Dump::Tree::DescribeBaseObjects ;
 role my_role { has $.something } # test that Int+something type displays correctly 
 
 class Point is repr('CStruct') {
-    has num64 $.x;
+    has num64 $.x is rw;
     has num32 $.y;
     has int32 $.z = 3;
 }
@@ -25,25 +25,31 @@ my Parts $union = Parts.new: :abc(10 ** 10) ;
 
 class MyStruct is repr('CStruct') {
 	has Point $.point;  # referenced 
-	has int32 $.flags;
+	submethod TWEAK() { $!point := Point.new }; 
 }
 
-say nativesizeof(MyStruct.new); 
-say nativesizeof(MyStruct); 
-
 my $mystruct = MyStruct.new ;
-#$mystruct.point = $point ;
+$mystruct.point.x = num64.new(888e0)  ;
+
 
 class MyStruct2 is repr('CStruct') {
 	HAS Point $.point;  # embedded 
-	has int32 $.flags;
+	submethod TWEAK() { $!point := Point.new }; 
 }
 
-say nativesizeof(MyStruct2.new); 
-say nativesizeof(MyStruct2); 
-
 my $mystruct2 = MyStruct2.new ;
-#$mystruct2.point = $point ;
+$mystruct2.point.x = num64.new(777e0)  ;
+
+
+
+class MyStruct3 is repr('CStruct') {
+	HAS Point $.point;  # embedded 
+	has int32 $.int32 ;
+	submethod TWEAK() { $!point := Point.new }; 
+}
+
+my $mystruct3 = MyStruct3.new: :int32(7) ;
+$mystruct3.point.x = num64.new(777e0)  ;
 
 
 sub add_p6(Int, Int) returns Int { 1 }
@@ -91,10 +97,7 @@ my $carray_titles = CArray[Str].new;
 $carray_titles[0] = 'Me';
 $carray_titles[1] = 'You';
 
-class StructiWithHandler is repr('CStruct') 
-{
-	has int32 $.flags;
-}
+class StructiWithHandler is repr('CStruct') { has int32 $.flags }
 
 role DDT_SWH
 {
@@ -103,16 +106,15 @@ multi method get_header (StructiWithHandler $s)
 }
 
 my $d1 = (&add_p6, &add, &init, &some_argless_function, &Foo_init) ;
-
 my $d2 = (MyHandle, $pointer) ;
 my $d3 = ($int32, @with_int32, @int32, @carray, $carray_titles, ) ;
-
 my $d4 = (Types, $types) ;
-
 my $d5 = (Point, $point, $union, MyStruct) ;
-
 my $d6 = StructiWithHandler ;
-my $d7 = (StructiWithHandler, MyStruct, MyStruct.new) ;
+
+my $d7 = (MyStruct,  MyStruct.new,  $mystruct,  DVO "native_size: {nativesizeof MyStruct}", ) ; 
+my $d8 = (MyStruct2, MyStruct2.new, $mystruct2, DVO "native_size: {nativesizeof MyStruct2}", ) ; 
+my $d9 = (MyStruct3, MyStruct3.new, $mystruct3, DVO "native_size: {nativesizeof MyStruct3}", ) ; 
 
 ''.say ;
 ddt $d1, :indent('  '), :nl ;
@@ -123,34 +125,7 @@ ddt $d4, :indent('  '), :flat(0), :nl  ;
 ddt $d5, :indent('  '), :nl  ;
 ddt $d6, :does[DDT_SWH], :indent('  '), :nl  ;
 
-dd $d3 ;
-
-#`<<<
-[16:53] <timotimo> that's more a property of a variable, really
-[16:53] <timotimo> m: my int32 $foo = 99; say $foo.WHAT; say $foo.VAR.WHAT;
-[16:53] <camelia> rakudo-moar aca4b9: OUTPUT: «(Int)␤(IntLexRef)␤»
-
-
-[16:55] <timotimo> there you'll get a IntPosRef
-[16:55] <timotimo> which is like an IntLexRef but instead of a lexical pad it refers to a native array
-[16:55] <timotimo> m: my int32 @foo = 1, 2, 3; say @foo[1].WHAT; say @foo[1].VAR.WHAT
-[16:55] <camelia> rakudo-moar aca4b9: OUTPUT: «(Int)␤(IntPosRef)␤»
-
-[22:04] <Skarsnik> nadim, this can maybe help figure stuff about native type https://github.com/rakudo/rakudo/blob/nom/lib/NativeCall.pm6#L233
-
-
-[11:24] <nadim> IE: $mystruct2.point = $point ; gave me error: Cannot modify an immutable Point ((Point))
-[11:33] <nine> nadim: you'll probably have to initialize the fields individually: $mystruct2.point.x = 1; $mystruct2.point.y = 2;
-[11:35] <lookatme> nadim, you can write a read-only accessor
-[11:40] <lookatme> m: use NativeCall; class Point is repr("CStruct") { has num64 $.x; has num64 $.y; submethod TWEAK() { $!x = num64.new(10); $!y = num64.new(10);}; }; class MS is repr("CStruct") { has Point $.point; has int32 $.flags; submethod TWEAK() { $!point := Point.new; $!flags = 1; }; }; say MS.new
-[11:40] <camelia> rakudo-moar a91ad2: OUTPUT: «MS.new(point => Point.new(x => 10e0, y => 10e0), flags => 1)␤»
-[11:41] <lookatme> m: use NativeCall; class Point is repr("CStruct") { has num64 $.x; has num64 $.y; submethod TWEAK() { $!x = num64.new(10); $!y = num64.new(10);}; }; class MS is repr("CStruct") { has Point $.point; has int32 $.flags; submethod TWEAK() { $!point := Point.new; $!flags = 1; }; }; my $ms = MS.new; $ms.point.x = num64.new(32); say $ms;
-[11:41] <camelia> rakudo-moar a91ad2: OUTPUT: «Cannot modify an immutable Num (10)␤  in block <unit> at <tmp> line 1␤␤»
-[11:42] <lookatme> m: use NativeCall; class Point is repr("CStruct") { has num64 $.x is rw; has num64 $.y; submethod TWEAK() { $!x = num64.new(10); $!y = num64.new(10);}; }; class MS is repr("CStruct") { has Point $.point; has int32 $.flags; submethod TWEAK() { $!point := Point.new; $!flags = 1; }; }; my $ms = MS.new; $ms.point.x = num64.new(32); say $ms;
-[11:42] <camelia> rakudo-moar a91ad2: OUTPUT: «MS.new(point => Point.new(x => 32e0, y => 10e0), flags => 1)␤»
-[11:42] <lookatme> nadim, does ^^ helpful ?
-[11:46] <lookatme> off work now
-
->>>
-
+ddt $d7, :indent('  '), :nl  ;
+ddt $d8, :indent('  '), :nl  ;
+ddt $d9, :indent('  '), :nl  ;
 
