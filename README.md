@@ -6,8 +6,9 @@ Date::Dump::Tree - Renders data structures in a tree fashion with colors
 
 Some blog entries you may like to look at:
 
-![blog](http://blogs.perl.org/users/nadim_khemir/2017/08/perl-6-datadumptree-version-15.html)
-![blog](http://blogs.perl.org/users/nadim_khemir/2017/08/take-a-walk-on-the-c-side.html)
+http://blogs.perl.org/users/nadim_khemir/2017/08/perl-6-datadumptree-version-15.html
+
+http://blogs.perl.org/users/nadim_khemir/2017/08/take-a-walk-on-the-c-side.html
 
 ![Imgur](http://i.imgur.com/P7eRSwl.png?1)
 

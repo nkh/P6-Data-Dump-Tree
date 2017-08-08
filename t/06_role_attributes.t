@@ -1,6 +1,6 @@
 
 use Test ;
-use DDT ;
+use Data::Dump::Tree ;
 
 plan 11 ;
 

@@ -182,28 +182,24 @@ class Data::Dump::Tree::Type::Nil
 method ddt_get_header { 'Nil', '', DDT_FINAL }
 }
 
-class DDTT_VO
+class Data::Dump::Tree::Type::ValueOnly
 {
 has $.v = '' ;
 
 method new ($v) { self.bless: :v($v) }
 multi method ddt_get_header { "$.v", '', DDT_FINAL }
+
+sub DVO($v) is export { Data::Dump::Tree::Type::ValueOnly.new($v) }
 }
-sub DVO($v) is export { DDTT_VO.new($v) }
 
 role DDTR::StringLimiter
 {
 
 method limit_string(Str $s, $limit)
 {
-if $limit.defined && $s.chars > $limit
-	{
-	$s.substr(0, $limit) ~ '(+' ~ $s.chars - $limit ~ ')'
-	}
-else
-	{
-	$s 
-	}	
+$limit.defined && $s.chars > $limit
+	?? $s.substr(0, $limit) ~ '(+' ~ $s.chars - $limit ~ ')'
+	!! $s 
 }
 
 
@@ -220,14 +216,6 @@ role DDTR::PerlString
 {
 multi method get_header (IntStr $i) { $i.Int ~ ' / "' ~ $i.Str ~ '"',  '.' ~ $i.^name, DDT_FINAL }
 multi method get_header (Str:D $s) { $_ = $s.perl ; S:g/^\"(.*)\"$/$0/, '.' ~ $s.^name, |is_final($s, 'Str') } 
-}
-
-class Data::Dump::Tree::Type::P6
-{
-has $.value = '' ;
-has $.type = '' ;
-
-multi method ddt_get_header { $.value, $.type, DDT_FINAL }
 }
 
 class Data::Dump::Tree::Type::MaxDepth
