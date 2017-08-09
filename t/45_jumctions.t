@@ -5,7 +5,7 @@ use Test ;
 plan 6 ;
 
 use Data::Dump::Tree ;
-my $d = Data::Dump::Tree.new ;
+my $d = Data::Dump::Tree.new: :!color ;
 
 my $j = 1 | 'a' & True ;
 class C { has $.j } ;

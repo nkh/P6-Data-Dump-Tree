@@ -10,6 +10,12 @@ http://blogs.perl.org/users/nadim_khemir/2017/08/perl-6-datadumptree-version-15.
 
 http://blogs.perl.org/users/nadim_khemir/2017/08/take-a-walk-on-the-c-side.html
 
+*Warning* This module is developed and tested with the latest rakudo
+
+*Warning* It may not work or install properly on your version of rakudo
+
+*Warning* There is a test suite run to check its fitness
+
 ![Imgur](http://i.imgur.com/P7eRSwl.png?1)
 
 NAME

@@ -69,6 +69,7 @@ my $dump = $d.get_dump(
 		max_depth => 3,
 		display_perl_address => True,
 		width => 75,
+		:!color,
 		);
 
 is( $dump.lines.elems, 83, 'all lines') or diag $dump ;

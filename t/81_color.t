@@ -13,3 +13,4 @@ todo 'test colors' ;
 	# colored ouput
 
 # no ANSI colors available => handle graciously
+# 04_flat did not return the same result with color and no color

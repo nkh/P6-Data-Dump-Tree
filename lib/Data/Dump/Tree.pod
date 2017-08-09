@@ -1,6 +1,12 @@
 
 =begin pod
 
+*Warning* This module is developed and tested with the latest rakudo
+
+*Warning* It may not work or install properly on your version of rakudo
+
+*Warning* There is a test suite run to check its fitness
+
 =NAME Date::Dump::Tree - Renders data structures in a tree fashion
 
 =SYNOPSIS
@@ -20,6 +26,8 @@ Data::Dump::Tree renders your data structures in a tree fashion for legibility.
 
 It also
 
+=item Colors the output if you install Term::ANSIColor (highly recommended)
+
 =item can display two data structures side by side (DDTR::MultiColumns)
 
 =item can display the difference between two data structures (DDTR::Diff)
@@ -33,8 +41,6 @@ It also
 =item supports NativeCall data types and representations (see int32 example)
 
 =item can be used to "visit" a data structure and call callbacks you define
-
-=item install Term::ANSIColor and get colored output (highly recommended)
 
 =INTERFACE
 

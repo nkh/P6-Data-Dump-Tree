@@ -7,6 +7,6 @@ use Data::Dump::Tree ;
 
 my $d = Data::Dump::Tree.new ;
 
-my $dump = $d.get_dump(True) ;
+my $dump = $d.get_dump: True, :!color ;
 is $dump.lines.elems, 1, '1 line' or diag $dump ;
 like $dump, /'.Bool'/, 'class name' or diag $dump ;
