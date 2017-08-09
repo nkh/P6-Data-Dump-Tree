@@ -51,7 +51,7 @@ Both subs take a variable number of string lists
 
 =item :total_width 
 
-The maximim width of the output, multiple rows of columns will be generated if necessary
+The maximum width of the output, multiple rows of columns will be generated if necessary
 
 =item :width
 

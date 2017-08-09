@@ -514,7 +514,7 @@ else
 	if @ks { @ks[*-1] = (|@ks[*-1], $!colorizer.color($b, $.color_kbs ?? @.kb_colors_cycle[$current_depth] !! 'binder')) }
 
 	@vs = $v2_width == $v2.chars # no color codes in $v2
-		??  self.split_text($v2, $width).map: { ($!colorizer.color($_, 'value'), ) }
+		?? self.split_text($v2, $width).map: { ($!colorizer.color($_, 'value'), ) }
 		!! self.split_colored_text($v2, $width).map: { ($!colorizer.color($_, 'value'), ) }
 
 	# put the footer and addresses on a single line if there is room
@@ -591,7 +591,10 @@ multi method split_text(Cool:D $text, $width)
 
 return $text if $width < 1 ;
 
-$text.lines.map({ |.comb($width)}) ;
+# combing an empty line returns nothing but we still want a line
+my @lines = $text.lines.map: { (|.comb($width)) || '' } ;
+
+@lines ;
 }
 
 multi method split_colored_text(Cool:D $text, $width)
@@ -608,7 +611,7 @@ for $text.lines -> $line
 	@lines.push: '' ;
 	$length = 0 ;
 
-	for $line.split: / <ansi_color>/, :v
+	for $line.split: / <ansi_color> /, :v
 		{
 		given $_
 			{
@@ -626,11 +629,10 @@ for $text.lines -> $line
 					}
 
 				$length += .chars ;	
-				@lines[*-1] ~= $_ ;
+				@lines[*-1] ~= '' ~ $_ ;
 				}
 			}		
 		}
-	
 	}
 
 @lines ;

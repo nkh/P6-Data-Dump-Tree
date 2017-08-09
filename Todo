@@ -1,16 +1,16 @@
 
-re-integrate Test::META
-
 object size
 
 NCurses
-	render uni codes
+	render unicode
 
 dhtml
 	user css override
 	visual cue for folds
 
 #NativeCall
+
+#re-integrate Test::META
 
 #add Horizontal in META6.json
 

@@ -4,7 +4,7 @@
 
 "name" : "Data::Dump::Tree",
 "license" : "Artistic-2.0",
-"version" : "1.5.4",
+"version" : "1.5.5",
 "auth"    : "github:nkh",
 "authors" : ["Nadim Khemir"],
 

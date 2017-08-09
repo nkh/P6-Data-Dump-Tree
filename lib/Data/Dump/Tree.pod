@@ -1,11 +1,9 @@
 
 =begin pod
 
-*Warning* This module is developed and tested with the latest rakudo
-
-*Warning* It may not work or install properly on your version of rakudo
-
-*Warning* There is a test suite run to check its fitness
+*Warning*: This module is developed and tested with the latest rakudo. It may
+not work or install properly with your version of rakudo, there is a test suite
+run to check its fitness. 
 
 =NAME Date::Dump::Tree - Renders data structures in a tree fashion
 

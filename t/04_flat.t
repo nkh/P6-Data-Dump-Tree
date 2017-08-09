@@ -21,16 +21,16 @@ for
 	(
 	(13,	:title<test 10, string>,	 	$s, 		:flat(10, <hello>)),
 	(13,	:title<test [1..3]>, 			$s, 		:flat([1..3],)),
-	(12,	:title<test Hash>, 			$s, 		:flat(Hash,)),
-	(5,	:title<test 0>, 			$s, 		:flat(0)),
-	(10,	:title<test 2>, 			($d, [3..5]), 	:flat(2)),
-	(12,	:title<test 3>, 			($d, [3..5], $d), :flat(3)),
+	(14,	:title<test Hash>, 			$s, 		:flat(Hash,)),
+	(6,	:title<test 0>, 			$s, 		:flat(0)),
+	(11,	:title<test 2>, 			($d, [3..5]), 	:flat(2)),
+	(14,	:title<test 3>, 			($d, [3..5], $d), :flat(3)),
 	(13,	:title<<test %(a => 1, b => 2)>>, 	$s, 		:flat(%(a => 1, b => 2),)),
-	(13,	:title<test %h1>, 			$s, 		:flat(%h1,)),
-	(12,	:title<test @a>, 			$s, 		:flat(@a,)),
-	(12,	:title<test sub: Hash>, 		$s, 		:flat({$_ ~~ Hash})),
-	(11,	:title<test sub Array $s.first: 3>,	$s, 		:flat({$_ ~~ Array && $_.first: 3})),
-	(13,	:title<test sub: $s == %h1>,		$s, 		:flat({$_ === %h1})),
+	(14,	:title<test %h1>, 			$s, 		:flat(%h1,)),
+	(13,	:title<test @a>, 			$s, 		:flat(@a,)),
+	(14,	:title<test sub: Hash>, 		$s, 		:flat({$_ ~~ Hash})),
+	(12,	:title<test sub Array $s.first: 3>,	$s, 		:flat({$_ ~~ Array && $_.first: 3})),
+	(14,	:title<test sub: $s == %h1>,		$s, 		:flat({$_ === %h1})),
 	# columns 
 	(39,	:title<flat()>,				$d2,		:flat()),
 	(38,	:title<flat((H, 2))>,			$d2,		:flat((Hash, 2),)),
@@ -43,7 +43,7 @@ for
 
 	# hash flatten if more than two keys, if less only if keys are non final
 	# array guess number of columns based on the number of elements and left space and rendering, which we know nothing about :)
-	(47,	:title<d3, flat(H, sA-5)>,		$d3,		:flat({$_ ~~ Hash && $_.keys > 1}, {$_ ~~ Array && $_.elems > 5, 5} )),
+	(48,	:title<d3, flat(H, sA-5)>,		$d3,		:flat({$_ ~~ Hash && $_.keys > 1}, {$_ ~~ Array && $_.elems > 5, 5} )),
 	)
 	{
 	my ($lines, $title, $ds, $flat) = | $_ ;
@@ -52,7 +52,6 @@ for
 	my $r = get_dump_lines_integrated |$c, :width(80), :!color ;
 	is($r.elems, $lines) or do
 		{
-		diag get_dump :title<flat>, $flat ;
 		diag get_dump |$title, $ds ;
 		diag get_dump |$c, :width(80) ;
 		
