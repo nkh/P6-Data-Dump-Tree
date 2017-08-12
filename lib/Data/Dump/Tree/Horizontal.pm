@@ -181,7 +181,6 @@ my @blocks = @.elements.map: -> ($k, $b, $sub_element)
 
 my $columns ;
 
-
 with $.rows
 	{
 	my @columns = $[] ;

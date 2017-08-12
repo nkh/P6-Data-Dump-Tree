@@ -24,7 +24,7 @@ my %default_colors =
 
 has @.title is rw ;
 has $.indent = '' ;
-has Bool $.nl ; # add empty line to the rendering
+has Bool $.nl is rw ; # add empty line to the rendering
 has Bool $.caller is rw = False ;
 
 has Bool $.color is rw = True ;
@@ -65,6 +65,7 @@ has Bool $.keep_paths is rw = False ;
 has @.flat ;
 has $.flat_depth = 0 ;
 has $.width is rw ; 
+has $.width_minus = 0 ; 
 
 has $.max_depth is rw = -1 ;
 has Bool $.max_depth_message is rw = True ;
@@ -92,7 +93,18 @@ $object
 }
 
 sub dump(|args) is export { print get_dump(|args) }
-sub ddt(|args) is export { print get_dump(|args) }
+sub ddt(|args) is export
+{
+if	args.hash<print> 		{ print get_dump(|args) }
+elsif 	args.hash<get>			{ get_dump(|args) }
+elsif	args.hash<get_lines>		{ get_dump_lines(|args) }
+elsif	args.hash<get_renderings>	{}
+elsif	args.hash<curses>		{}
+elsif	args.hash<remote>		{}
+elsif	args.hash<remote_fold>		{} 
+else					{ print get_dump(|args) }
+}
+
 
 sub get_dump(|args) is export { Data::Dump::Tree.new(|args.hash).get_dump(|args.list)}
 sub get_dump_lines(|args) is export { Data::Dump::Tree.new(|args.hash).get_dump_lines(|args.list)}
@@ -138,10 +150,11 @@ given args.list.elems
 	default 
 		{
 		$clone.reset ;
+		$clone.nl = False ;
 
 		@.title andthen $clone.render_root: Data::Dump::Tree::Type::Nothing.new ;
 
-		args.list.map:
+		for args.list
 			{
 			$clone.title = $_.VAR.?name !=== Nil ?? "{$_.VAR.name} =" !! '' ;
 			$clone.render_root: $_, False ;
@@ -186,6 +199,7 @@ unless @.kb_colors.elems
 @!kb_colors_cycle = |@.kb_colors xx  * ; 
 
 $.width //= %+((qx[stty size] || '0 80') ~~ /\d+ \s+ (\d+)/)[0] ; 
+$.width -= $.width_minus ; 
 }
 
 method render_root(Mu $s, $reset? = True)
@@ -255,25 +269,20 @@ if $.display_type
 	{ 
 	$f ~= ':U' unless $s.defined ;
 
-	my Str $repr = '' ~ $s.REPR ;
-
-	given $repr
+	given '' ~ $s.REPR
 		{
 		when 'CArray' 
 			{
 			$f ~~ s/^'.CArray'// ;
-			$f = ( $s.defined  ?? '[' ~ $s.elems ~ ']' !! '' ) ~ $f ~ ' <' ~ $repr ~ '>' ;
+			$f = ( $s.defined  ?? '[' ~ $s.elems ~ ']' !! '' ) ~ $f ~ ' <' ~ $_ ~ '>' ;
 			}
 
-		when 'CPointer' | 'CStruct' | 'CUnion' 
-			{
-			$f ~= ' <' ~ $repr ~ '>'
-			}
+		when 	'CPointer' | 'CStruct' | 'CUnion' 	{ $f ~= ' <' ~ $_ ~ '>' }
+		when 	'VMArray'				{ $f ~= ' <array>' }
+		#when 	'Uninstantiable' 			{ $f ~= ' <Uninstantiable>' }
+		when 	'P6opaque' 				{}
+		default 					{ $f ~= ' <' ~ $_ ~ '>' }
 
-		when 'VMArray' 
-			{
-			$f ~= ' <array>'
-			}
 		}
 	}
 else
@@ -281,11 +290,9 @@ else
 	$f = '' ;
 	}
  
- 
-my $s_replacement ;
 @!header_filters and $s.WHAT !=:= Mu and  
 	$.filter_header(
-		self, $s_replacement, $s,
+		self, my $s_replacement, $s,
 		($current_depth, $path, (|@head_glyphs, $filter_glyph), @!renderings),
 		($k, $b, $v, $f, $final, $want_address)) ;
 
@@ -299,7 +306,7 @@ if $.display_address == DDT_DISPLAY_NONE | DDT_DISPLAY_ALL
 	}
 elsif $.display_address == DDT_DISPLAY_CONTAINER 
 	{
-	$want_address //= ! $final ;
+	$want_address //= !$final ;
 	}
 
 my ($address, $rendered) =
@@ -325,14 +332,14 @@ $multi_line_glyph = $empty_glyph if $final ;
 ($v, $, $) = self.get_header($v) if $s !~~ Str ;
 
 my ($ddt_address, $perl_address, $link) =
-	$address.defined
-		?? $address.list.map: { $.superscribe_address($_) } 
-		!! ('', '', '') ;
+	($address // ('', '', '')).map: { $.superscribe_address($_) } 
 
 my (@kvf, @ks, @vs, @fs) := self!split_entry(
 				$current_depth, $width, $k, $b,
 				$glyph_width, $v, $f,
 				($ddt_address, $link, $perl_address) ) ;
+
+my $render_lines = @!renderings.end ;
 
 if @kvf # single line rendering
 	{
@@ -359,9 +366,10 @@ else
 		}
 	}
 
+
 my ($wh, $wh_token) = ($.wrap_header, ) ;
 $wh.defined and $wh_token = $wh(
-				$.wrap_data,
+				$.wrap_data, @!renderings.end - $render_lines,
 				(@head_glyphs, $glyph, $continuation_glyph, $multi_line_glyph),
 				(@kvf, @ks, @vs, @fs),
 				$s,
@@ -592,9 +600,7 @@ multi method split_text(Cool:D $text, $width)
 return $text if $width < 1 ;
 
 # combing an empty line returns nothing but we still want a line
-my @lines = $text.lines.map: { (|.comb($width)) || '' } ;
-
-@lines ;
+$text.lines.map: { (|.comb($width)) || '' } ;
 }
 
 multi method split_colored_text(Cool:D $text, $width)
@@ -635,7 +641,7 @@ for $text.lines -> $line
 		}
 	}
 
-@lines ;
+@lines
 }
 
 method superscribe($text) { $text }
@@ -733,6 +739,8 @@ $is_last
 method !get_class_and_parents ($a) { get_class_and_parents($a) }
 sub get_class_and_parents (Any $a) is export 
 {
+return $a.^name if $a.REPR ~~ 'Uninstantiable' ;
+
 (($a.^name, |get_Any_parents_list($a).grep({ ! $a.^name.match($_) })).map:
 	{'.' ~ S:g/'NativeCall::Types::'// with $_}).join(' ') 
 }
@@ -740,6 +748,7 @@ sub get_class_and_parents (Any $a) is export
 method !get_Any_parents_list(Any $a) { get_Any_parents_list($a) }
 sub get_Any_parents_list(Any $a) is export 
 {
+return if $a.REPR ~~ 'Uninstantiable' ;
 
 my @a = try { $a.^parents.map: { $_.^name } } 
 

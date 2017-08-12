@@ -45,7 +45,7 @@ multi sub elements_filter($dumper, Data::Dump::Tree $s, ($depth, $glyph, @render
 my $d = Data::Dump::Tree.new does DDTR::AsciiGlyphs ;
 my $dump = $d.get_dump: $d, :!color, :width<80>, :header_filters[&header_filter], :elements_filters[&elements_filter] ;
 
-is $dump.lines.elems, 47, 'lines output' or diag $dump ;
+is $dump.lines.elems, 48, 'lines output' or diag $dump ;
 like $dump, /removing/, 'removing' or diag $dump ;
 like $dump, /'not removing'/, 'not removing' or diag $dump ;
 like $dump, /'SUB ELEMENTS'/, 'sub elements filter' or diag $dump ;

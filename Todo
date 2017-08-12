@@ -1,12 +1,37 @@
 
+folding
+	#pass an object and apply folding role on top
+
+	large renderings are slow to scroll
+		probably NCurses related as get_lines is 0.004s and 0.0006s when cached
+
+ddt adverbs
+	:curses
+
+	db_send for ddt
+		ddt :remote / :remote(8888)
+		ddt :remote_fold, send lines and fold data, no need for objects!
+
+	ddt :get instead for get_dump
+
 object size
 
 NCurses
-	render unicode
+	#support multi line entries
 
+	#utility sub
+	render unicode
+	
 dhtml
 	user css override
 	visual cue for folds
+
+render role inheritance
+	eg: role X does Y
+
+#Role dumping
+   │ .DDTR::AsciiGlyphs .DDT exception :  No such method 'parents' for invocant of type 'Perl6::Metamodel::ParametricRoleGr
+   │ oupHOW':U <Uninstantiable>
 
 #NativeCall
 

@@ -126,9 +126,8 @@ Data::Dump::Tree
 
 
 use Data::Dump::Tree ;
-use Data::Dump::Tree::Colorizer ;
 
-enum (SKIP => 0, 'FOLDED', 'PARENT_FOLDED') ;
+enum (NEXT => 0, 'START', 'LINES', 'FOLDS', 'FOLDED', 'PARENT_FOLDED') ;
 
 class Data::Dump::Tree::Foldable::View {...}
 
@@ -140,35 +139,19 @@ has @.folds ;
 method new($s, *%attributes)
 {
 
-my $dumper = Data::Dump::Tree.new: |%attributes ;
+my $dumper = %attributes<ddt_is> // Data::Dump::Tree.new ;
 
-my ($lines, $wrap_data) 
-	= $dumper.get_dump_lines:
-			$s, 
-			:wrap_header(&header_wrap),
-			:wrap_footer(&footer_wrap),
-			:colors<
-				reset 1
-
-				ddt_address 2  link   3    perl_address 4  
-				header      5  key    6    binder 7 
-				value       8  wrap   9
-
-				gl_0 10 gl_1 11  gl_2 12 gl_3 13  gl_4 14
-
-				kb_0 20   kb_1 21 
-				kb_2 22   kb_3 23 
-				kb_4 24   kb_5 25      
-				kb_6 26   kb_7 27
-				kb_8 28   kb_9 29 
-				>,
-			:colorizer(CursesColorizer.new) ;
+my ($lines, $wrap_data) = $dumper.get_dump_lines:
+					$s,
+					|%attributes, 
+					:wrap_header(&header_wrap),
+					:wrap_footer(&footer_wrap) ;
 
 self.bless: :lines(|$lines), :folds(|$wrap_data<folds>) ;
 }
 
 my sub header_wrap(
-	\wd,
+	\wd, $rendered_lines,
 	(@head_glyphs, $glyph, $continuation_glyph, $multi_line_glyph),
 	(@kvf, @ks, @vs, @fs),
 	Mu $s,
@@ -176,20 +159,22 @@ my sub header_wrap(
 	($k, $b, $v, $f, $, $final, $want_address),
 	) 
 {
-wd<folds>.push: @renderings.elems ;
-wd<folds>.elems - 1 ; # token passed to footer callback
+wd<folds>.push: [@renderings.elems, @renderings.elems - $rendered_lines, $rendered_lines] ;
+
+return wd<folds>.end ; # token passed to footer callback
 }
 
 my sub footer_wrap(\wd, Mu $s, $final, ($depth, @glyphs, @renderings), $header_wrap_token)
 {
-wd<folds>[$header_wrap_token] [R-]= @renderings.elems ;
+wd<folds>[$header_wrap_token][NEXT] = wd<folds>.elems ;
+wd<folds>[$header_wrap_token][FOLDS] = wd<folds>.elems != $header_wrap_token + 1 ;
 }
 
 method get_view(*%options)
 {
 Data::Dump::Tree::Foldable::View.new:
 	:foldable(self),
-	:folds($.folds.map: { [$_, 0, 0] }),
+	:folds($.folds.map: { [|$_, 0, 0] }),
 	|%options,
 }
 
@@ -208,86 +193,127 @@ has @.folds ;
 
 has Bool $.search_folds = True ;
 
-method set(:$page_size, :$top_line, :$selected_line)
+method set(:$page_size, :$top_line, :$selected_line --> Bool)
 { 
 $page_size andthen $!page_size = max $page_size, 0 ;
 
-$!top_line = max(min($top_line, @!folds - $!page_size), 0) with $top_line ;
+$top_line andthen $!top_line = max(min($top_line, @!folds - $!page_size), 0) ;
 
-with $selected_line 
-	{
-	my $current_line = $!top_line ;
-
-	for ^max(min($selected_line, $!page_size), 0) 
-		{
-		$current_line += @!folds[$_][FOLDED] 
-					?? @!folds[$_][SKIP] + 1
-					!! 1 ;
-		}
-
-	$!selected_line = $current_line ;
-	}
+$selected_line andthen $!selected_line = $selected_line ;
+	
+True
 }
 
-method line_up()
+method line_up(--> Bool)
 {
+my $line = $!top_line ;
+
 $!top_line-- ;
 
 while @!folds[$!top_line][PARENT_FOLDED]
 	{ $!top_line-- }
 
 $!top_line max= 0 ;
+
+$!top_line != $line 
 }
 
-method page_up() { $.line_up for ^$!page_size }
-
-method line_down()
+method line_down(-->Bool)
 {
-my $start_line = $!top_line ;
+my $line = $!top_line ;
 
-$!top_line++ ;
-  
-while @!folds[$!top_line][PARENT_FOLDED]
-	{ $!top_line++ }
+$!top_line = @!folds[$!top_line][FOLDED] ?? @!folds[$!top_line][NEXT] !! $!top_line + 1 ;
 
-$!top_line = $start_line if $!top_line >= @!folds ;
+$!top_line = $line if $!top_line > @!folds.end ;
+
+$!top_line != $line 
 }
 
-method page_down() { $.line_down for ^$!page_size }
+method page_up(--> Bool) { my Bool $refresh ;  $refresh++ if $.line_up for ^$!page_size ; $refresh }
+method page_down(--> Bool) { my Bool $refresh ; $refresh++ if $.line_down for ^$!page_size ; $refresh }
 
-method fold_flip_selected()
+method home(--> Bool) { my Bool $refresh ; $refresh++ if $.line_up for ^(@!folds - $!top_line) ; $refresh }
+method end(--> Bool) { my Bool $refresh ; $refresh++ if  $.line_down for ^(@!folds - $!top_line) ; $refresh }
+
+method selected_line_up(--> Bool)
+{
+return False if $!selected_line == 0 ;
+
+$!selected_line-- ;
+
+True
+}
+
+method selected_line_down(--> Bool)
+{
+return False if $!selected_line == @!folds.end - $!top_line ;
+
+$!selected_line++ ;
+
+True
+}
+
+sub db_send($b, :$port) { try { my $c = IO::Socket::INET.new: :host<localhost>, :port($port // 3333) ; $c.print: $b ; $c.close} }
+
+method fold_flip_selected(--> Bool)
 { 
-return unless @!folds[$!selected_line][SKIP] ; # only fold foldable
+my @lines := $.get_lines ;
+my $line = @lines[$!selected_line][0] ; 
 
-my $state = @!folds[$!selected_line][FOLDED] +^= 1 ;
+return False unless @!folds[$line][FOLDS] ; # only fold foldable
 
-my @sub_elements = @!folds[ ($!selected_line + 1) .. ($!selected_line + @!folds[$!selected_line][SKIP]) ] ;
+my $state = @!folds[$line][FOLDED] +^= 1 ;
+
+my @sub_elements =  @!folds[ ($line + 1) .. @!folds[$line][NEXT] - 1 ] ;
 
 while @sub_elements
 	{
- 	$_ = @sub_elements.shift ;
+	$_ = @sub_elements.shift ;
 
 	$_[PARENT_FOLDED] = $state ;
 
-	if $_[FOLDED] {	@sub_elements.shift for ^$_[SKIP] }
+	if $_[FOLDED] { @sub_elements.shift if @sub_elements for ^$_[NEXT] }
 	}
+
+True
 }
 
-method fold_all()   { for @!folds { $_[PARENT_FOLDED] = 1 ; $_[FOLDED] = 1 if $_[SKIP] } ; @!folds[0][PARENT_FOLDED] = 0 }
-method unfold_all() { for @!folds { $_[PARENT_FOLDED] = $_[FOLDED] = 0 } }
+method fold_all(--> Bool)
+{
+for @!folds -> $fold
+	{
+	$fold[PARENT_FOLDED] = 1 ;
+	$fold[FOLDED] = 1 if $fold[FOLDS] ;
+	}
+
+@!folds[0][PARENT_FOLDED] = 0 ;
+$!top_line = 0 ;
+
+True
+}
+
+method unfold_all(--> Bool) { for @!folds { $_[PARENT_FOLDED] = $_[FOLDED] = 0 } ; True}
 
 method get_lines()
 {
-my ($current_line, @lines) = ($!top_line, ) ;
+my ($fold_line, @lines) = ($!top_line, ) ;
 
-while @lines < $!page_size and $current_line < $!foldable.lines  
+while @lines < $!page_size and $fold_line < @!folds
 	{
-	@lines.push: $!foldable.lines[$current_line] ;
+	my $display_line = $.folds[$fold_line][START] ;
 
-	$current_line += @!folds[$current_line][FOLDED] 
-				?? @!folds[$current_line][SKIP] + 1
-				!! 1 ;
+	for ^$.folds[$fold_line][LINES]
+		{
+		@lines.push: [ +$fold_line, so $.folds[$fold_line][FOLDED], $!foldable.lines[$display_line + $_] ] ;
+
+		last if @lines >= $!page_size ;
+		}
+
+	$fold_line = @!folds[$fold_line][FOLDED] ?? @!folds[$fold_line][NEXT] !! $fold_line + 1 ;
 	}
+
+$!selected_line max= 0 ;
+$!selected_line min= @lines.end ;
 
 @lines
 }
@@ -302,6 +328,13 @@ method search()
 # search paths only
 # hi-light matches
 }
+
+method search_fold
+{
+# find entries based on text and type and fold/unfold them
+# so far type is not part of fold information, nor is path information
+}
+
 
 } # class
 
