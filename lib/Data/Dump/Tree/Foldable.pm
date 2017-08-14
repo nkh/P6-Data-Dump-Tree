@@ -253,8 +253,6 @@ $!selected_line++ ;
 True
 }
 
-sub db_send($b, :$port) { try { my $c = IO::Socket::INET.new: :host<localhost>, :port($port // 3333) ; $c.print: $b ; $c.close} }
-
 method fold_flip_selected(--> Bool)
 { 
 my @lines := $.get_lines ;

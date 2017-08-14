@@ -3,6 +3,7 @@ use Data::Dump::Tree::Colorizer ;
 use Data::Dump::Tree::Enums ;
 use Data::Dump::Tree::DescribeBaseObjects ;
 use Data::Dump::Tree::ExtraRoles ;
+use Data::Dump::Tree::Ddt ;
 
 class Data::Dump::Tree does DDTR::DescribeBaseObjects
 {
@@ -92,25 +93,38 @@ unless $object.display_info
 $object 
 }
 
-sub dump(|args) is export { print get_dump(|args) }
+sub DDT(|args) is export { Data::Dump::Tree.new(|args.hash) }
+
 sub ddt(|args) is export
 {
 if	args.hash<print> 		{ print get_dump(|args) }
 elsif 	args.hash<get>			{ get_dump(|args) }
 elsif	args.hash<get_lines>		{ get_dump_lines(|args) }
-elsif	args.hash<get_renderings>	{}
-elsif	args.hash<curses>		{}
-elsif	args.hash<remote>		{}
-elsif	args.hash<remote_fold>		{} 
+elsif	args.hash<get_lines_integrated>	{ get_dump_lines_integrated(|args) } 
+elsif	args.hash<curses>		{ ddt_curses(|args) }
+elsif	args.hash<remote>		{ ddt_remote( get_dump(|args), :remote_port(args.hash<remote_port>)) }
+elsif	args.hash<remote_fold>		{ 'ddt :remote_fold not implemented.'.say } 
 else					{ print get_dump(|args) }
 }
 
-
+sub dump(|args) is export { print get_dump(|args) }
 sub get_dump(|args) is export { Data::Dump::Tree.new(|args.hash).get_dump(|args.list)}
 sub get_dump_lines(|args) is export { Data::Dump::Tree.new(|args.hash).get_dump_lines(|args.list)}
 sub get_dump_lines_integrated(|args) is export
 {
 Data::Dump::Tree.new(|args.hash).get_dump_lines(|args.list).map( { $_.map({ $_.join} ).join } ) ;
+}
+
+method ddt(|args)
+{
+if	args.hash<print> 		{ print self.get_dump(|args) }
+elsif 	args.hash<get>			{ self.get_dump(|args) }
+elsif	args.hash<get_lines>		{ self.get_dump_lines(|args) }
+elsif	args.hash<get_lines_integrated>	{ self.get_dump_lines_integrated(|args) } 
+elsif	args.hash<curses>		{ ddt_curses(|args, :ddt_is(self)) }
+elsif	args.hash<remote>		{ ddt_remote( self.get_dump(|args), :remote_port(args.hash<remote_port>)) }
+elsif	args.hash<remote_fold>		{ 'ddt :remote_fold not implemented.'.say } 
+else					{ print self.get_dump(|args) }
 }
 
 method dump(|args) { print self.get_dump(|args) }
