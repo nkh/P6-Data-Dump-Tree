@@ -114,7 +114,7 @@ $wrap_data<DHTML>
 }
 
 my sub header_wrap(
-	\wd, $rendered_lines
+	\wd, $rendered_lines,
 	(@head_glyphs, $glyph, $continuation_glyph, $multi_line_glyph),
 	(@kvf, @ks, @vs, @fs),
 	Mu $s,

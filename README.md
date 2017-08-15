@@ -10,11 +10,9 @@ http://blogs.perl.org/users/nadim_khemir/2017/08/perl-6-datadumptree-version-15.
 
 http://blogs.perl.org/users/nadim_khemir/2017/08/take-a-walk-on-the-c-side.html
 
-*Warning*: This module is developed and tested with the latest rakudo. It may
-not work or install properly with your version of rakudo, there is a test suite
-run to check its fitness. 
-
 ![Imgur](http://i.imgur.com/P7eRSwl.png?1)
+
+*Warning*: This module is developed and tested with the latest rakudo. It may not work or install properly with your version of rakudo, there is a test suite run to check its fitness. 
 
 NAME
 ====
@@ -24,76 +22,67 @@ Date::Dump::Tree - Renders data structures in a tree fashion
 SYNOPSIS
 ========
 
-    use Data::Dump::Tree ; # or use DDT ;
+    use Data::Dump::Tree ;
 
-    dump @your_data ;
+    ddt @your_data ;
 
     my $d = Data::Dump::Tree.new(...) ;
-    $d.dump: @your_data ;
+    $d.ddt: @your_data ;
 
     $d does role { ... } ;
-    $d.dump: @your_data ;
+    $d.ddt: @your_data ;
 
 DESCRIPTION
 ===========
 
 Data::Dump::Tree renders your data structures in a tree fashion for legibility.
 
-It also
+It also can:
 
-  * can display two data structures side by side (DDTR::MultiColumns)
+  * colors the output if you install Term::ANSIColor (highly recommended)
 
-  * can display the difference between two data structures (DDTR::Diff)
+  * display two data structures side by side (DDTR::MultiColumns)
 
-  * can generate DHTM output (DDTR::DHTML)
+  * display the difference between two data structures (DDTR::Diff)
 
-  * can display a folding structure in Curses (DDTR::Folding)
+  * generate DHTML output (DDTR::DHTML)
 
-  * can display parts of the data structure Horizontally ( :flat() )
+  * display a folding structure in Curses (DDTR::Folding)
 
-  * supports NativeCall data types and representations (see int32 example)
+  * display parts of the data structure Horizontally ( :flat() )
 
-  * can be used to "visit" a data structure and call callbacks you define
+  * show NativeCall data types and representations (see int32 example)
 
-  * install Term::ANSIColor and get colored output (highly recommended)
+  * be used to "visit" a data structure and call callbacks you define
 
 INTERFACE
 =========
 
-sub ddt($data_to_dump, $data_to_dump, :named_argument, ...)
------------------------------------------------------------
-
-'say's the rendering of the data structure; an alias to *dump()*
-
-sub dump($data_to_dump, $data_to_dump, :named_argument, ...)
-------------------------------------------------------------
-
-'say's the rendering of the data structure
-
-sub get_dump($data_to_dump, $data_to_dump, :named_argument, ...)
-----------------------------------------------------------------
-
-Returns a string containing the rendering of the data structure
-
-sub get_dump_lines($data_to_dump, $data_to_dump, :named_argument, ...)
-----------------------------------------------------------------------
-
-Returns an array containing the lines of the data structure rendering
-
-method dump: $data_to_dump, $data_to_dump, :named_argument, ...
----------------------------------------------------------------
-
-'say's the rendering of the data structure
-
-method get_dump: $data_to_dump, $data_to_dump, :named_argument, ...
+sub ddt $data_to_dump, $data_to_dump, :adverb, :named_argument, ...
 -------------------------------------------------------------------
 
-Returns a string containing the rendering of the data structure
+Renders the data structure
 
-method get_dump_lines: $data_to_dump, $data_to_dump, :named_argument, ...
--------------------------------------------------------------------------
+This interface accepts the following adverbs: 
 
-Returns an array containing the rendering of the data structure
+  * **:print** prints the rendered data, the default befhavior without adverb
+
+  * **:note** 'note's the rendered data
+
+  * **:get** returns the rendered data
+
+  * **:get_lines** returns the rendering in its native format
+
+  * **:get_lines_integrated** returns a list of rendered lines
+
+  * **:curses** opens a NCurses interface, NCurses module must be installed
+
+  * **:remote** sends data the to listener (examples/ddt.pl and ddt_receive.pl)
+
+method ddt: $data_to_dump, $data_to_dump, :adverb, :named_argument, ...
+-----------------------------------------------------------------------
+
+Renders the data structure, see above for a list of adverbs. 
 
 USAGE
 =====
@@ -113,31 +102,29 @@ USAGE
 	    'aaa' ~~ m:g/(a)/,
 	    ] ;
 
-    dump $s, :title<A complex structure> ;
+    ddt $s, :title<A complex structure> ;
 
-    dump $s1, $s2, $s3, :!color ;
-
-    ddt $s4 ;
+    ddt $s1, $s2, $s3, :!color ;
 
 Output
 ------
 
     A complex structure [5] @0
-    |- 0 = text.Str
-    |- 1 = 3.1 (31/10).Rat
-    |- 2 = {2} @1
-    |  |- a => 1.Int
-    |  `- b => string.Str
-    |- 3 = .MyClass @2
-    |  |- $.size = 6.Str
-    |  `- $.name = P6 class.Str
-    `- 4 = (3) @3
-       |- 0 = a[0]
-       |- 1 = a[1]
-       `- 2 = a[2]
+    ├ 0 = text.Str
+    ├ 1 = 3.1 (31/10).Rat
+    ├ 2 = {2} @1
+    │ ├ a => 1
+    │ └ b => string.Str
+    ├ 3 = .MyClass @2
+    │ ├ $.size = 6
+    │ └ $.name = P6 class.Str
+    └ 4 = (3) @3
+      ├ 0 = a[0]
+      ├ 1 = a[1]
+      └ 2 = a[2]
 
-DUMP 
-=====
+Rendering 
+==========
 
 Each line of output consists 5 elements, 2 elements, the tree and the address, are under the control of Data::Dump::Tree, The three remaining elements can be under your control but Data::Dump::Tree provides defaults. 
 
@@ -152,11 +139,11 @@ Elements of the dump
 
 The tree portion of the output shows the relationship between the data elements. The data is indented under its container.
 
-You can control the color of the tree portion and if it is rendered with ASCII, ANSI code or Unicode.
+You can control the color of the tree portion and if it is rendered with ASCII or Unicode.
 
 ### key
 
-The key is the name of the element being displayed; in the examples above, the container is an array; Data:Dump::Tree gives the index of the element as the  key of the element. IE: '0', '3', '4'
+The key is the name of the element being displayed; in the examples above, the container is an array; Data:Dump::Tree gives the index of the element as the  key of the element. IE: '0', '1', '2', ...
 
 ### binder
 
@@ -164,13 +151,13 @@ The string displayed between the key and the value.
 
 ### value
 
-The value of the element being displayed; Data::Dump::Tree displays the value of "terminal" variables, eg: Str, Int, Rat. For containers, nothing is displayed.
+The value of the element being displayed; Data::Dump::Tree displays the value of "terminal" variables, eg: Str, Int, Rat; for containers, no value is displayed.
 
 ### Type
 
 The type of the variable with a '.' appended. IE: '.Str', '.MyClass'
 
-Data::DumpTree will display
+Data::Dump::Tree will display
 
   * Ints have their type set to a white space string to reduce noise
 
@@ -203,35 +190,37 @@ It is possible to name containers by using *set_element_name* before dumping  yo
     $d.set_element_name: $s[5], 'some list' ;
     $d.set_element_name: @a, 'some array' ;
 
-    $d.dump: $s ;
+    $d.ddt: $s ;
 
 If an element is named, its name will be displayed next to his address, the first time it is displayed and when an element refers to it. 
 
 Configuration and Overrides
 ---------------------------
 
-There are multiple ways to configure the Dumper. You can pass a configuration to the dump() sub or you can create a dumper object with your configuration. 
+There are multiple ways to configure the Dumper. You can pass a configuration to the ddt() sub or you can create a dumper object with your configuration. 
 
     # subroutine interface
-    dump($s, :titlei<text>, :width(115), :!color))  ;
+    ddt $s, :titlei<text>, :width(115), :!color  ;
 
     # basic object
     my $dumper = Data::Dump::Tree.new ;
 
     # pass you configuration at every call
-    $dumper.get_dump: $s, :width(115), :!color ;
+    $dumper.ddt: $s, :width(115), :!color ;
 
     # configure object at creation time
     my $dumper = Data::Dump::Tree.new: :width(79) ;
 
     # use as configured
-    $dumper.dump: $s ;
+    $dumper.ddt: $s ;
 
     # or with a call time configuration override
-    $dumper.dump: $s, :width(115), :max_depth(3) ;
+    $dumper.ddt: $s, :width(115), :max_depth(3) ;
 
 
     # see roles for roles configuration
+
+The example directory contain a lot of examples. Read and run the examples to learn how to use DDT, specially the advanced examples.
 
 ### colors
 
@@ -240,6 +229,8 @@ There are multiple ways to configure the Dumper. You can pass a configuration to
 By default coloring is on if Term::ANSIColor is installed.
 
 Setting this option to False forces the output to be monochrome. 
+
+    ddt $s, :!color ;
 
 #### %colors 
 
@@ -265,10 +256,10 @@ Will set a default glyph color cycle.
     my @s = [ ... ] ;
 
     # monochrome glyphs
-    dump(@s) ;
+    ddt @s ;
 
     # colored glyphs, will cycle 
-    dump(@s, :color_glyphs) ; # uses < gl_0 gl_1 gl_2 gl_3 >
+    ddt @s, :color_glyphs ; # uses < gl_0 gl_1 gl_2 gl_3 >
 
 #### @glyph_colors
 
@@ -277,10 +268,10 @@ You can also define your own cycle with **@glyph_colors**:
     my @s = [ ... ] ;
 
     # monochrome glyphs
-    dump(@s) ;
+    ddt @s ;
 
     # colored glyphs, will cycle (note that the colors must be defined)
-    dump(@s, :color_glyphs, glyph_colors => < gl_0 gl_1 >) ;
+    ddt @s, :color_glyphs, glyph_colors => < gl_0 gl_1 > ;
 
 #### $color_kbs
 
@@ -289,10 +280,10 @@ Will set a default key and binding color cycle.
     my @s = [ ... ] ;
 
     # default uses colors 'key' and 'binder'
-    dump(@s) ;
+    ddt @s ;
 
     # used color 'kb_0', 'kb_1' ... and cycles
-    dump(@s, :color_kbs) ; #uses < kb_0 kb_1 ...  kb_10 >
+    ddt @s, :color_kbs ; #uses < kb_0 kb_1 ...  kb_10 >
 
 #### @kb_colors
 
@@ -301,21 +292,29 @@ You can also define your own cycle with **@kb_colors**:
     my @s = [ ... ] ;
 
     # colored glyphs, will cycle (note that the colors must be defined)
-    dump(@s, :color_kbs, kb_colors => < kb_0 kb_1 >) ;
+    ddt @s, :color_kbs, kb_colors => < kb_0 kb_1 > ;
 
 ### $width = terminal width
 
 Note that the width of the glyps is subtracted from the width you pass as we use that space when displaying multiline values in the dump.
 
+    ddt $s, :width(40) ;
+
+DDT uses the whole terminal width if no width is given.
+
+### $width_minus = Int
+
+Reduces the width, you can use it to reduce the automatically computer width.
+
 ### $indent = Str
 
-The string is prepended in the rendering
+The string is prepended to each line of the rendering
 
 ### $nl = Bool
 
 Add an empty line to the rendering
 
-### $max_depth 
+### $max_depth = Int 
 
 Limit the depth of a dump. There is no limit by default.
 
@@ -351,36 +350,37 @@ You can chose which elements, which type of element or even dynamically chose to
 
     dd's example output:
 
-    $($[[1, [2, [3, 4]]], ([6, [3]],), [1, [2, [3, 4]]]], [[1, [2, [3, 4]]], [1, [2, [3
-    , 4]]]], $[[1, 2], ([1, [2, [3, 4]]], [1, [2, [3, 4]]], [1, [2, [3, 4]]], [1, [2, [
-    3, 4]]], [1, [2, [3, 4]]], [1, [2, [3, 4]]], [1, [2, [3, 4]]], [1, [2, [3, 4]]], [1
-    , [2, [3, 4]]], [1, [2, [3, 4]]], [1, [2, [3, 4]]]).Seq], [[1, [2, [3, 4]]], [1, [2
-    , [3, 4]]], [1, 2], [1, 2, 3], [1, [2, [3, 4]]], [1, [2, [3, 4]]], [1, [2, [3, 4]]]
-    , [1, [2, [3, 4]]], [1, [2, [3, 4]]], [1, [2, [3, 4]]]], $[[1, 2], ([1, [2, [3, 4]]
-    ], [1, [2, [3, 4]]], [1, [2, [3, 4]]], [1, [2, [3, 4]]], [1, [2, [3, 4]]], [1, [2, 
-    [3, 4]]], [1, [2, [3, 4]]], [1, [2, [3, 4]]], [1, [2, [3, 4]]], [1, [2, [3, 4]]], [
-    1, [2, [3, 4]]]).Seq], "12345678")
+    $($[[1, [2, [3, 4]]], ([6, [3]],), [1, [2, [3, 4]]]], [[1, [2, [3, 4]]],
+    [1, [2, [3, 4]]]], $[[1, 2], ([1, [2, [3, 4]]], [1, [2, [3, 4]]], [1,
+    [2, [3, 4]]], [1, [2, [3, 4]]], [1, [2, [3, 4]]], [1, [2, [3, 4]]], [1,
+    [2, [3, 4]]], [1, [2, [3, 4]]], [1, [2, [3, 4]]], [1, [2, [3, 4]]], [1,
+    [2, [3, 4]]]).Seq], [[1, [2, [3, 4]]], [1, [2, [3, 4]]], [1, 2], [1, 2,
+    3], [1, [2, [3, 4]]], [1, [2, [3, 4]]], [1, [2, [3, 4]]], [1, [2, [3,
+    4]]], [1, [2, [3, 4]]], [1, [2, [3, 4]]]], $[[1, 2], ([1, [2, [3, 4]]],
+    [1, [2, [3, 4]]], [1, [2, [3, 4]]], [1, [2, [3, 4]]], [1, [2, [3, 4]]],
+    [1, [2, [3, 4]]], [1, [2, [3, 4]]], [1, [2, [3, 4]]], [1, [2, [3, 4]]],
+    [1, [2, [3, 4]]], [1, [2, [3, 4]]]).Seq], "12345678")
 
-    Same data rendered with ddt and :flat(0)
-
-    (6) @0
-    0 = [3] @1        1 = [2] @9   2 = [2] @12        3 = [10] @25
-    ├ 0 = [2] @2      ├ 0 = [2] §2 ├ 0 = [2] @13      ├ 0 = [2] §2
-    │ ├ 0 = 1.Int     └ 1 = [2] §2 │ ├ 0 = 1.Int      ├ 1 = [2] §2
-    │ └ 1 = [2] @3                 │ └ 1 = 2.Int      ├ 2 = [2] §13
-    │   ├ 0 = 2.Int                └ 1 = .Seq(11) @14 ├ 3 = [3] @29
-    │   └ 1 = [2] @4                 ├ 0 = [2] §2     │ ├ 0 = 1.Int
-    │     ├ 0 = 3.Int                ├ 1 = [2] §2     │ ├ 1 = 2.Int
-    │     └ 1 = 4.Int                ├ 2 = [2] §2     │ └ 2 = 3.Int
-    ├ 1 = (1) @5                     ├ 3 = [2] §2     ├ 4 = [2] §2
-    │ └ 0 = [2] @6                   ├ 4 = [2] §2     ├ 5 = [2] §2
-    │   ├ 0 = 6.Int                  ├ 5 = [2] §2     ├ 6 = [2] §2
-    │   └ 1 = [1] @7                 ├ 6 = [2] §2     ├ 7 = [2] §2
-    │     └ 0 = 3.Int                ├ 7 = [2] §2     ├ 8 = [2] §2
-    └ 2 = [2] §2                     ├ 8 = [2] §2     └ 9 = [2] §2
-                                     ├ 9 = [2] §2
-                                     └ ...
-    4 = [2] §12 5 = 12345678.Str
+    Same data rendered with ddt and :flat(0):
+     
+     (6) @0
+       0 = [3] @1       1 = [2] @9   2 = [2] @12        3 = [10] @25
+       ├ 0 = [2] @2     ├ 0 = [2] §2 ├ 0 = [2] @13      ├ 0 = [2] §2
+       │ ├ 0 = 1        └ 1 = [2] §2 │ ├ 0 = 1          ├ 1 = [2] §2
+       │ └ 1 = [2] @3                │ └ 1 = 2          ├ 2 = [2] §13
+       │   ├ 0 = 2                   └ 1 = .Seq(11) @14 ├ 3 = [3] @29
+       │   └ 1 = [2] @4                ├ 0 = [2] §2     │ ├ 0 = 1
+       │     ├ 0 = 3                   ├ 1 = [2] §2     │ ├ 1 = 2
+       │     └ 1 = 4                   ├ 2 = [2] §2     │ └ 2 = 3
+       ├ 1 = (1) @5                    ├ 3 = [2] §2     ├ 4 = [2] §2
+       │ └ 0 = [2] @6                  ├ 4 = [2] §2     ├ 5 = [2] §2
+       │   ├ 0 = 6                     ├ 5 = [2] §2     ├ 6 = [2] §2
+       │   └ 1 = [1] @7                ├ 6 = [2] §2     ├ 7 = [2] §2
+       │     └ 0 = 3                   ├ 7 = [2] §2     ├ 8 = [2] §2
+       └ 2 = [2] §2                    ├ 8 = [2] §2     └ 9 = [2] §2
+                                       ├ 9 = [2] §2
+                                       └ ...
+       4 = [2] §12 5 = 12345678.Str
 
 Handling specific types
 -----------------------
@@ -457,17 +457,17 @@ To make that handler active, make your dumper do the role
     my $d = Data::Dump::Tree.new: :width(80) ;
     $d does your_hash_handler ;
 
-    $d.dump: @your_data ;
+    $d.ddt: @your_data ;
 
     # by passing roles to the constructor
     my $d = Data::Dump::Tree.new: :does(DDTR::MatchDetails, your_hash_handler) ;
 
     # by passing roles to dump() method
     my $d = Data::Dump::Tree.new ;
-    $d.dump: $m, :does(DDTR::MatchDetails, your_hash_handler) ;
+    $d.ddt: $m, :does(DDTR::MatchDetails, your_hash_handler) ;
 
-    # by passing roles to dump() sub 
-    dump: $m, :does(DDTR::MatchDetails, your_hash_handler) ;
+    # by passing roles to ddt sub 
+    ddt: $m, :does(DDTR::MatchDetails, your_hash_handler) ;
 
 ### FINAL elements
 
@@ -499,7 +499,7 @@ In the previous section we discussed rendering types with specific handler. The 
 
 To pass a filter to the dumper:
 
-    dump(
+    ddt(
 	    $s,
 	    :header_filters(&header_filter, ...),
 	    :elements_filters(&elements_filter,),
@@ -735,6 +735,29 @@ You can set the maximum string length either by specifying a length when the  ro
 	        <identifier> joy[47..49]  
 	        <key> joy[47..49]
 
+Deprecated interface
+====================
+
+From version **1.6.0** the prefered interface is via sub and method **ddt**. The old interface is still available but will be removed.
+
+sub interface
+-------------
+
+  * sub dump($data_to_dump, $data_to_dump, :named_argument, ...)
+
+  * sub get_dump($data_to_dump, $data_to_dump, :named_argument, ...)
+
+  * sub get_dump_lines($data_to_dump, $data_to_dump, :named_argument, ...)
+
+method interface
+----------------
+
+  * method dump: $data_to_dump, $data_to_dump, :named_argument, ...
+
+  * method get_dump: $data_to_dump, $data_to_dump, :named_argument, ...
+
+  * method get_dump_lines: $data_to_dump, $data_to_dump, :named_argument, ...
+
 BUGS
 ====
 
@@ -747,7 +770,7 @@ As this module uses the MOP interface, it happens that it may use interfaces not
 
 An example is Grammar that I tried to dump and got an exception about a class that I didn't even know existed. 
 
-Those exception are caught and displayed by the dumper as  "DDT Exception: the_caught_exception_class"
+Those exception are caught and displayed by the dumper as  "DDT Exception: the_caught_exception"
 
 Please let me know about them so I can add the necessary handlers to the  distribution.
 
@@ -775,4 +798,5 @@ Perl 6:
   * Data::Dump
 
   * Pretty:Printer
+
 

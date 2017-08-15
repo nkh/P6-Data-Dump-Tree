@@ -385,7 +385,7 @@ else
 
 my ($wh, $wh_token) = ($.wrap_header, ) ;
 $wh.defined and $wh_token = $wh(
-				$.wrap_data, @!renderings.end - $render_lines,
+				$.wrap_data, (@!renderings.end - $render_lines),
 				(@head_glyphs, $glyph, $continuation_glyph, $multi_line_glyph),
 				(@kvf, @ks, @vs, @fs),
 				$s,

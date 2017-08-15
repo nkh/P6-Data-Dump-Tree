@@ -30,7 +30,7 @@ It also can:
 
 =item display the difference between two data structures (DDTR::Diff)
 
-=item generate DHTM output (DDTR::DHTML)
+=item generate DHTML output (DDTR::DHTML)
 
 =item display a folding structure in Curses (DDTR::Folding)
 
@@ -48,7 +48,7 @@ Renders the data structure
 
 This interface accepts the following adverbs: 
 
-=item B<:print> 'say's the rendered data, the default befhavior without adverb
+=item B<:print> prints the rendered data, the default befhavior without adverb
 
 =item B<:note> 'note's the rendered data
 
@@ -58,7 +58,7 @@ This interface accepts the following adverbs:
 
 =item B<:get_lines_integrated> returns a list of rendered lines
 
-=item B<:curses> opens a NCurses interface, installed NCurses module
+=item B<:curses> opens a NCurses interface, NCurses module must be installed
 
 =item B<:remote> sends data the to listener (examples/ddt.pl and ddt_receive.pl)
 
@@ -217,7 +217,7 @@ to the ddt() sub or you can create a dumper object with your configuration.
 	# see roles for roles configuration
 
 The example directory contain a lot of examples. Read and run the examples to
-learn how to use DDT, specially the advanced example.
+learn how to use DDT, specially the advanced examples.
 
 =head3 colors
 
@@ -303,7 +303,7 @@ use that space when displaying multiline values in the dump.
 
 DDT uses the whole terminal width if no width is given.
 
-=head3 $width_minus
+=head3 $width_minus = Int
 
 Reduces the width, you can use it to reduce the automatically computer width.
 
@@ -315,7 +315,7 @@ The string is prepended to each line of the rendering
 
 Add an empty line to the rendering
 
-=head3 $max_depth 
+=head3 $max_depth = Int 
 
 Limit the depth of a dump. There is no limit by default.
 
