@@ -4,6 +4,7 @@ Examples for Data::Dump::Tree
 all.pl	 		dump multiple type of elements and some filters examples
 dhtml.pl 		create a DHTML file you can view in a browser 
 diff.pl 		diff between two data structures
+ddt.pl			example of adverbs used with ddt
 filter1.pl 		filter example
 filter2.pl 		filter example
 folding.pl 		NCurses example with data structure folding

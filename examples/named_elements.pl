@@ -27,7 +27,7 @@ $d.set_element_name: $s[2], 'list b' ;
 # color the name
 $d.set_element_name: @a, color('bold yellow on_red') ~ 'some array' ;
 
-$d.dump: $s ;
+$d.ddt: $s ;
 
 say "ran for {now - INIT now} s" ;
 

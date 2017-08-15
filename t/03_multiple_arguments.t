@@ -8,14 +8,14 @@ use Data::Dump::Tree::ExtraRoles ;
 
 my $d = Data::Dump::Tree.new: :!color ;
 
-my $dump = $d.get_dump :!color ;
+my $dump = $d.ddt: :get, :!color ;
 is $dump.lines.elems, 1, '1 line' or diag $dump ;
 like $dump, /^ 'DDT called without arguments'/, 'error' or diag $dump ;
 
 
-$dump = $d.get_dump: 1, :!color ;
+$dump = $d.ddt: :get, 1, :!color ;
 is $dump.lines.elems, 1, '1 line' or diag $dump ;
 
-$dump = $d.get_dump:  1, 2, 3, :!color, 4, 5, (12, 3) ;
+$dump = $d.ddt: :get,  1, 2, 3, :!color, 4, 5, (12, 3) ;
 is $dump.lines.elems, 8, '8 line' or diag $dump ;
 

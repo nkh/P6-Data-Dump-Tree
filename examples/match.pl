@@ -26,21 +26,21 @@ my $m = $contents ~~ /<section>*/ ;
 # dump with different roles 
 my $d = Data::Dump::Tree.new ;
 
-$d.dump: :title<Parsing>, $m ;
+$d.ddt: :title<Parsing>, $m ;
 
 $d does DDTR::MatchDetails ;
 $d does DDTR::SuperscribeType ;
 $d does DDTR::SuperscribeAddress ;
 
-$d.dump(:title('Parsing (MatchDetails)'), $m );
+$d.ddt: :title('Parsing (MatchDetails)'), $m ;
 
 $d does DDTR::PerlString ;
-$d.dump: :title<Parsing (MatchDetails, PerlString)>, $m ;
+$d.ddt: :title<Parsing (MatchDetails, PerlString)>, $m ;
 
 $d.match_string_limit = 40 ;
-$d.dump: :title<Parsing (MatchDetails, PerlString+max length)>, $m ;
+$d.ddt: :title<Parsing (MatchDetails, PerlString+max length)>, $m ;
 
-$d.dump: :title<Parsing (MatchDetails, PerlString+ml, FixedGlyphs, custom colors, no address)>,
+$d.ddt: :title<Parsing (MatchDetails, PerlString+ml, FixedGlyphs, custom colors, no address)>,
 	$m,
 	:does(DDTR::FixedGlyphs,),
 	:display_address(DDT_DISPLAY_NONE),
@@ -50,7 +50,7 @@ $d.dump: :title<Parsing (MatchDetails, PerlString+ml, FixedGlyphs, custom colors
 		wrap        23
 		>) ;
 
-$d.dump: :title<Parsing (MatchDetails, PerlString+ml, FixedGlyphs, custom colors2, no address)>,
+$d.ddt: :title<Parsing (MatchDetails, PerlString+ml, FixedGlyphs, custom colors2, no address)>,
 	$m ,
 	:does(DDTR::FixedGlyphs,),
 	:display_address(DDT_DISPLAY_NONE),

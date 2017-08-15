@@ -13,7 +13,7 @@ my $s =
 
 
 my $d = Data::Dump::Tree.new ;
-$d.dump: $s, :keep_paths, :header_filters(&header_filter,) ;
+$d.ddt: $s, :keep_paths, :header_filters(&header_filter,) ;
 
 say "ran for {now - INIT now} s" ;
 

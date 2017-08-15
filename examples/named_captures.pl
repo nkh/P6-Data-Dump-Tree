@@ -12,9 +12,9 @@ use Data::Dump::Tree::DescribeBaseObjects ;
 # displaying the addresses adds no value to the dump, disable it
 my $d = Data::Dump::Tree.new(:display_address(DDT_DISPLAY_NONE)) does DDTR::MatchDetails(40) ;
 
-$d.dump: 'aaaaabx' ~~ m:g/ ($<token> = a) ($<T2> = a) ./, :title('"aaaaabx" ~~ m:g/ ($<token> = a) ($<T2> = a) ./>') ;
+$d.ddt: 'aaaaabx' ~~ m:g/ ($<token> = a) ($<T2> = a) ./, :title('"aaaaabx" ~~ m:g/ ($<token> = a) ($<T2> = a) ./>') ;
 
-$d.dump: 'abc-abc-abc' ~~ / $<string>=( [ $<part>=[abc] ]* % '-' ) /, :title('"abc-abc-abc" ~~ / $<string>=( [ $<part>=[abc] ]* % "-" ) />') ;
+$d.ddt: 'abc-abc-abc' ~~ / $<string>=( [ $<part>=[abc] ]* % '-' ) /, :title('"abc-abc-abc" ~~ / $<string>=( [ $<part>=[abc] ]* % "-" ) />') ;
 
 
 # larger example

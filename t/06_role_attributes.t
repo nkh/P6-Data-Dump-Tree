@@ -25,7 +25,7 @@ for
 	(1 => []),
 	)
 	{
-	my $dump = get_dump $_ but E, :!color ;
+	my $dump = ddt :get, $_ but E, :!color ;
 	like $dump, /'$.color +{Tomato}'/, 'role done' or diag $dump ;
 	}
 

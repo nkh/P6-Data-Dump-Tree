@@ -25,7 +25,7 @@ try
 		
 if $!
 	{
-	"Error Sending data to port $remote_port {DateTime.now}".note ;
+	"Error: Can't send below data to port:$remote_port time:{DateTime.now}".note ;
 	$s.note ;
 	}
 }

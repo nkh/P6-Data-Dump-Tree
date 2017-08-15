@@ -69,7 +69,7 @@ my $d = Data::Dump::Tree.new:
 $d.match_string_limit = 40 ;
 
 $d.dump_dhtml: $parsed ;
-note $d.get_dump: $parsed ;
+$d.ddt: :note, $parsed ;
 
 
 
@@ -168,9 +168,8 @@ my $dall = Data::Dump::Tree.new:
 		:width(75),
 		:max_depth(3) ;
 
-$dall.dump_dhtml(get_test_structure) ;
-note $dall.get_dump(get_test_structure) ;
-#note get_dump $dall.get_dump_lines(get_test_structure) ;
+$dall.dump_dhtml: get_test_structure ;
+$dall.ddt: :note, get_test_structure ;
 
 # ------------- helpers  -------------
 

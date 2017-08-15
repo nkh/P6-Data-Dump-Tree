@@ -21,18 +21,18 @@ say '' ; say '-' x 30 ; say '' ;
 
 dd Seq(1, 2, 'x') ;
 say (Seq(1, 2, 'x')).gist ;
-$d.dump: Seq(1, 2, 'x') ;
+$d.ddt: Seq(1, 2, 'x') ;
 
 say '' ; say '-' x 30 ; say '' ;
 
 dd (1...*) ;
 say (1...*).gist ;
-$d.dump: (1...*) ;
+$d.ddt: (1...*) ;
 
 say '' ; say '-' x 30 ; say '' ;
 
 say (1...10_000).gist ;
-$d.dump: (1...10_000) ;
+$d.ddt: (1...10_000) ;
 
 class C {has Int $.x = 3} ;
 my @a = 1, 2, 3, C.new ;
@@ -46,21 +46,21 @@ dd  $s ;
 say $s.gist ;
 
 $d.consume_seq<vertical> = False ;
-$d.dump: $s ;
+$d.ddt: $s ;
 
 say '' ; say '-' x 30 ; say '' ;
 
 $d.consume_seq<vertical> = True ;
-$d.dump: (0...1000)  ;
-$d.dump: (0...3)  ;
+$d.ddt: (0...1000)  ;
+$d.ddt: (0...3)  ;
 
-$d.dump: (1...*) ;
+$d.ddt: (1...*) ;
 
 $d.consume_seq<consume_lazy> = True ;
-$d.dump: (1...*) ;
+$d.ddt: (1...*) ;
 
 $d.consume_seq<vertical> = False ;
-$d.dump: (1...*) ;
+$d.ddt: (1...*) ;
 
 say '' ; say '-' x 30 ; say '' ;
 
@@ -71,17 +71,17 @@ sub cond { state $x = 0 ; return False if $x >= 120 ; $x++ ; return True}
 
 # NQP and much better output from dd even though it consumes the sequence
 $d.consume_seq<vertical> = True ;
-$d.dump( c ) ;
+$d.ddt( c ) ;
 
 $d.consume_seq<vertical> = False ;
-$d.dump: c  ;
+$d.ddt: c  ;
 dd c ;
 say c.gist ;
 
 my $p = Pair.new(1, 'a') ;
-dump(1 => 'a') ;
+ddt 1 => 'a' ;
 
-dump(($p, $p, $p, $p, a => (|< a b c >, ($p,$p)))) ;
+ddt ($p, $p, $p, $p, a => (|< a b c >, ($p,$p))) ;
 
 
 

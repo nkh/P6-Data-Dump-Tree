@@ -5,27 +5,27 @@ plan 14 ;
 
 use Data::Dump::Tree ;
 
-my $dump = get_dump(1, :!color) ;
+my $dump = ddt :get,1, :!color ;
 unlike $dump, /one/, 'title' ;
 unlike $dump, /\@/, 'address' ;
 
-$dump = get_dump(1, :!color) ;
+$dump = ddt :get,1, :!color ;
 unlike $dump, /one/, 'title' ;
 unlike $dump, /\@/, 'address' ;
 
-$dump = get_dump(1, :!color, caller => True) ;
+$dump = ddt :get,1, :!color, caller => True ;
 unlike $dump, /one/, 'title' ;
 like $dump, /\@/, 'address' ;
 
-$dump = get_dump(1, :!color, caller => False) ;
+$dump = ddt :get,1, :!color, caller => False ;
 unlike $dump, /one/, 'title' ;
 unlike $dump, /\@/, 'address' ;
 
-$dump = get_dump(1, :!color, title => 'one') ;
+$dump = ddt :get,1, :!color, title => 'one' ;
 like $dump, /one/, 'title' ;
 unlike $dump, /\@/, 'address' ;
 
-$dump = get_dump(1, :!color, title => 'one', caller => True) ;
+$dump = ddt :get,1, :!color, title => 'one', caller => True ;
 like $dump, /one/, 'title' ;
 like $dump, /\@/, 'address' ;
 

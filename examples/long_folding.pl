@@ -1,11 +1,9 @@
 
-use Data::Dump::Tree::CursesFoldable ;
+use Data::Dump::Tree ;
 
 sub MAIN(Bool :$debug)
 {
-display_foldable(get_s(600), :$debug, :title<first>) ;
-
-#display_foldable(1..3, :$debug, :title<second>, :!color) ;
+ddt :curses, get_s(600), :$debug, :title<first> ;
 }
 
 # ---------------------------------------------------------------------------------

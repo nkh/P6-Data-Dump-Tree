@@ -7,6 +7,6 @@ use Data::Dump::Tree ;
 
 my $d = Data::Dump::Tree.new ;
 
-my $dump = $d.get_dump: Map.new('a', 1, 'b', 2), :!color, :width(75) ;
+my $dump = $d.ddt: :get, Map.new('a', 1, 'b', 2), :!color, :width(75) ;
 
 is $dump.lines.elems, 3, '3 lines of dump for Map' or diag $dump ;

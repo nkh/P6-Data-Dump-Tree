@@ -53,8 +53,8 @@ for
 	my ($lines, $title, $ds, $flat) = | $_ ;
 	my Capture $c = \(|$title, $ds, |$flat) ;
 
-	my $bw = get_dump_lines_integrated |$c, :width(80), :!color ;
-	my $col = get_dump_lines_integrated |$c, :width(80) ;
+	my $bw = ddt :get_lines_integrated, |$c, :width(80), :!color ;
+	my $col = ddt :get_lines_integrated, |$c, :width(80) ;
 
 	my regex ansi_color { \e \[ \d+ [\;\d+]* <?before [\;\d+]* > m } 
 

@@ -49,15 +49,13 @@ for
 	my ($lines, $title, $ds, $flat) = | $_ ;
 	my Capture $c = \(|$title, $ds, |$flat) ;
 
-	my $r = get_dump_lines_integrated |$c, :width(80), :!color ;
+	my $r = ddt :get_lines_integrated, |$c, :width(80), :!color ;
 	is($r.elems, $lines) or do
 		{
-		diag get_dump |$title, $ds ;
-		diag get_dump |$c, :width(80) ;
+		diag ddt :get, |$title, $ds ;
+		diag ddt :get, |$c, :width(80) ;
 		
 		diag $r.join("\n") ;
 		}
-
-	#diag get_dump |$c ;
 	}
 

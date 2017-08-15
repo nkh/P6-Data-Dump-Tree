@@ -62,15 +62,15 @@ my $d = Data::Dump::Tree.new ;
 $d does DescribeDog ;
 $d does DescribeShyFinal ;
 
-my $dump = $d.get_dump(
+my $dump = $d.ddt: 
+		:get,
 		get_test_structure(),
 		title =>'test data',
 		caller => True,
 		max_depth => 3,
 		display_perl_address => True,
 		width => 75,
-		:!color,
-		);
+		:!color ;
 
 is( $dump.lines.elems, 83, 'all lines') or diag $dump ;
 

@@ -22,7 +22,7 @@ method ddt_get_elements
 }
 
 my $d = Data::Dump::Tree.new(:!color, does => (DDTR::AsciiGlyphs,)) ;
-my $dump = $d.get_dump(HasNothing.new()) ;
+my $dump = $d.ddt: :get, HasNothing.new() ;
 
 is $dump.lines.elems, 3, '3 lines output' ;
 like $dump, /nothing/, 'nothing as no value' ;

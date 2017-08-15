@@ -105,7 +105,7 @@ $! ?? (('DDT exception', ': ', "$!"),)  !! @e ;
 
 # ------------- test --------------
 
-dump
+ddt
 	get_test_structure(),
 	title =>'test data',
 	caller => True,

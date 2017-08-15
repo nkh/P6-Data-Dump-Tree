@@ -109,8 +109,9 @@ $! ?? (('DDT exception', ': ', "$!"),)  !! @e ;
 
 sub MAIN(Bool :$debug)
 {
-display_foldable(
+ddt 	
 	get_test_structure(),
+	:curses,
 	:$debug,
 	:title<test data>,
 	:caller,
@@ -118,7 +119,7 @@ display_foldable(
 	:width(75),
 	:does[DescribeDog, DescribeShyFinal],
 	:max_depth(3),
-	) ;
+	 ;
 }
 
 # ------------- helpers  -------------

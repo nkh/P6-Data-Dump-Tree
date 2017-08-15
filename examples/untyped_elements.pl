@@ -3,7 +3,7 @@
 use Data::Dump::Tree ;
 use Data::Dump::Tree::Enums ;
 
-# example of filter to remove the type from the dump
+# example of filter to remove the type from the rendering 
 # we only remove type IntStr and derivatives in Arrays in this example
 
 role my_role { has $.something is rw } # test that Int+something type displays correctly 

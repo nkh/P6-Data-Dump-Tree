@@ -54,10 +54,10 @@ my $d = Data::Dump::Tree.new:
 
 # limit the output of the matched string to 40  characters in length	
 $d.match_string_limit = 40 ;
-$d.dump: $parsed ;
+$d.ddt: $parsed ;
 
 
-$d.dump: $parsed, :header_filters(&header_filter,), :elements_filters(&elements_filter,) ;
+$d.ddt: $parsed, :header_filters(&header_filter,), :elements_filters(&elements_filter,) ;
 
 sub header_filter($dumper, \r, $s, ($depth, $path, $glyph, @renderings), (\k, \b, \v, \f, \final, \want_address))
 {

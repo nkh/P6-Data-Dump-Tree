@@ -40,9 +40,9 @@ multi sub my_filter($dumper, Data::Dump::Tree $s, ($, $glyph, @renderings, $), @
 }
 
 # unfiltered dump
-$d.dump: $d ;
+$d.ddt: $d ;
 
 # filtering on
-$d.dump: $d, :header_filters(&my_filter,), :elements_filters(&my_filter,) ;
+$d.ddt: $d, :header_filters(&my_filter,), :elements_filters(&my_filter,) ;
 
 

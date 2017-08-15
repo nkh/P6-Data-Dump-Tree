@@ -8,7 +8,7 @@ use Terminal::ANSIColor ;
 # highlight some entries via a  user defined filter
 # -------------------------------------------------
 
-dump [1..4], header_filters => (&my_filter,) ;
+ddt [1..4], header_filters => (&my_filter,) ;
 
 
 # HEADER FILTER

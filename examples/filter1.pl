@@ -26,10 +26,10 @@ my $s2 =
 	] ;
 
 # dump unfiltered
-dump $s2 ;
+ddt $s2 ;
 
 # dump filtered
-dump $s2, :!color, header_filters => (&my_filter,), elements_filters => (&my_filter,), footer_filters => (&my_filter,) ;
+ddt $s2, :!color, header_filters => (&my_filter,), elements_filters => (&my_filter,), footer_filters => (&my_filter,) ;
 
 
 # -----------
