@@ -2,6 +2,7 @@
 use Data::Dump::Tree::Enums ;
 
 class Data::Dump::Tree::Type::Nothing {...}
+class Data::Dump::Tree::Type::ValueOnly {...}
 
 my sub is_final($element, $name) { $element.^name eq $name ??  (DDT_FINAL,) !! (DDT_NOT_FINAL, DDT_HAS_NO_ADDRESS) }
 
@@ -63,6 +64,20 @@ multi method get_elements (Seq $s)
 
 	@elements
 	} 
+
+multi method get_header (Set:D $s) { '', '.' ~ $s.^name ~ '(' ~ $s.elems ~ ')'  }
+multi method get_elements (Set $s) {
+	|self!get_attributes($s, <WHICH elems>),
+	|$s.keys.map: {$++, ' = ', $_} }
+
+multi method get_header (Buf:U $b) { '', '.' ~ $b.^name, DDT_FINAL  }
+multi method get_header (Buf:D $b) { '', '.' ~ $b.^name ~ '[' ~ $b.elems ~ ']'  }
+multi method get_elements (Buf $b) {
+	$b.list.map: {$++, ' = ', Data::Dump::Tree::Type::ValueOnly.new($_.fmt('%02x') ~ " " ~ chr($_) ~ "   ") } }
+
+multi method get_header (utf8 $b) { '', '.' ~ $b.^name ~ '[' ~ $b.elems ~ ']'  }
+multi method get_elements (utf8 $b) { 
+	$b.list.map: {$++, ' = ', Data::Dump::Tree::Type::ValueOnly.new($_.fmt('%02x') ~ " " ~ chr($_) ~ "   ") } }
 
 multi method get_header (IntStr $i) 
 {
@@ -168,11 +183,6 @@ multi method get_elements (Map $m) {
 	|self!get_attributes($m, (<storage>,)),
 	|$m.sort(*.key)>>.kv.map: -> ($k, $v) {$k, ' => ', $v} }
 
-multi method get_header (Set:D $s) { '', '.' ~ $s.^name ~ '(' ~ $s.elems ~ ')'  }
-multi method get_elements (Set $s) {
-	|self!get_attributes($s, <WHICH elems>),
-	|$s.keys.map: {$++, ' = ', $_} }
-
 multi method get_header (Enumeration $e) { '', '.' ~ $e.^name, DDT_FINAL } 
 
 } #role
@@ -238,6 +248,16 @@ has $.type = '' ;
 
 multi method ddt_get_header { $.value, $.type, DDT_FINAL }
 }
+
+#`<<<
+example of how we could display hex
+sub ddt_get_elements_hexdump (List $b) 
+{ 
+('offset', ' 1    2    3    4  ...', Data::Dump::Tree::Type::ValueOnly.new('')), 
+('000000', ' ', Data::Dump::Tree::Type::ValueOnly.new('64 d 48 a 00   ')), 
+('000010', ' ', Data::Dump::Tree::Type::ValueOnly.new('65 e 51 z 10   ')), 
+}
+>>>
 
 role DDTR::CompactUnicodeGlyphs
 {

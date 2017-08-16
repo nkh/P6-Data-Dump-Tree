@@ -684,7 +684,7 @@ method !get_address(Mu $e) { ($.address_from // self)!get_global_address($e) }
 method !get_global_address(Mu $e)
 {
 my $ddt_address = $!address++ ;
-my $perl_address = $e.WHICH ;
+my $perl_address = $e ~~ utf8 ?? 0 !! $e.WHICH ;
 
 if ! $e.defined 
 	{
@@ -692,7 +692,7 @@ if ! $e.defined
 	}
 else
 	{
-	$perl_address ~= ':DDT:' ~ $e.WHICH unless $perl_address ~~ /\d ** 4/ ;
+	$perl_address ~= ':DDT:' ~ ($e ~~ utf8 ?? 0 !! $e.WHICH) unless $perl_address ~~ /\d ** 4/ ;
 	}
 
 my ($link, $rendered) = ('', False) ;
