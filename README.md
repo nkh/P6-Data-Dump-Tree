@@ -10,6 +10,8 @@ http://blogs.perl.org/users/nadim_khemir/2017/08/perl-6-datadumptree-version-15.
 
 http://blogs.perl.org/users/nadim_khemir/2017/08/take-a-walk-on-the-c-side.html
 
+https://perl6advent.wordpress.com/2016/12/21/show-me-the-data/
+
 ![Imgur](http://i.imgur.com/P7eRSwl.png?1)
 
 *Warning*: This module is developed and tested with the latest rakudo. It may not work or install properly with your version of rakudo, there is a test suite run to check its fitness. 
@@ -77,7 +79,13 @@ This interface accepts the following adverbs:
 
   * **:curses** opens a NCurses interface, NCurses module must be installed
 
-  * **:remote** sends data the to listener (examples/ddt.pl and ddt_receive.pl)
+  * **:remote** sends a rendering the to listener
+
+See examples/ddt.pl and ddt_receive.pl
+
+  * **:remote_fold** sends a foldable rendering the to listener 
+
+See examples/ddt_fold_send.pl and ddt_fold_receive.pl.
 
 method ddt: $data_to_dump, $data_to_dump, :adverb, :named_argument, ...
 -----------------------------------------------------------------------

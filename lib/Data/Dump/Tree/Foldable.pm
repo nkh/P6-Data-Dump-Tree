@@ -136,7 +136,7 @@ class Data::Dump::Tree::Foldable
 has @.lines ;
 has @.folds ;
 
-method new($s, *%attributes)
+multi method new($s, *%attributes)
 {
 
 my $dumper = %attributes<ddt_is> // Data::Dump::Tree.new ;
@@ -148,6 +148,11 @@ my ($lines, $wrap_data) = $dumper.get_dump_lines:
 					:wrap_footer(&footer_wrap) ;
 
 self.bless: :lines(|$lines), :folds(|$wrap_data<folds>) ;
+}
+
+multi method new(:$lines, :$folds)
+{
+self.bless: :lines(|$lines), :folds(|$folds) ;
 }
 
 my sub header_wrap(

@@ -42,35 +42,44 @@ use Data::Dump::Tree::Colorizer ;
 
 use NCurses;
 
-sub display_foldable ($s, :$page_size is copy, :$debug, :$debug_column, *%options) is export
+sub get_curses_foldable ($s, *%options) is export
+{ 
+Data::Dump::Tree::Foldable.new: 
+	$s,
+	|%options,
+	:does[DDTR::AsciiGlyphs, (|%options<does> if %options<does>)],
+	:width_minus(5),
+	:colors<
+		reset 1
+
+		ddt_address 2  link   3    perl_address 4  
+		header      5  key    6    binder 7 
+		value       8  wrap   9
+
+		gl_0 10 gl_1 11  gl_2 12 gl_3 13  gl_4 14
+
+		kb_0 20   kb_1 21 
+		kb_2 22   kb_3 23 
+		kb_4 24   kb_5 25      
+		kb_6 26   kb_7 27
+		kb_8 28   kb_9 29 
+		>,
+	:colorizer(CursesColorizer.new) ;
+}
+
+multi sub display_foldable ($s, :$page_size is copy, :$debug, :$debug_column, *%options) is export
 {
-my $f = Data::Dump::Tree::Foldable.new: 
-			$s,
-			|%options,
-			:does[DDTR::AsciiGlyphs, (|%options<does> if %options<does>)],
-			:width_minus(5),
-			:colors<
-				reset 1
+display_foldable(get_curses_foldable ($s, |%options), :$page_size, :$debug, :$debug_column, |%options) ;
+}
 
-				ddt_address 2  link   3    perl_address 4  
-				header      5  key    6    binder 7 
-				value       8  wrap   9
-
-				gl_0 10 gl_1 11  gl_2 12 gl_3 13  gl_4 14
-
-				kb_0 20   kb_1 21 
-				kb_2 22   kb_3 23 
-				kb_4 24   kb_5 25      
-				kb_6 26   kb_7 27
-				kb_8 28   kb_9 29 
-				>,
-			:colorizer(CursesColorizer.new) ;
-
+multi sub display_foldable (Data::Dump::Tree::Foldable $f, :$page_size is copy, :$debug, :$debug_column, *%options) is export
+{
 my $win = initscr() or die "Failed to initialize ncurses\n";
 keypad($win, TRUE) ;
 noecho ;
 raw ;
 start_color ;
+curs_set 0 ;
 
 if has_colors() && COLOR_PAIRS() >= 13
 	{

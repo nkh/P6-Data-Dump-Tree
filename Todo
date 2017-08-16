@@ -1,4 +1,20 @@
 
+search unfold command
+	searching for data also means showing them
+	the fold information could be manipulated by the search
+		search($data, :unfold, :center)
+		
+	it can also return a list of commands to display the next/previous result
+
+Foldable rendered object
+	rather than send lines that are made of line elements, send
+	rendered lines. this should reduce the size of the fold 
+	object
+
+	we should probably stop using Curses!
+
+int8 address is always 0!
+
 folding
 	#pass an object and apply folding role on top
 
@@ -6,6 +22,9 @@ folding
 		probably NCurses related as get_lines is 0.004s and 0.0006s when cached
 
 object size
+
+hexdump object
+	how do we handle lack of space, eg: wraping so the display still makes sense
 
 NCurses
 	#support multi line entries
