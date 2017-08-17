@@ -67,9 +67,9 @@ Data::Dump::Tree::Foldable.new:
 	:colorizer(CursesColorizer.new) ;
 }
 
-multi sub display_foldable ($s, :$page_size is copy, :$debug, :$debug_column, *%options) is export
+multi sub display_foldable ($s, :$page_size, :$debug, :$debug_column, *%options) is export
 {
-display_foldable(get_curses_foldable ($s, |%options), :$page_size, :$debug, :$debug_column, |%options) ;
+display_foldable(get_curses_foldable($s, |%options), :$page_size, :$debug, :$debug_column, |%options) ;
 }
 
 multi sub display_foldable (Data::Dump::Tree::Foldable $f, :$page_size is copy, :$debug, :$debug_column, *%options) is export
@@ -132,6 +132,8 @@ loop
 		when $_ eq 66  { $refresh = $g.selected_line_down }
 		when $_.chr eq 'e'  { $refresh = $g.selected_line_up }
 		when $_.chr eq 'd'  { $refresh = $g.selected_line_down }
+
+		when $_.chr eq 'f'  { my $matches  = $g.search: :regex(/3/) ; $refresh++ ; }
 
 		when $_ eq KEY_UP    { $refresh = $g.line_up }
 		when $_ eq KEY_DOWN  { $refresh = $g.line_down }

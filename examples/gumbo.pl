@@ -85,7 +85,17 @@ class GumboOutput is repr('CStruct') is export {
 
 
 dd GumboNode  ;
-ddt GumboNode, :nl  ;
-dd GumboNode.new, :indent('  '), :nl  ;
-ddt GumboNode.new, :indent('  '), :nl  ;
+''.say ;
+ddt GumboNode, :indent('   '), :nl  ;
+
+#dd GumboNode.new ;
+#ddt GumboNode.new, :indent('  '), :nl  ;
+
+my GumboNode $p = GumboNode.new ;
+my GumboNode $g = GumboNode.new ;
+#$g.parent := $p ;
+ 
+dd $g  ;
+''.say ;
+ddt $g, :indent('  '), :nl  ;
 

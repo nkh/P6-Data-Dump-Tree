@@ -1,8 +1,9 @@
+ddt callframe fails
 
 search unfold command
 	searching for data also means showing them
 	the fold information could be manipulated by the search
-		search($data, :unfold, :center)
+		search($data, :unfold, :fold_other,:center)
 		
 	it can also return a list of commands to display the next/previous result
 
@@ -14,6 +15,10 @@ Foldable rendered object
 	we should probably stop using Curses!
 
 int8 address is always 0!
+
+Serialization and attributes
+	https://github.com/FROGGS/p6-Ser/blob/master/lib/Ser.pm
+	https://github.com/Skarsnik/nativecall-typediag/blob/master/lib/NativeCall/TypeDiag.pm6#L96	
 
 folding
 	#pass an object and apply folding role on top

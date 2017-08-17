@@ -108,6 +108,22 @@ Unfolds all the data
 Return all the lines visible in the view, may be less than the view height and
 even zero lines in case of a view size equal to 0
 
+=head2 method search(:$regex!, :$fold_other --> SearchResults)
+
+Searches for I<$regex> in the data rendering and returns a SearchResults that
+contains all the matches, it can be used for further forward and backward
+searche.
+
+The search is done in folded and unfolded lines. The first I<match> is displayed
+at the top line of the view, unfolding as much as necessary of the data
+to make the I match> visible.
+
+=item :$fold_other = False
+
+The folding if the data is normally only changed to display the I<match> but 
+if B<:$fold_other> is set, the data structure is folded at all levels and then
+unfolded to expose the I<match>
+
 =AUTHOR
 
 Nadim ibn hamouda el Khemir
@@ -196,8 +212,6 @@ has Int $.page_size is readonly = 25 ;
 has Int $.selected_line is readonly = 0 ;
 has @.folds ;
 
-has Bool $.search_folds = True ;
-
 method set(:$page_size, :$top_line, :$selected_line --> Bool)
 { 
 $page_size andthen $!page_size = max $page_size, 0 ;
@@ -267,6 +281,13 @@ return False unless @!folds[$line][FOLDS] ; # only fold foldable
 
 my $state = @!folds[$line][FOLDED] +^= 1 ;
 
+self!fold($line, $state) ;
+
+True
+}
+
+method !fold($line, $state)
+{
 my @sub_elements =  @!folds[ ($line + 1) .. @!folds[$line][NEXT] - 1 ] ;
 
 while @sub_elements
@@ -277,8 +298,6 @@ while @sub_elements
 
 	if $_[FOLDED] { @sub_elements.shift if @sub_elements for ^$_[NEXT] }
 	}
-
-True
 }
 
 method fold_all(--> Bool)
@@ -303,11 +322,11 @@ my ($fold_line, @lines) = ($!top_line, ) ;
 
 while @lines < $!page_size and $fold_line < @!folds
 	{
-	my $display_line = $.folds[$fold_line][START] ;
+	my $rendering_line = $.folds[$fold_line][START] ;
 
 	for ^$.folds[$fold_line][LINES]
 		{
-		@lines.push: [ +$fold_line, so $.folds[$fold_line][FOLDED], $!foldable.lines[$display_line + $_] ] ;
+		@lines.push: [ +$fold_line, so $.folds[$fold_line][FOLDED], $!foldable.lines[$rendering_line + $_] ] ;
 
 		last if @lines >= $!page_size ;
 		}
@@ -321,22 +340,76 @@ $!selected_line min= @lines.end ;
 @lines
 }
 
-method search()
+class SearchResults
 {
-# search in folded? return command to unfold each match 
-# search with regex
-# handle colored dumps
-# return list of matches to allow forward and backward searching
-# return path where regex is matched
-# search paths only
-# hi-light matches
+has @.matches ;
+has $.match ; # index in @matches
 }
 
-method search_fold
+method search(:$regex!, :$hilight, :$fold_other, :$center)
 {
-# find entries based on text and type and fold/unfold them
-# so far type is not part of fold information, nor is path information
+my (@matches, $match) ;
+
+for $.folds.list Z 0..* -> ($fold_line, $index)
+	{
+	for ^$fold_line[LINES]
+		{
+		for $!foldable.lines[$fold_line[START] + $_].list -> $component
+			{
+			if $component[1] ~~ $regex
+				{
+				@matches.push: $index ;
+				$match //= $index if $index >= $!top_line ;
+				}
+			}
+		}
+	}
+
+my $search_result = SearchResults.new(:matches(@matches.unique), :$match) ;
+
+$.display_result($search_result, :$hilight, :$fold_other, :$center) ;
+
+$search_result
 }
+
+method search_previous(SearchResults $sr, :$hilight, :$fold_other, :$center) {}
+method search_next(SearchResults $sr,:$hilight, :$fold_other, :$center) {}
+
+method display_result(SearchResults $search_results, :$hilight, :$fold_other, :$center)
+{
+my $match = $search_results.match ;
+
+if $match
+	{
+	$.fold_all if $fold_other ;
+
+	if $.folds[$match][PARENT_FOLDED]
+		{
+		for $.folds.list Z 0..* -> ($fold, $index)
+			{
+			last if $index >= $match ;
+
+			if $fold[FOLDS] && $fold[NEXT] > $match
+				{
+				$fold[FOLDED] = 0 ;
+				self!fold: $index, 0 ;
+				}
+			}
+
+		}
+
+	if $center
+		{
+		$!top_line = $match ; #TODO: not implemented
+		}
+	else
+		{
+		$!top_line = $match ;
+		}
+	}
+}
+
+
 
 
 } # class
