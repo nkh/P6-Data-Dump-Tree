@@ -116,7 +116,6 @@ my $d7 = (MyStruct,  MyStruct.new,  $mystruct,  DVO "native_size: {nativesizeof 
 my $d8 = (MyStruct2, MyStruct2.new, $mystruct2, DVO "native_size: {nativesizeof MyStruct2}", ) ; 
 my $d9 = (MyStruct3, MyStruct3.new, $mystruct3, DVO "native_size: {nativesizeof MyStruct3}", ) ; 
 
-''.say ;
 ddt $d1, :indent('  '), :nl ;
 ddt $d2, :indent('  '), :nl ;
 ddt $d3, :indent('  '), :nl  ;
@@ -128,4 +127,66 @@ ddt $d6, :does[DDT_SWH], :indent('  '), :nl  ;
 ddt $d7, :indent('  '), :nl  ;
 ddt $d8, :indent('  '), :nl  ;
 ddt $d9, :indent('  '), :nl  ;
+
+# IRL example
+
+class wrong_rgba_color_s is repr('CStruct'){
+	has	int32 $.red;
+	has	int32 $.blue;
+	has 	int32 $.green;
+}
+
+class rgba_color_s is repr('CStruct'){
+	has	int32 $.red;
+	has	int32 $.blue;
+	has 	int32 $.green;
+	has 	int32 $.alpha;
+}
+
+
+#struct s_toyunda_sub {
+#        usigned int     start;
+#        usigned int     stop;
+#        char*   text;
+#        rgba_color_t    color1;
+#        rgba_color_t    color2;
+#        rgba_color_t    tmpcolor;
+#        float   positionx;
+#        float   positiony;
+#        float   position2x;
+#        float   position2y;
+#        float   fadingpositionx;
+#        float   fadingpositiony;
+#        int     size;
+#        int     size2;
+#        int fadingsize;
+#        char*   image;
+#};
+
+class toyunda_subtitle_s is repr('CStruct') {
+	has	int32 	$.start;
+	has	int32	$.stop;
+
+	has	Str	$.text;
+	HAS	rgba_color_s	$.color1;
+	HAS	rgba_color_s	$.color2;
+	has	rgba_color_s	$.tmpcolor; # it should be HAS
+
+	has	num32		$.positionx;
+	has	num32		$.positiony;
+	has	num32		$.position2x;
+	has	num32		$.position2y;
+	has	num32		$.fadingpositionx;
+	has	num32		$.fadingpositiony;
+
+	has	int32		$.size;
+	has	int32		$.size2;
+	has	int32		$.fadingsize;
+
+	has	str		$.image; # bad use of str
+}
+
+ddt toyunda_subtitle_s, :indent('  '), :nl  ;
+ddt toyunda_subtitle_s.new, :indent('  '), :nl  ;
+
 

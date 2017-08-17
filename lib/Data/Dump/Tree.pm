@@ -513,7 +513,7 @@ my ($k2, $v2, $f2)  = ($k // '', $v // '', $f // '').map: { .subst(/\t/, ' ' x 8
 
 my $v2_width = (S:g/ <ansi_color> // given $v2).chars ;
 
-if none($k2, $v2, $f2) ~~ /\n/	&& ($k2 ~ $b ~ $f2 ~ $ddt_address ~ $perl_address ~ $link).chars + $v2_width <= $width 
+if none($k2, $v2, $f2) ~~ /\n/	&& ([~] $k2, $b, $f2, $ddt_address, $perl_address, $link).chars + $v2_width <= $width 
 	{
 	for
 		($k2, 		$k2,				$.color_kbs ?? @.kb_colors_cycle[$current_depth] !! 'key'), 
@@ -775,6 +775,7 @@ method !get_attributes (Any $a, @ignore?)
 {
 my @a = try { @a = get_attributes($a, @ignore) }  ;
 $! ?? (('DDT exception', ': ', $!.message),)  !! @a ;
+#$! ?? (('DDT exception', ': ', $!.message ~ $!.backtrace),)  !! @a ;
 }
 
 multi sub get_attributes (Any $a, @ignore?) is export 
@@ -788,14 +789,18 @@ if $a.defined && $a.REPR eq 'CArray'
 
 if $a.defined && $a.REPR eq 'CStruct' | 'CUnion'
 	{
+	# get the attributes type from the type object
 	_get_attributes($a.WHAT).map:
 		{
-		my $type = S/':U'$// with $_[2].?type ;
-		$type //= '.' ~ $_[2].^name ; 
-		$type = S:g/'NativeCall::Types::'// with $type ; 
+		my $type = S:g/'NativeCall::Types::'// with
+				($_[2].^name eq 'Data::Dump::Tree::Type::Final')
+					?? ( ' ' ~ S/':U'$// with $_[2].type)
+					!! ( ' .' ~ $_[2].^name ) ;
+
 		
-		%types{$_[0]} = $type  ; 
-		}  
+		%types{S:g/^'HAS '// with $_[0]} = $type  ; 
+		} 
+ 
 	}
 
 _get_attributes($a, @ignore, %types) ; 
@@ -821,6 +826,7 @@ for $a.^attributes.grep({$_.^isa(Attribute)})
 	# display where attribute is coming from or nothing if base class
 	my $p = $_.package.^name ~~ / ( '+' <- [^\+]> * ) $/ ?? " $0" !! '' ;
 	my $rw = $_.readonly ?? '' !! ' is rw' ;
+	my $has =  $_.inlined ?? 'HAS ' !! '';
 
  	given  $value.HOW.^name
 		{
@@ -829,7 +835,7 @@ for $a.^attributes.grep({$_.^isa(Attribute)})
 			{
  			@attributes.push:
 				(
-				$name, ' = ',
+				"$has$name$t$rw$p", ' = ',
 				Data::Dump::Tree::Type::Final.new:
 					:value($value.^name),
 					:type<NQP>
@@ -840,7 +846,7 @@ for $a.^attributes.grep({$_.^isa(Attribute)})
 			{
  			@attributes.push: 
 				(
-				$name, ' = ',
+				"$has$name$t$rw$p", ' = ',
 				Data::Dump::Tree::Type::Final.new:
 					:value($value),
 					:type('.' ~ (S:g/'NativeCall::Types::'// with $value.^name) ~ ':U')
@@ -849,7 +855,7 @@ for $a.^attributes.grep({$_.^isa(Attribute)})
 
 		default
  			{
-			@attributes.push: ( "$name$t$rw$p", ' = ', $value ) 
+			@attributes.push: ( "$has$name$t$rw$p", ' = ', $value ) 
 			}
 		}
 	}
