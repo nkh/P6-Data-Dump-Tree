@@ -1,20 +1,8 @@
 ddt callframe fails
 
-search unfold command
-	searching for data also means showing them
-	the fold information could be manipulated by the search
-		search($data, :unfold, :fold_other,:center)
-		
-	it can also return a list of commands to display the next/previous result
+ddt_send
+	handle multiple packaets sending
 
-Foldable rendered object
-	rather than send lines that are made of line elements, send
-	rendered lines. this should reduce the size of the fold 
-	object
-
-	we should probably stop using Curses!
-
-int8 address is always 0!
 
 Serialization and attributes
 	https://github.com/FROGGS/p6-Ser/blob/master/lib/Ser.pm
@@ -26,23 +14,32 @@ folding
 	large renderings are slow to scroll
 		probably NCurses related as get_lines is 0.004s and 0.0006s when cached
 
+	replace NCurses by Terminal::Print
+		utf8
+		mo specific color handling
+
 object size
 
 hexdump object
 	how do we handle lack of space, eg: wraping so the display still makes sense
 
-NCurses
-	#support multi line entries
-
-	#utility sub
-	render unicode
-	
 dhtml
 	user css override
 	visual cue for folds
 
 render role inheritance
 	eg: role X does Y
+
+#utf8 address is always 0!
+	utf8 does not have a WHICH
+	it does have a WHERE but it is not stable beffore it gets accessed multiple times
+	
+#search unfold command
+	searching for data also means showing them
+	the fold information could be manipulated by the search
+		search($data, :unfold, :fold_other,:center)
+		
+	it can also return a list of commands to display the next/previous result
 
 #ddt adverbs
 	:curses

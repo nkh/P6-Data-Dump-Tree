@@ -684,7 +684,9 @@ method !get_address(Mu $e) { ($.address_from // self)!get_global_address($e) }
 method !get_global_address(Mu $e)
 {
 my $ddt_address = $!address++ ;
-my $perl_address = $e ~~ utf8 ?? 0 !! $e.WHICH ;
+my $perl_address = $e ~~ utf8 ?? $e.WHERE !! $e.WHICH ;
+
+#dd ('WHERE', $e.WHERE) if $e ~~ utf8 ;
 
 if ! $e.defined 
 	{
