@@ -1,12 +1,6 @@
 ddt callframe fails
 
-ddt_send
-	handle multiple packaets sending
-
-
-Serialization and attributes
-	https://github.com/FROGGS/p6-Ser/blob/master/lib/Ser.pm
-	https://github.com/Skarsnik/nativecall-typediag/blob/master/lib/NativeCall/TypeDiag.pm6#L96	
+get_header and get_elements could know about remaining width, options, ....
 
 folding
 	#pass an object and apply folding role on top
@@ -29,6 +23,14 @@ dhtml
 
 render role inheritance
 	eg: role X does Y
+
+Serialization and attributes links
+	https://github.com/FROGGS/p6-Ser/blob/master/lib/Ser.pm
+	https://github.com/Skarsnik/nativecall-typediag/blob/master/lib/NativeCall/TypeDiag.pm6#L96	
+
+#ddt_send
+	handle multiple packaets sending
+
 
 #utf8 address is always 0!
 	utf8 does not have a WHICH

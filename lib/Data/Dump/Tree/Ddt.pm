@@ -12,14 +12,26 @@ try
 $!.note if $! ;
 }
 
-sub ddt_remote ($s, :$remote_port is copy, |other) is export 
+sub ddt_remote ($s, :$remote_port is copy, Bool :$counter, |other) is export 
 {
 $remote_port //= 3333 ;
+
+use experimental :pack;
 
 try 
 	{
 	my $c = IO::Socket::INET.new: :host<localhost>, :port($remote_port) ;
-	$c.print: $s ;
+	my $string  = $s.Str ;
+
+	$c.write: pack('N', $string.chars) ;
+	"sending: {$string.chars}".say if $counter;
+
+	#TODO: substr or Str.rotor (not implemented yet)
+	for $string.comb.rotor(63 * 1024, :partial)
+		{
+		$c.write:  $_.join.encode('utf8') ;
+		}
+
 	$c.close ;
 	}
 		
@@ -37,11 +49,11 @@ else
 }
 
 
-sub ddt_remote_fold ($s, :$remote_port is copy, |other) is export 
+sub ddt_remote_fold ($s, :$remote_port is copy, Bool :$counter, |other) is export 
 {
-$remote_port //= 4444 ;
+use experimental :pack;
 
-my $buffer_size ;
+$remote_port //= 4444 ;
 
 try 
 	{
@@ -49,21 +61,57 @@ try
 
 	my $c = IO::Socket::INET.new: :host<localhost>, :port($remote_port) ;
 
-	my $f = get_curses_foldable $s, |other ;
-	my $b = $f.perl.encode('utf-8') ;
+	my $string = (get_curses_foldable $s, |other).perl ;
 
-	$c.write: $b ;
+	$c.write: pack('N', $string.chars) ;
+	"sending: {$string.chars}".say if $counter;
+
+	for $string.comb.rotor(63 * 1024, :partial)
+		{
+		$c.write:  $_.join.encode('utf8') ;
+		}
+
 	$c.close ;
-
-	$buffer_size = $b.elems ;
 	}
 		
 if $!
 	{
 	"Error: Can't send data to port:$remote_port time:{DateTime.now}\n$!".note ;
 	}
+}
 
-$buffer_size
+
+sub ddt_remote_fold_object ($object, :$remote_port is copy, Bool :$counter, |other) is export 
+{
+use experimental :pack;
+use Data::Dump::Tree::RemoteFoldObject ;
+
+$remote_port //= 5555 ;
+
+try 
+	{
+	my $rfo = RemoteFoldObject.new:
+			:$object, 
+			:options(| other.hash.grep: { $_.key eq 'remote_fold_object' }) ;
+
+	my $c = IO::Socket::INET.new: :host<localhost>, :port($remote_port) ;
+	my $string = $rfo.perl ;
+
+	$c.write: pack('N', $string.chars) ;
+	"sending: {$string.chars}".say if $counter;
+
+	for $string.comb.rotor(63 * 1024, :partial)
+		{
+		$c.write:  $_.join.encode('utf8') ;
+		}
+
+	$c.close ;
+	}
+		
+if $!
+	{
+	"Error: Can't send data to port:$remote_port time:{DateTime.now}\n$!".note ;
+	}
 }
 
 
