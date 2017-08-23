@@ -201,6 +201,18 @@ Inside your block:
 =item $*d is the depth at which the data is
 
 =back
+
+The pointy block returns list of three elements
+
+=over 2
+
+=item Bool, lay flat or not 
+
+=item Int, nuber of rows in a colums
+
+=item Int, minimum width of an entry
+
+=back
  
 =item integer: :flat(0) or :flat
 
@@ -231,6 +243,9 @@ I<Sub> conditions can dynamically return a split value.
 
 	ddt $data, :flat( { $_ ~~ Array andthen True, 5} )
 
+You can also pass a minimum column value:
+
+	ddt $data, :flat( { $_ ~~ Array andthen True, 5, 10} )
 
 =AUTHOR
 
@@ -250,7 +265,7 @@ Data::Dump::Tree
 
 sub match_target(@targets, $s, $depth)
 {
-my (Bool $matched, Int $rows) ;
+my (Bool $matched, Int $rows, Int $width) ;
 	
 for @targets -> $target is copy
 	{
@@ -259,11 +274,13 @@ for @targets -> $target is copy
 	if $target ~~ Block 
 		{
 		my $*d = $depth ;
-		my ($st, $ss) =  $target($s) ;
+		my ($st, $ss, $sr) =  $target($s) ;
 		
 		if $st
 			{
 			$ss andthen $rows = $ss ;
+			$sr andthen $width = $sr ;
+
 			$matched = True ;
 			last
 			} 
@@ -281,7 +298,7 @@ for @targets -> $target is copy
 	$rows = Int ; # reset if no match 
 	}
 		
-$matched, $rows
+$matched, $rows, $width
 }
 
 sub lay_horizontal(@targets) is export
@@ -290,7 +307,7 @@ return
 	# a DDT sub elements filter
 	sub ($d, $s, ($depth, $glyph, @renderings, $), @sub_elements)
 	{
-	my ($matched, $rows) = match_target(@targets, $s, $d.flat_depth + $depth) ;
+	my ($matched, $rows, $width) = match_target(@targets, $s, $d.flat_depth + $depth) ;
 
 	if $matched
 		{
@@ -304,6 +321,7 @@ return
 							:dumper($d.address_from // $d),
 							:elements(@sub_elements),
 							:$rows,
+							:$width,
 							:$total_width,
 							:flat_depth($depth),
 					),

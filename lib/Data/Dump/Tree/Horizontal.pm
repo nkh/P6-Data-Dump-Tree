@@ -161,6 +161,7 @@ DDT::MultiColumns
 =end pod
 
 has Str $.title = '' ;
+has Int $.width ;
 has Int $.total_width ;
 has Int $.rows ;
 has Data::Dump::Tree $.dumper ;
@@ -177,6 +178,8 @@ my @blocks = @.elements.map: -> ($k, $b, $sub_element)
 					:width($.total_width),
 					:address_from($!dumper),
 					:flat_depth($.flat_depth + 1),
+					:!nl,
+					:indent('') ;
 			} 
 
 my $columns ;
@@ -214,11 +217,11 @@ with $.rows
 			}
 		}
 
-	$columns = get_columns :$.total_width, |@columns
+	$columns = get_columns :$!total_width, :$!width, |@columns
 	}
 else
 	{
-	$columns = get_columns :$.total_width, |@blocks ;
+	$columns = get_columns :$!total_width, :$!width, |@blocks ;
 	$columns ~= "\n" ;
 	}
 

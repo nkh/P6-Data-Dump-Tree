@@ -9,4 +9,4 @@ my $d = Data::Dump::Tree.new ;
 
 my $dump = $d.ddt: :get, True, :!color ;
 is $dump.lines.elems, 1, '1 line' or diag $dump ;
-like $dump, /'.Bool'/, 'class name' or diag $dump ;
+like $dump, /^'True'$$/, 'no class name' or diag $dump ;

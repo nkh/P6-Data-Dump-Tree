@@ -102,7 +102,7 @@ multi method get_elements (Rat $e) { self!get_attributes($e, <numerator denomina
 multi method get_header (Range $r) { $r.gist , '.' ~ $r.^name, |is_final($r, 'Range') }
 multi method get_elements (Range $e) { self!get_attributes($e, <is-int min max excludes-min excludes-max infinite>) }
 
-multi method get_header (Bool $b) { ( $b, '.' ~ $b.^name, |is_final($b, 'Bool') ) }
+multi method get_header (Bool $b) { ( $b, '', |is_final($b, 'Bool') ) }
 multi method get_elements (Bool $e) { self!get_attributes($e, <key value>) }
 
 multi method get_header (Regex $r) { $r.perl.substr(6) ,  '.' ~ $r.^name, DDT_FINAL } 
