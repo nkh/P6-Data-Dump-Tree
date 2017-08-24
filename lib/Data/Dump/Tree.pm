@@ -824,7 +824,8 @@ for $a.^attributes.grep({$_.^isa(Attribute)})
 
 	my $t = %types{$name} // '' ;
 
-	my $value = $a.defined 	?? $_.get_value($a) // Data::Dump::Tree::Type::Nil.new !! $_.type ; 
+	my $value = try { $a.defined ?? $_.get_value($a) // Data::Dump::Tree::Type::Nil.new !! $_.type } 
+	$value = DVO 'DDT exception: not handled!' if $! ;
 
 	# display where attribute is coming from or nothing if base class
 	my $p = $_.package.^name ~~ / ( '+' <- [^\+]> * ) $/ ?? " $0" !! '' ;

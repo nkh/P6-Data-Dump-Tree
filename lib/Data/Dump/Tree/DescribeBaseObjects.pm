@@ -65,6 +65,12 @@ multi method get_elements (Seq $s)
 	@elements
 	} 
 
+multi method get_header (Promise $p) { '', '.' ~ $p.^name ~ ' (' ~ $p.status ~ ')', DDT_FINAL }
+# we can get more information from a Promise, but we may want to filter out $.result
+#multi method get_header (Promise $p) { '', '.' ~ $p.^name ~ ' (' ~ $p.status ~ ')' }
+#multi method get_elements (Promise $p) { self!get_attributes($p) }
+#multi method get_header (PromiseStatus $p) { '', '.' ~ $p.^name ~ ' (' ~ $p.key ~ ')', DDT_FINAL }
+
 multi method get_header (Set:D $s) { '', '.' ~ $s.^name ~ '(' ~ $s.elems ~ ')'  }
 multi method get_elements (Set $s) {
 	|self!get_attributes($s, <WHICH elems>),
@@ -116,7 +122,7 @@ multi method get_header (Pair $p)
 
 multi method get_elements (Pair $p)
 	{
-	|self!get_attributes($p, <key value>,),
+	|self!get_attributes($p, <key value WHICH>,),
 
 	$p.key ~~ Str | Int 
 		?? ('k:' ~ $p.key ~ ", v:", '', $p.value) 

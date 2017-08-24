@@ -117,7 +117,7 @@ for |@rs
 	$current_block.push: $r_width, @lines_width, $_ ;
 	}
 
-my $o ;
+my $o = '' ;
 
 for @blocks -> @block
 	{
