@@ -182,7 +182,10 @@ multi method get_elements (Hash:D $h) {
 	|($h.sort(*.key)>>.kv.map: -> ($k, $v) {$k, ' => ', $v}) }
 
 multi method get_header (Stash $s) { '', '.' ~ $s.^name ~ ' {' ~ ($s.keys.flat.elems) ~ '}' }
-multi method get_elements (Stash $s) { $s.sort(*.key)>>.kv.map: -> ($k, $v) {$k, ' => ', $v} }
+
+# error in Rakudo
+#multi method get_elements (Stash $s) { $s.sort(*.key)>>.kv.map: -> ($k, $v) {$k, ' => ', $v} }
+multi method get_elements (Stash $s) { $s.sort(*.key)>>.&{.key, .value}.map: -> ($k, $v) {$k, ' => ', $v} }
 
 multi method get_header (Map $m) { '', '.' ~ $m.^name } 
 multi method get_elements (Map $m) {
