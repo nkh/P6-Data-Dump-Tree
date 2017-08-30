@@ -53,7 +53,7 @@ Data::Dump::Tree::Foldable.new:
 
 multi sub display_foldable ($s, :$page_size is copy, :$debug, :$debug_column, *%options) is export
 {
-display_foldable(get_foldable ($s, |%options), :$page_size, :$debug, :$debug_column, |%options) ;
+display_foldable(get_foldable $s, |%options, :$page_size, :$debug, :$debug_column) ;
 }
 
 multi sub display_foldable (Data::Dump::Tree::Foldable $f, :$page_size is copy, :$debug, :$debug_column, *%options) is export
