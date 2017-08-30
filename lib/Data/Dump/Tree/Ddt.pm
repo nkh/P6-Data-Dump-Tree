@@ -1,6 +1,17 @@
 
 unit module Data::Dump::Tree::Ddt ;
 
+sub ddt_tp(|args ) is export
+{
+try 
+	{
+	require Data::Dump::Tree::TerminalFoldable <&display_foldable> ;
+	display_foldable |args ;
+	}
+
+$!.note if $! ;
+}
+
 sub ddt_curses(|args ) is export
 {
 try 
