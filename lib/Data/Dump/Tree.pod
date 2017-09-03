@@ -32,7 +32,7 @@ It also can:
 
 =item generate DHTML output (DDTR::DHTML)
 
-=item display a folding structure in Curses (DDTR::Folding)
+=item display an interactive folding data structure (DDTR::Folding)
 
 =item display parts of the data structure Horizontally ( :flat() )
 
@@ -58,7 +58,7 @@ This interface accepts the following adverbs:
 
 =item B<:get_lines_integrated> returns a list of rendered lines
 
-=item B<:curses> opens a NCurses interface, NCurses module must be installed
+=item B<:fold> opens a Terminal::Print interface, module must be installed
 
 =item B<:remote> sends a rendering the to listener
 
@@ -320,6 +320,10 @@ The string is prepended to each line of the rendering
 =head3 $nl = Bool
 
 Add an empty line to the rendering
+
+=head3 $die = Bool
+
+Dies after displaying the data
 
 =head3 $max_depth = Int 
 
@@ -686,7 +690,7 @@ using namespace DDTR::YourRole.
 
 =head3 DDTR::AsciiGlyphs
 
-Uses ASCII codes rather than ANSI to render the tree.
+Uses ASCII codes rather than Unicode to render the tree.
 
 =head3 DDTR::CompactUnicodeGlyphs
 

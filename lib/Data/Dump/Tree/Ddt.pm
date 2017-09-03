@@ -12,17 +12,6 @@ try
 $!.note if $! ;
 }
 
-sub ddt_curses(|args ) is export
-{
-try 
-	{
-	require Data::Dump::Tree::CursesFoldable <&display_foldable> ;
-	display_foldable |args ;
-	}
-
-$!.note if $! ;
-}
-
 sub ddt_remote ($s, :$remote_port is copy, Bool :$counter, |other) is export 
 {
 $remote_port //= 3333 ;
@@ -59,7 +48,6 @@ else
 	}
 }
 
-
 sub ddt_remote_fold ($s, :$remote_port is copy, Bool :$counter, |other) is export 
 {
 use experimental :pack;
@@ -68,57 +56,26 @@ $remote_port //= 4444 ;
 
 try 
 	{
-	require Data::Dump::Tree::CursesFoldable <&get_curses_foldable> ;
+	require Data::Dump::Tree::TerminalFoldable <&get_foldable> ;
+	my $f = get_foldable $s, |other ;
 
 	my $c = IO::Socket::INET.new: :host<localhost>, :port($remote_port) ;
 
-	my $string = (get_curses_foldable $s, |other).perl ;
+	$c.write: pack('N', $f.lines.elems) ;
 
-	$c.write: pack('N', $string.chars) ;
-	"sending: {$string.chars}".say if $counter;
-
-	for $string.comb.rotor(63 * 1024, :partial)
+	for $f.lines
 		{
-		$c.write:  $_.join.encode('utf8') ;
+		my $blob = $_.encode('utf8') ;
+		$c.write: pack('N', $blob.bytes) ;
+		$c.write: $blob ;
 		}
+
+	$c.write: pack('N', $_) for $f.line_lengths ;
+	$c.write: pack('NNNN', |$_) for $f.folds ;
 
 	$c.close ;
 	}
-		
-if $!
-	{
-	"Error: Can't send data to port:$remote_port time:{DateTime.now}\n$!".note ;
-	}
-}
 
-
-sub ddt_remote_fold_object ($object, :$remote_port is copy, Bool :$counter, |other) is export 
-{
-use experimental :pack;
-use Data::Dump::Tree::RemoteFoldObject ;
-
-$remote_port //= 5555 ;
-
-try 
-	{
-	my $rfo = RemoteFoldObject.new:
-			:$object, 
-			:options(| other.hash.grep: { $_.key eq 'remote_fold_object' }) ;
-
-	my $c = IO::Socket::INET.new: :host<localhost>, :port($remote_port) ;
-	my $string = $rfo.perl ;
-
-	$c.write: pack('N', $string.chars) ;
-	"sending: {$string.chars}".say if $counter;
-
-	for $string.comb.rotor(63 * 1024, :partial)
-		{
-		$c.write:  $_.join.encode('utf8') ;
-		}
-
-	$c.close ;
-	}
-		
 if $!
 	{
 	"Error: Can't send data to port:$remote_port time:{DateTime.now}\n$!".note ;

@@ -150,11 +150,12 @@ class Data::Dump::Tree::Foldable::View {...}
 class Data::Dump::Tree::Foldable 
 {
 has @.lines ;
+has @.line_lengths ;
 has @.folds ;
+
 
 multi method new($s, *%attributes)
 {
-
 my $dumper = %attributes<ddt_is> // Data::Dump::Tree.new ;
 
 my ($lines, $wrap_data) = $dumper.get_dump_lines:
@@ -162,13 +163,21 @@ my ($lines, $wrap_data) = $dumper.get_dump_lines:
 					|%attributes, 
 					:wrap_header(&header_wrap),
 					:wrap_footer(&footer_wrap) ;
+my (@lines, @line_lengths) ;
 
-self.bless: :lines(|$lines), :folds(|$wrap_data<folds>) ;
+for $lines.Array -> $line
+	{
+	@lines.push: $line.map({ $_.join}).join ;
+	@line_lengths.push: [+] $line.map: { $_[1].chars} ;
+	}
+
+self.bless: :@lines, :@line_lengths, :folds(|$wrap_data<folds>) ;
+
 }
 
-multi method new(:$lines, :$folds)
+multi method new(:$lines!, :$line_lengths!, :$folds!)
 {
-self.bless: :lines(|$lines), :folds(|$folds) ;
+self.bless: :lines(|$lines), :line_lengths(|$line_lengths), :folds(|$folds) ;
 }
 
 my sub header_wrap(
@@ -251,7 +260,7 @@ $!top_line != $line
 method page_up(--> Bool) { my Bool $refresh ;  $refresh++ if $.line_up for ^$!page_size ; $refresh }
 method page_down(--> Bool) { my Bool $refresh ; $refresh++ if $.line_down for ^$!page_size ; $refresh }
 
-method home(--> Bool) { my Bool $refresh ; $refresh++ if $.line_up for ^(@!folds - $!top_line) ; $refresh }
+method home(--> Bool) { my Bool $refresh = $.top_line != 0 ; self.set: :top_line(0) ; $refresh }
 method end(--> Bool) { my Bool $refresh ; $refresh++ if  $.line_down for ^(@!folds - $!top_line) ; $refresh }
 
 method selected_line_up(--> Bool)
@@ -326,7 +335,12 @@ while @lines < $!page_size and $fold_line < @!folds
 
 	for ^$.folds[$fold_line][LINES]
 		{
-		@lines.push: [ +$fold_line, so $.folds[$fold_line][FOLDED], $!foldable.lines[$rendering_line + $_] ] ;
+		@lines.push: [
+				+$fold_line,
+				so $.folds[$fold_line][FOLDED],
+				$!foldable.lines[$rendering_line + $_],
+				$!foldable.line_lengths[$rendering_line + $_],
+				] ;
 
 		last if @lines >= $!page_size ;
 		}
@@ -413,5 +427,4 @@ if $match
 
 
 } # class
-
 

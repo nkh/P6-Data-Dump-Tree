@@ -4,10 +4,7 @@ use Data::Dump::Tree::Enums ;
 use Data::Dump::Tree::ExtraRoles ;
 use Data::Dump::Tree::DescribeBaseObjects ;
 
-# use json parser
 use JSON::Tiny ;
-
-use Data::Dump::Tree::CursesFoldable ;
 
 sub MAIN(Bool :$debug)
 {
@@ -50,6 +47,7 @@ my $d = Data::Dump::Tree.new:
 $d.match_string_limit = 40 ;
 $d.dump: $parsed ;
 
+use Data::Dump::Tree::TerminalFoldable ;
 display_foldable(:$debug, $parsed, :ddt_is($d), :title<Fold JSON>) ;
 }
 

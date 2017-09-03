@@ -3,7 +3,6 @@
 use Data::Dump::Tree ;
 use Data::Dump::Tree::DescribeBaseObjects ;
 use Data::Dump::Tree::Enums ;
-use Data::Dump::Tree::CursesFoldable ;
 
 # -------------------------------------------------------
 # example with different types of elements and some roles
@@ -111,7 +110,7 @@ sub MAIN(Bool :$debug)
 {
 ddt 	
 	get_test_structure(),
-	:curses,
+	:fold,
 	:$debug,
 	:title<test data>,
 	:caller,

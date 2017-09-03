@@ -1,17 +1,7 @@
 ddt callframe fails
 
-get_header and get_elements could know about remaining width, options, ....
-
-folding
-	#pass an object and apply folding role on top
-
-	large renderings are slow to scroll
-		probably NCurses related as get_lines is 0.004s and 0.0006s when cached
-
-	replace NCurses by Terminal::Print
-		utf8
-		mo specific color handling
-
+:condition and :cut
+	
 object size
 
 hexdump object
@@ -27,6 +17,21 @@ render role inheritance
 Serialization and attributes links
 	https://github.com/FROGGS/p6-Ser/blob/master/lib/Ser.pm
 	https://github.com/Skarsnik/nativecall-typediag/blob/master/lib/NativeCall/TypeDiag.pm6#L96	
+
+!get_header and get_elements could know about remaining width, options, ....
+
+#light weight remote foldable object
+	avoid EVAL on the receiving side
+
+#folding
+	#pass an object and apply folding role on top
+
+	!large renderings are slow to scroll
+		probably NCurses related as get_lines is 0.004s and 0.0006s when cached
+
+	#replace NCurses by Terminal::Print
+		#utf8
+		#mo specific color handling
 
 #ddt_send
 	handle multiple packaets sending

@@ -49,7 +49,7 @@ It also can:
 
   * generate DHTML output (DDTR::DHTML)
 
-  * display a folding structure in Curses (DDTR::Folding)
+  * display an interactive folding data structure (DDTR::Folding)
 
   * display parts of the data structure Horizontally ( :flat() )
 
@@ -77,7 +77,7 @@ This interface accepts the following adverbs:
 
   * **:get_lines_integrated** returns a list of rendered lines
 
-  * **:curses** opens a NCurses interface, NCurses module must be installed
+  * **:fold** opens a Terminal::Print interface, module must be installed
 
   * **:remote** sends a rendering the to listener
 
@@ -167,7 +167,7 @@ The type of the variable with a '.' appended. IE: '.Str', '.MyClass'
 
 Data::Dump::Tree will display
 
-  * Ints have their type set to a white space string to reduce noise
+  * Ints, and Bools, type is set to white space to reduce noise
 
   * Hashes as '{n}' where n is the number of element of the hash
 
@@ -183,7 +183,7 @@ You control if the sequences are dumped vertically or horizontally, how much of 
 
 Check file *examples/sequences.pl* in the distribution as well as the  implementation in *lib/Data/Dump/Tree/DescribeBaseObjects.pm*.
 
-  * Matches as '[x..y]' where x..y is the match range or [x] for one element
+  * Matches as '[x..y]' where x..y is the match range
 
 See *Match objects* in the roles section below for configuration of the Match objects rendering.
 
@@ -321,6 +321,10 @@ The string is prepended to each line of the rendering
 ### $nl = Bool
 
 Add an empty line to the rendering
+
+### $die = Bool
+
+Dies after displaying the data
 
 ### $max_depth = Int 
 
@@ -646,7 +650,7 @@ You are welcome to make your own distribution for the roles too, I recommend usi
 
 ### DDTR::AsciiGlyphs
 
-Uses ASCII codes rather than ANSI to render the tree.
+Uses ASCII codes rather than Unicode to render the tree.
 
 ### DDTR::CompactUnicodeGlyphs
 
@@ -806,5 +810,6 @@ Perl 6:
   * Data::Dump
 
   * Pretty:Printer
+
 
 

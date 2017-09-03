@@ -4,7 +4,7 @@
 
 "name" : "Data::Dump::Tree",
 "license" : "Artistic-2.0",
-"version" : "1.7.0",
+"version" : "1.8.0",
 "auth"    : "github:nkh",
 "authors" : ["Nadim Khemir"],
 
@@ -23,12 +23,13 @@
 	"Data::Dump::Tree::Diff" : "lib/Data/Dump/Tree/Diff.pm",
 	"Data::Dump::Tree::DHTML" : "lib/Data/Dump/Tree/DHTML.pm",
 	"Data::Dump::Tree::Ddt" : "lib/Data/Dump/Tree/Ddt.pm",
-	"Data::Dump::Tree::CursesFoldable" : "lib/Data/Dump/Tree/CursesFoldable.pm",
+
 	"Data::Dump::Tree::Foldable" : "lib/Data/Dump/Tree/Foldable.pm",
+	"Data::Dump::Tree::TerminalFoldable" : "lib/Data/Dump/Tree/TerminalFoldable.pm",
+
 	"Data::Dump::Tree::LayHorizontal" : "lib/Data/Dump/Tree/LayHorizontal.pm",
 	"Data::Dump::Tree::Horizontal" : "lib/Data/Dump/Tree/Horizontal.pm",
 	"Data::Dump::Tree::MultiColumns" : "lib/Data/Dump/Tree/MultiColumns.pm"
-
 	},
 
 "depends" : [ ],

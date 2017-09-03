@@ -37,10 +37,9 @@ Terminal::Print
 
 use Data::Dump::Tree ;
 use Data::Dump::Tree::Foldable ;
-use Data::Dump::Tree::DescribeBaseObjects ;
-use Data::Dump::Tree::Colorizer ;
 
 use Terminal::Print ;
+use Terminal::Print::DecodedInput;
 
 
 sub get_foldable ($s, *%options) is export
@@ -51,65 +50,97 @@ Data::Dump::Tree::Foldable.new:
 	:width_minus(5) ;
 }
 
-multi sub display_foldable ($s, :$page_size is copy, :$debug, :$debug_column, *%options) is export
+multi sub display_foldable ($s, :$page_height is copy, :$debug, :$debug_column, *%options) is export
 {
-display_foldable(get_foldable $s, |%options, :$page_size, :$debug, :$debug_column) ;
+display_foldable(get_foldable $s, |%options, :$page_height, :$debug, :$debug_column) ;
 }
 
-multi sub display_foldable (Data::Dump::Tree::Foldable $f, :$page_size is copy, :$debug, :$debug_column, *%options) is export
+multi sub display_foldable (Data::Dump::Tree::Foldable $f, :$page_height is copy, :$debug, :$debug_column, *%options) is export
 {
-my $screen = Terminal::Print.new ;
 
-$screen.initialize-screen ;
+my ($ph, $page_width)  = ((qx[stty size] || '0 80') ~~ /(\d+) \s+ (\d+)/).List ;
 
-$page_size //= %+((qx[stty size] || '0 80') ~~ /(\d+) \s+ \d+/)[0] ; 
+$page_height //= +$ph ;
+$page_height max= +$ph ;
 
-my $g = $f.get_view ; $g.set: :$page_size ;
+my $g = $f.get_view ; $g.set: :page_size($page_height) ;
 
 my Bool $refresh = True ; 
 
-loop
+class Tick { }
+my $timer     = Supply.interval(2).map: { Tick } ;
+my $in-supply = decoded-input-supply;
+
+my $supplies  = Supply.merge($in-supply, $timer) ;
+
+my $screen = Terminal::Print.new ;
+$screen.initialize-screen ;
+
+my sub refresh
+{
+if $refresh
 	{
-	if $refresh
-		{
-		display($screen, $g) ;
-		debug($screen, $g, :$debug_column) if $debug ;
-		}
+	display($screen, $g, :$page_height, :$page_width) ;
+	debug($screen, $g, :$debug_column) if $debug ;
+	}
+}
 
-	my $command = 'u'.ord ;
+refresh ;
 
-	given $command 
+react 
+	{
+	whenever $supplies
 		{
-		when $_.chr eq 'q' { last }
+		when Tick { ; }  # Timer Tick
+
+		when 'q' { done }  # Quit
+
+		when 'r'         { $g = $f.get_view ; $g.set: :page_size($page_height) ; $refresh++ ; refresh ; }
+		when 'a'         { $refresh = $g.fold_all ; refresh ; }
+		when 'u'         { $refresh = $g.unfold_all ; refresh ; }
+
+		when 'e'         { $refresh = $g.selected_line_up ; refresh ; }
+		when 'd'         { $refresh = $g.selected_line_down ; refresh ; }
+
+		when CursorUp    { $refresh = $g.line_up ; refresh ; }
+		when CursorDown  { $refresh = $g.line_down ; refresh ; }
+		when PageUp      { $refresh = $g.page_up ; refresh ; }
+		when PageDown    { $refresh = $g.page_down ; refresh ; }
+
+		when CursorLeft  { $refresh = $g.fold_flip_selected ; refresh ; }
+		when CursorRight { $refresh = $g.fold_flip_selected ; refresh ;}
+
+		when Home        { $refresh = $g.home ; refresh ; }
+		when End         { $refresh = $g.end ; refresh ; }
 		}
 	}
+
+$screen.shutdown-screen ;
 }
 
 # ---------------------------------------------------------------------------------
 
-sub display($screen, $g)
+sub display($screen, $g, :$page_height, :$page_width)
 {
-my $fold_column = 1 ;
-my $fold_state_column = 3 ;
-my $start_column = 5 ;
+my @lines = $g.get_lines ;
 
-my $t0 = now ;
-for $g.get_lines Z 0..* -> ($line, $index)
+for @lines Z 0..* -> ($line, $index)
 	{
-	$screen.print-string: $fold_state_column, $index, $line[1] ?? '*' !! ' ' ;
-	#$screen.print-string: 0, $index, $line[2].join('') ;
-
-	my $text = '' ;
-
-	for $line[2].Array 
-		{
-		$text ~= $_[0] ~ $_[1] ;
-		}
-
-	$screen.print-string: $start_column, $index, $text ;
+	my ($text, $length) = ($line[2], $line[3]) ;
+ 
+	print $screen.cell-string(0, $index) 
+		~ ($g.selected_line == $index ?? '> ' !! '  ')
+		~ ($line[1] ?? '* ' !! '  ')
+		~ $text  
+		~ (' ' x ($page_width - ($length + 5)) ) ;
 	}
 	
-$screen.print-string: $g.selected_line, $fold_column, '>' ;
+my $blank = ' ' x ($page_width - 1) ;
+for @lines.elems..($page_height - 1)
+	{
+	print $screen.cell-string(0, $_) ~ $blank ;
+	}
+	
 }
 
 # ---------------------------------------------------------------------------------

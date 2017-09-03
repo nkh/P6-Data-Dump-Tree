@@ -7,17 +7,17 @@ Examples for Data::Dump::Tree
 
 - diff.pl	 		diff between two data structures
 
-- ddt/ddt.pl			example of adverbs used with ddt
+- ddt.pl			example of adverbs used with ddt
 
-- ddt/ddt_fold_send.pl		sends a folded data rendering to another process
+- remote/fold_send.pl		sends an example folded data rendering to another process
 
-- ddt/ddt_fold_receive.pl	displays a o folded data rendering send from another process
+- remote/fold_receive.pl	displays folded data rendering send by ddt_fold_send.pl
 
 - filter1.pl 			filter example
 
 - filter2.pl 			filter example
 
-- folding.pl 			NCurses example with data structure folding
+- folding.pl 			data structure folding
 
 - glyphs_color.pl 		different rendering of the glyphs
 

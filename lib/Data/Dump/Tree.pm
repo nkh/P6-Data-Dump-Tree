@@ -102,8 +102,7 @@ elsif	args.hash<note> 		{ note get_dump(|args) }
 elsif 	args.hash<get>			{ get_dump |args }
 elsif	args.hash<get_lines>		{ get_dump_lines |args }
 elsif	args.hash<get_lines_integrated>	{ get_dump_lines_integrated |args } 
-elsif	args.hash<curses>		{ ddt_curses |args }
-elsif	args.hash<tp>			{ ddt_tp |args }
+elsif	args.hash<fold>			{ ddt_tp |args }
 elsif	args.hash<remote>		{ ddt_remote get_dump(|args), :remote_port(args.hash<remote_port>) }
 elsif	args.hash<remote_fold>		{ ddt_remote_fold |args, :remote_port(args.hash<remote_port>) }
 else					{ print get_dump(|args) }
@@ -124,8 +123,7 @@ elsif	args.hash<note> 		{ note self.get_dump(|args) }
 elsif 	args.hash<get>			{ self.get_dump: |args }
 elsif	args.hash<get_lines>		{ self.get_dump_lines: |args }
 elsif	args.hash<get_lines_integrated>	{ self.get_dump_lines_integrated: |args } 
-elsif	args.hash<curses>		{ ddt_curses |args, :ddt_is(self) }
-elsif	args.hash<tp>			{ ddt_tp |args, :ddt_is(self) }
+elsif	args.hash<fold>			{ ddt_tp |args, :ddt_is(self) }
 elsif	args.hash<remote>		{ ddt_remote self.get_dump(|args), :remote_port(args.hash<remote_port>) }
 elsif	args.hash<remote_fold>		{ ddt_remote_fold |args, :remote_port(args.hash<remote_port>) }
 else					{ print self.get_dump(|args) }

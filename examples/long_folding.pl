@@ -3,7 +3,7 @@ use Data::Dump::Tree ;
 
 sub MAIN(Bool :$debug)
 {
-ddt :curses, get_s(600), :$debug, :title<first> ;
+ddt :fold, get_s(400), :$debug, :title<first> ;
 }
 
 # ---------------------------------------------------------------------------------

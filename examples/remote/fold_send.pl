@@ -1,12 +1,9 @@
 use Data::Dump::Tree ;
-use Data::Dump::Tree::CursesFoldable ;
 use Data::Dump::Tree::Ddt ;
 
 sub MAIN
 {
 my $s = [1, [1, [1..2]]] ;
-
-#ddt_remote_bin "ddt_remote".encode('utf-8') ;
 
 my $size = ddt :remote_fold, get_s(), :title<remote_fold>  ;
 
