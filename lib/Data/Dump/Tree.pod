@@ -171,7 +171,7 @@ many elements for lazy sequences too).
 Check file I<examples/sequences.pl> in the distribution as well as the 
 implementation in I<lib/Data/Dump/Tree/DescribeBaseObjects.pm>.
 
-=item  Matches as '[x..y]' where x..y is the match range or [x] for one element
+=item  Matches as '[x..y]' where x..y is the match range
 
 See I<Match objects> in the roles section below for configuration of the Match
 objects rendering.
