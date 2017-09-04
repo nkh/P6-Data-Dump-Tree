@@ -227,41 +227,24 @@ my $collapsed = %s<collapsed> ;
 qq:to/EOS/ ;
 <script type='text/javascript'>
 
-function search_{$class}()
-\{
-var string_to_search = prompt('DDTR::DHTML Search','');
-var regexp = new RegExp(string_to_search, 'i') ;
+function _elem_by_id(id) \{
+    return document.getElementById(id);
+}
 
-var i ;
-for (i = 0 ; i < a_id_array_{$class}.length; i++)
-	\{
-	if (document.getElementById) 
-		\{
-		if(regexp.test(document.getElementById(a_id_array_{$class}[i]).text))
-			\{
-			show_specific_node_{$class}(document.getElementById(a_id_array_{$class}[i])) ;
-			document.getElementById(a_id_array_{$class}[i]).style.color = '' ;
-			document.getElementById(a_id_array_{$class}[i]).style.backgroundColor = 'cyan' ;
-			break ;
-			}
-		}
-	else if (document.all) 
-		\{
-		if(regexp.test(document.all[a_id_array_{$class}[0]].text))
-			\{
-			show_specific_node_{$class}(document.all[a_id_array_{$class}[0]]) ;
-			break ;
-			}
-		}
-	else if (document.layers) 
-		\{
-		if(regexp.test(document.layers[a_id_array_{$class}[0]].text))
-			\{
-			show_specific_node_{$class}(document.layers[a_id_array_{$class}[0]]) ;
-			break ;
-			}
-		}
-	}
+function search_{$class}() \{
+    var string_to_search = prompt('DDTR::DHTML Search','');
+    var regexp = new RegExp(string_to_search, 'i') ;
+
+    var i ;
+    for (i = 0 ; i < a_id_array_{$class}.length; i++) \{
+        if(regexp.test(_elem_by_id(a_id_array_{$class}[i]).text)) \{
+            show_specific_node_{$class}(_elem_by_id(a_id_array_{$class}[i])) ;
+            _elem_by_id(a_id_array_{$class}[i]).style.color = '' ;
+            _elem_by_id(a_id_array_{$class}[i]).style.backgroundColor = 'cyan' ;
+            break ;
+        }
+    }
+    return;
 }
 
 function show_specific_node_{$class} (node)
@@ -310,41 +293,19 @@ else
 	}
 
 var i;
-for (i = 0; i < { %s<uuid> } ; i++)
-	\{
-	if (document.getElementById) 
-		\{
-		document.getElementById(collapsable_id_array_{$class}\[i]).style.display = style ;
-		document.getElementById(a_id_array_{$class}[i]).style.backgroundColor = '' ;
+for (i = 0; i < { %s<uuid> } ; i++) \{
+		_elem_by_id(collapsable_id_array_{$class}\[i]).style.display = style ;
+		_elem_by_id(a_id_array_{$class}[i]).style.backgroundColor = '' ;
 
-		var element = document.getElementById(a_id_array_{$class}\[i]) ;
-		var final =  element.getAttribute('data-final') ;
- 		if(! final) \{ element.style.color = color ; }
-		}
-	else if (document.all) 
-		\{
-		document.all[collapsable_id_array_{$class}\[i]].style.display = style ;
-
-		var element = document.all[a_id_array_{$class}\[i]] ;
+		var element = _elem_by_id(a_id_array_{$class}\[i]) ;
 		var final =  element.getAttribute('data-final') ;
 		if(! final) \{ element.style.color = color ; }
-		}
-	else if (document.layers) 
-		\{
-		document.layers[collapsable_id_array_{$class}\[i]].display = style ;
-	
-		var element = document.layers[a_id_array_{$class}\[i]] ;
-		var final =  element.getAttribute('data-final') ;
-		if(! final) \{ element.color = color ; }
-		}
 	}
 }
 
 function replace_button_text(buttonId, text)
 \{
-if (document.getElementById)
-	\{
-	var button=document.getElementById(buttonId);
+	var button=_elem_by_id(buttonId);
 	if (button)
 		\{
 		if (button.childNodes[0])
@@ -360,65 +321,24 @@ if (document.getElementById)
 			button.innerHTML=text;
 			}
 		}
-	}
 }
 
-function toggleList_{$class}(tree_id, head_id) 
-\{
-if (document.getElementById) 
-	\{
-	var element = document.getElementById(tree_id);
-	if (element) 
-		\{
-		if (element.style.display == 'none') 
-			\{
+function toggleList_{$class}(tree_id, head_id) \{
+	var element = _elem_by_id(tree_id);
+	if (element) \{
+		if (element.style.display == 'none') \{
 			element.style.display = 'block';
-			element = document.getElementById(head_id);
+			element = _elem_by_id(head_id);
 			element.style.color = '' ;
 			element.style.backgroundColor = '' ;
-			}
-		else
-			\{
+		} else \{
 			element.style.display = 'none';
-			element = document.getElementById(head_id);
+			element = _elem_by_id(head_id);
 			element.style.color = 'magenta' ;
 			element.style.backgroundColor = '' ;
-			}
 		}
 	}
-else if (document.all) 
-	\{
-	var element = document.all[tree_id];
-	
-	if (element) 
-		\{
-		if (element.style.display == 'none') 
-			\{
-			element.style.display = 'block';
-			}
-		else
-			\{
-			element.style.display = 'none';
-			}
-		}
-	}
-else if (document.layers) 
-	\{
-	var element = document.layers[tree_id];
-	
-	if (element) 
-		\{
-		if (element.display == 'none') 
-			\{
-			element.display = 'block';
-			}
-		else
-			\{
-			element.display = 'none';
-			}
-		}
-	}
-} 
+}
 
 </script>
 EOS
