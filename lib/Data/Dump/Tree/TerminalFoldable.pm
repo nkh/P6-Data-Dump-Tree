@@ -29,7 +29,7 @@ https://github.com/nkh
 This program is free software; you can redistribute it and/or modify it
 under the same terms as Perl6 itself.
 
-=SEE-ALSO
+=head1 SEE-ALSO
 
 Terminal::Print 
 
