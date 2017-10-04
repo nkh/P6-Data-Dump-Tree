@@ -3,11 +3,11 @@
 use Data::Dump::Tree ;
 use Data::Dump::Tree::Enums ;
 
-# example of filter to remove the type from the rendering 
+# example of filter to remove the type from the rendering
 # we only remove type IntStr and derivatives in Arrays in this example
 
-role my_role { has $.something is rw } # test that Int+something type displays correctly 
-		
+role my_role { has $.something is rw } # test that Int+something type displays correctly
+
 my $my_role = my_role.new(:something<more>) ;
 
 my $i = IntStr.new(5, 'but more') but my_role ;
@@ -25,6 +25,6 @@ my class NoType { has Int $.val ; method ddt_get_header { $.val, '   ', DDT_FINA
 
 multi sub untype($dumper, Array $s, $, @elements)
 {
-@elements .= map: { $_[2].^name ~~ /^IntStr/ ?? (|$_[0,1], NoType.new(:val($_[2]))) !! $_ }	
+@elements .= map: { $_[2].^name ~~ /^IntStr/ ?? (|$_[0,1], NoType.new(:val($_[2]))) !! $_ }
 }
 

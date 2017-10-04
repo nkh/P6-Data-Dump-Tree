@@ -35,7 +35,7 @@ for
 	(12,	:title<test sub: Hash>, 		$s, 		:flat({$_ ~~ Hash})),
 	(11,	:title<test sub Array $s.first: 3>,	$s, 		:flat({$_ ~~ Array && $_.first: 3})),
 	(13,	:title<test sub: $s == %h1>,		$s, 		:flat({$_ === %h1})),
-	# columns 
+	# columns
 	(39,	:title<flat()>,				$d2,		:flat()),
 	(38,	:title<flat((H, 2))>,			$d2,		:flat((Hash, 2),)),
 	(23,	:title<flat((sA, 2))>,			$d2,		:flat(({$_ ~~ Array && $*d == 1}, 2), )),
@@ -56,7 +56,7 @@ for
 	my $bw = ddt :get_lines_integrated, |$c, :width(80), :!color ;
 	my $col = ddt :get_lines_integrated, |$c, :width(80) ;
 
-	my regex ansi_color { \e \[ \d+ [\;\d+]* <?before [\;\d+]* > m } 
+	my regex ansi_color { \e \[ \d+ [\;\d+]* <?before [\;\d+]* > m }
 
 	is($col.map({ S:g/ <ansi_color> // with $_}), $bw, 'same contents')  or do
 		{

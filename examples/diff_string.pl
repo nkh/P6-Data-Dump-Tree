@@ -23,10 +23,10 @@ $d.dump_synched: @df1, @df2, :compact_width, :does(DDTR::MatchDetails,), :color_
 
 # show only the differences between the structures
 $d.dump_synched: @df1, @df2, :compact_width, :does(DDTR::MatchDetails,), :color_glyphs,
-		
+
 		# show only difference
 		:!diff_glyphs, :remove_eq, :remove_eqv,
-		
+
 		# give names to the data structures
 		:title<title>,
 		:rhs_title<rhs_title> ;

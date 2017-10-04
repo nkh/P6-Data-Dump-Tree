@@ -18,7 +18,7 @@ with $help { display_help() and exit 0 }
 
 my $listen = IO::Socket::INET.new(:listen, :localhost<localhost>, :localport($port));
 
-loop 
+loop
 	{
 	my $connection = $listen.accept ;
 
@@ -35,7 +35,7 @@ loop
 
 	$connection.close ;
 	"reception time: {now - $t0}".say if $timestamp ;
-	
+
 	my $foldable = Data::Dump::Tree::Foldable.new: :@lines, :@line_lengths, :@folds ;
 	display_foldable($foldable) ;
 	}

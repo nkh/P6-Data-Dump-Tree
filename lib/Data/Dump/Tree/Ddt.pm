@@ -3,7 +3,7 @@ unit module Data::Dump::Tree::Ddt ;
 
 sub ddt_tp(|args ) is export
 {
-try 
+try
 	{
 	require Data::Dump::Tree::TerminalFoldable <&display_foldable> ;
 	display_foldable |args ;
@@ -12,13 +12,13 @@ try
 $!.note if $! ;
 }
 
-sub ddt_remote ($s, :$remote_port is copy, Bool :$counter, |other) is export 
+sub ddt_remote ($s, :$remote_port is copy, Bool :$counter, |other) is export
 {
 $remote_port //= 3333 ;
 
 use experimental :pack;
 
-try 
+try
 	{
 	my $c = IO::Socket::INET.new: :host<localhost>, :port($remote_port) ;
 	my $string  = $s.Str ;
@@ -34,7 +34,7 @@ try
 
 	$c.close ;
 	}
-		
+
 if $!
 	{
 	"Error: Can't send below data to port:$remote_port time:{DateTime.now}".note ;
@@ -48,13 +48,13 @@ else
 	}
 }
 
-sub ddt_remote_fold ($s, :$remote_port is copy, Bool :$counter, |other) is export 
+sub ddt_remote_fold ($s, :$remote_port is copy, Bool :$counter, |other) is export
 {
 use experimental :pack;
 
 $remote_port //= 4444 ;
 
-try 
+try
 	{
 	require Data::Dump::Tree::TerminalFoldable <&get_foldable> ;
 	my $f = get_foldable $s, |other ;

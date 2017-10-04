@@ -10,7 +10,7 @@ role Tomato {has $.color = 'red'} ;
 
 role E { has Fruit $fruit = Fruit.new(:seeds(3)) but Tomato ; }
 
-for 
+for
 	(
 	(1, 2, 3),
 	[1..3],

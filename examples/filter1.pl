@@ -87,7 +87,7 @@ multi sub my_filter($dumper, Hash $s, ($, $glyph, @renderings, $), @sub_elements
 @renderings.push: (|$glyph, ('', "Changing elements of the Hash", '')) ;
 
 # new elements
-@sub_elements = (('new element 1', ': ', 2/3), ('new element 2', ': ', 2), ('new element 3', ': ', 3)) ; 
+@sub_elements = (('new element 1', ': ', 2/3), ('new element 2', ': ', 2), ('new element 3', ': ', 3)) ;
 }
 
 

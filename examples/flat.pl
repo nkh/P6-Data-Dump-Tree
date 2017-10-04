@@ -36,11 +36,11 @@ ddt get_test_structure, :flat(0) ;
 ddt get_test_structure, :flat(1) ;
 ddt get_test_structure, :flat(2) ;
 
-my $width = %+((qx[stty size] || '0 80') ~~ /\d+ \s+ (\d+)/)[0] ; 
+my $width = %+((qx[stty size] || '0 80') ~~ /\d+ \s+ (\d+)/)[0] ;
 $width = ($width / 2).Int ;
 
-display_columns 
-	get_dump_lines_integrated( 
+display_columns
+	get_dump_lines_integrated(
 				get_test_structure,
 				:$width,
 				:flat(0),
@@ -81,7 +81,7 @@ for
 	(14,	:title<test sub: Hash>, 		$s, 		:flat({$_ ~~ Hash})),
 	(12,	:title<test sub Array $s.first: 3>,	$s, 		:flat({$_ ~~ Array && $_.first: 3})),
 	(14,	:title<test sub: $s == %h1>,		$s, 		:flat({$_ === %h1})),
-	# columns 
+	# columns
 	(39,	:title<flat()>,				$d2,		:flat()),
 	(38,	:title<flat((H, 2))>,			$d2,		:flat((Hash, 2),)),
 	(22,	:title<flat((sA, 2))>,			$d2,		:flat(({$_ ~~ Array && $*d == 1}, 2), )),

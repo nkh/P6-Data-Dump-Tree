@@ -1,27 +1,27 @@
- 
+
 class Colorizer
 {
 has %!color_lookup ;
 
-method set_colors(%colors, $do_color) 
+method set_colors(%colors, $do_color)
 {
 if $do_color
 	{
-	for %colors.kv -> $color_name, $color { %!color_lookup{$color_name} = $.lookup_color($color) } 
+	for %colors.kv -> $color_name, $color { %!color_lookup{$color_name} = $.lookup_color($color) }
 	}
 else
 	{
 	%!color_lookup = () ;
 	}
-}	
+}
 
 method lookup_color($color_name) { $color_name }
 
-multi method color(Hash $h, Str $name --> Hash) 
+multi method color(Hash $h, Str $name --> Hash)
 {
 my %colored_hash ;
 
-for $h.kv -> $k, $v { %colored_hash{$k} = (%!color_lookup{$name} // '') , $v , %!color_lookup<reset> // ''} 
+for $h.kv -> $k, $v { %colored_hash{$k} = (%!color_lookup{$name} // '') , $v , %!color_lookup<reset> // ''}
 
 %colored_hash ;
 }
@@ -54,7 +54,7 @@ method new
 {
 my &colorizer ;
 
-if (try require ::Terminal::ANSIColor) !=== Nil 
+if (try require ::Terminal::ANSIColor) !=== Nil
 	{
 	&colorizer = ::("Terminal::ANSIColor::EXPORT::ALL::&color")
 	}

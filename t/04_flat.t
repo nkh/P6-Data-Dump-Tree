@@ -31,7 +31,7 @@ for
 	(14,	:title<test sub: Hash>, 		$s, 		:flat({$_ ~~ Hash})),
 	(12,	:title<test sub Array $s.first: 3>,	$s, 		:flat({$_ ~~ Array && $_.first: 3})),
 	(14,	:title<test sub: $s == %h1>,		$s, 		:flat({$_ === %h1})),
-	# columns 
+	# columns
 	(39,	:title<flat()>,				$d2,		:flat()),
 	(38,	:title<flat((H, 2))>,			$d2,		:flat((Hash, 2),)),
 	(23,	:title<flat((sA, 2))>,			$d2,		:flat(({$_ ~~ Array && $*d == 1}, 2), )),
@@ -54,7 +54,7 @@ for
 		{
 		diag ddt :get, |$title, $ds ;
 		diag ddt :get, |$c, :width(80) ;
-		
+
 		diag $r.join("\n") ;
 		}
 	}

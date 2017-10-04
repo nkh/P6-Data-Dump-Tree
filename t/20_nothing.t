@@ -10,9 +10,9 @@ class HasNothing
 {
 
 #method ddt_get_header { ('', '.' ~ self.^name) } # use default
-method ddt_get_elements 
-{ 
-	[ 
+method ddt_get_elements
+{
+	[
 	('nothing', '', Data::Dump::Tree::Type::Nothing),
 	('text', ' ', 'text'),
 	]

@@ -37,8 +37,8 @@ is $dump.lines.elems, 3, '3 lines' or diag $dump ;
 like $dump, /'<CUnion>'/, '<CUnion>' or diag $dump ;
 
 class MyStruct is repr('CStruct') {
-	has Point $.point;  # referenced 
-	submethod TWEAK() { $!point := Point.new }; 
+	has Point $.point;  # referenced
+	submethod TWEAK() { $!point := Point.new };
 }
 
 my $mystruct = MyStruct.new ;
@@ -65,7 +65,7 @@ $dump = $d.ddt: :get, $pointer;
 is $dump.lines.elems, 1, '1 line' or diag $dump ;
 like $dump, /'<CPointer>'/, '<CPointer>' or diag $dump ;
 
-my int32 @int32 = 6, 7, 8 ; 
+my int32 @int32 = 6, 7, 8 ;
 $dump = $d.ddt: :get, @int32;
 is $dump.lines.elems, 4, '4 lines' or diag $dump ;
 like $dump, /'<array>'/, '<array>' or diag $dump ;

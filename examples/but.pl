@@ -3,8 +3,8 @@
 use Data::Dump::Tree ;
 use Data::Dump::Tree::Enums ;
 
-role my_role { has $.something is rw } # test that Int+something type displays correctly 
-		
+role my_role { has $.something is rw } # test that Int+something type displays correctly
+
 my $my_role = my_role.new(:something<more>) ;
 
 my $i = IntStr.new(4, 'but more') but my_role ;
@@ -20,10 +20,10 @@ my $data = [1, IntStr.new(2, '2'), IntStr.new(3, 'three'),
 
 ddt $data, :nl ;
 
-#more examples, specially the one demonstrating that assigning to an 
+#more examples, specially the one demonstrating that assigning to an
 # @array does just that, so don not @ = @+role, use binding or scalars
 
-my role MaxLines { has $.max_lines is rw = 0 } 
+my role MaxLines { has $.max_lines is rw = 0 }
 
 my @a = [1..2] ;
 my $current_block = [1..2] but MaxLines ;

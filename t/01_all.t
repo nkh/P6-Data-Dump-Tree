@@ -10,17 +10,17 @@ class Strings
 {
 
 method ddt_get_header { "say something about this class\nmultiline", '.' ~ self.^name ~ "\n multiline classes" }
-method ddt_get_elements 
-{ 
-	('', '', 'has no name'), 
-	("very very long\nexplanation on multiple lines\n", '', "many lines\n" x 5), 
-	('single-long', ': ', 'x' x 300), 
-	('multiple-long', ': ', 'x' x 300 ~ "\n" ~ 'y' x 200), 
+method ddt_get_elements
+{
+	('', '', 'has no name'),
+	("very very long\nexplanation on multiple lines\n", '', "many lines\n" x 5),
+	('single-long', ': ', 'x' x 300),
+	('multiple-long', ': ', 'x' x 300 ~ "\n" ~ 'y' x 200),
 
 	('12345678901234567890123456789012345', '', [ 1, {a => 3} ]),
 	("12345678901234567890123456789012345\nxxx", '', 'test'),
 
-	('coefficient', ' = ', 1), 
+	('coefficient', ' = ', 1),
 }
 
 #class
@@ -35,9 +35,9 @@ class Dog { has $.name; }
 role DescribeDog
 {
 
-multi method get_header (Dog $d) 
+multi method get_header (Dog $d)
 {
-'Woof! ', '.Dog (but this one is vagrant, no address)', DDT_NOT_FINAL, DDT_HAS_NO_ADDRESS 
+'Woof! ', '.Dog (but this one is vagrant, no address)', DDT_NOT_FINAL, DDT_HAS_NO_ADDRESS
 }
 
 multi method get_elements (Dog $d) { (q/the dog's name is/, ': ', $d.name), }
@@ -62,7 +62,7 @@ my $d = Data::Dump::Tree.new ;
 $d does DescribeDog ;
 $d does DescribeShyFinal ;
 
-my $dump = $d.ddt: 
+my $dump = $d.ddt:
 		:get,
 		get_test_structure(),
 		title =>'test data',
@@ -78,7 +78,7 @@ is( $dump.lines.elems, 83, 'all lines') or diag $dump ;
 
 sub get_test_structure
 {
-my $nil is default(Nil) = Nil; 
+my $nil is default(Nil) = Nil;
 my @a = 1 ;
 my $b = [< a >] ;
 my $list = < a b > ;
@@ -108,7 +108,7 @@ my $s = [
 	Cool.new(),
 	(GenericClass.new(:x(5), :z('hi there')) does GenericRole) but Whatnot,
 	Mangled.new(),
-	Dog.new(name => 'fido'), 
+	Dog.new(name => 'fido'),
 	Shy.new(secret => 'I will not say'),
 	Strings.new(),
 	#regex
