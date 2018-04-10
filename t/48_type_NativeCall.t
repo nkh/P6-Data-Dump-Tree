@@ -42,7 +42,7 @@ class MyStruct is repr('CStruct') {
 }
 
 my $mystruct = MyStruct.new ;
-$mystruct.point.x = num64.new(888e0)  ;
+$mystruct.point.x = (my num64 $ = 888e0);
 
 $dump = $d.ddt: :get, $mystruct ;
 is $dump.lines.elems, 5, '5 lines' or diag $dump ;
