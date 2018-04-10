@@ -1,7 +1,7 @@
 
 =begin pod
 
-*Warning*: This module is developed and tested with the latest rakudo. It may
+I<Warning>: This module is developed and tested with the latest rakudo. It may
 not work or install properly with your version of rakudo, there is a test suite
 run to check its fitness. 
 
