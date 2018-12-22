@@ -10,9 +10,9 @@ Date::Dump::Tree::LayHorizontal - layout data in horizontal or column mode
 
 =SYNOPSIS
 	use Data::Dump::Tree ;
-	
-	ddt $some_complex_data, :flat(Array) ; 
-		
+
+	ddt $some_complex_data, :flat(Array) ;
+
 See I<examples/flat.pl> in the distribution for multiple examples
 
 =DESCRIPTION
@@ -21,7 +21,7 @@ Renders data elements matching :flat conditions in a horizontal or columns
 layout ; this allows you to mix vertical and horizontal layout in the same
 rendering.
 
-=head1 Horizontal layout 
+=head1 Horizontal layout
 
  Vertical layout:
  (6) @0
@@ -83,7 +83,7 @@ rendering.
  , [2, [3, 4]]], [1, [2, [3, 4]]], [1, [2, [3, 4]]]).Seq], [[1, [2, [3, 4]]], [1, [2
  , [3, 4]]], [1, 2], [1, 2, 3], [1, [2, [3, 4]]], [1, [2, [3, 4]]], [1, [2, [3, 4]]]
  , [1, [2, [3, 4]]], [1, [2, [3, 4]]], [1, [2, [3, 4]]]], $[[1, 2], ([1, [2, [3, 4]]
- ], [1, [2, [3, 4]]], [1, [2, [3, 4]]], [1, [2, [3, 4]]], [1, [2, [3, 4]]], [1, [2, 
+ ], [1, [2, [3, 4]]], [1, [2, [3, 4]]], [1, [2, [3, 4]]], [1, [2, [3, 4]]], [1, [2,
  [3, 4]]], [1, [2, [3, 4]]], [1, [2, [3, 4]]], [1, [2, [3, 4]]], [1, [2, [3, 4]]], [
  1, [2, [3, 4]]]).Seq], "12345678")
 
@@ -108,7 +108,7 @@ rendering.
  			          └ ...
  4 = [2] §12 5 = 12345678.Str
 
-=head1 Column layout 
+=head1 Column layout
 
 If you just flatten, the elements will be rendered after each other. If it
 reaches the maximum width, a new row is started.
@@ -182,9 +182,9 @@ I<:flat((Array,5),>
 I<:flat> takes a list of conditions and options to allow you to control what
 is flattened.
 
-=head2 Conditions 
+=head2 Conditions
 
-=item blocks: :flat({ $_ ~~ Array && $_.elems > 15 }, ...) 
+=item blocks: :flat({ $_ ~~ Array && $_.elems > 15 }, ...)
 
 You can pass Blocks to I<:flat>, they are called for each object in your data
 structure,this lets you dynamically choose if you want the data in horizontal
@@ -206,14 +206,14 @@ The pointy block returns list of three elements
 
 =over 2
 
-=item Bool, lay flat or not 
+=item Bool, lay flat or not
 
 =item Int, nuber of rows in a colums
 
 =item Int, minimum width of an entry
 
 =back
- 
+
 =item integer: :flat(0) or :flat
 
 Will flatten at the given level in your data structure.
@@ -228,9 +228,9 @@ flattened, this allows a selective flattening.
 Will flatten any object in your data structure that matches one of the types
 passed as a condition. Flattening Hashes looks particularly good.
 
-=item other conditions are smart-matched 
+=item other conditions are smart-matched
 
-=head2 Columns 
+=head2 Columns
 
 Splitting uses the same interface as the conditions but rather than pass a
 condition, you pass a list consisting of a condition and split value.
@@ -238,7 +238,7 @@ condition, you pass a list consisting of a condition and split value.
 	ddt $data, :flat(Array) ;
 
 	ddt $data, :flat( (Array, 5) ) ;
-	
+
 I<Sub> conditions can dynamically return a split value.
 
 	ddt $data, :flat( { $_ ~~ Array andthen True, 5} )
@@ -257,7 +257,7 @@ https://github.com/nkh
 This program is free software; you can redistribute it and/or modify it
 under the same terms as Perl6 itself.
 
-=SEE-ALSO
+=head1 SEE-ALSO
 
 Data::Dump::Tree
 
@@ -266,16 +266,16 @@ Data::Dump::Tree
 sub match_target(@targets, $s, $depth)
 {
 my (Bool $matched, Int $rows, Int $width) ;
-	
+
 for @targets -> $target is copy
 	{
-	($target, $rows) = $target if $target.^name eq 'List' ;  
+	($target, $rows) = $target if $target.^name eq 'List' ;
 
-	if $target ~~ Block 
+	if $target ~~ Block
 		{
 		my $*d = $depth ;
 		my ($st, $ss, $sr) =  $target($s) ;
-		
+
 		if $st
 			{
 			$ss andthen $rows = $ss ;
@@ -283,21 +283,21 @@ for @targets -> $target is copy
 
 			$matched = True ;
 			last
-			} 
+			}
 		}
 
 	# Int can only match depth
-	if $target ~~ Int { $matched = $depth == $target ; last } 
-	
+	if $target ~~ Int { $matched = $depth == $target ; last }
+
 	if $target ~~ (Array:D | Hash:D | List:D) && $s === $target
 		 { $matched = True ; last }
 
 	if $target ~~ none( Pair | Block | Hash:D | Array:D | List:D) && $s ~~ $target
 		 { $matched = True ; last }
-	
-	$rows = Int ; # reset if no match 
+
+	$rows = Int ; # reset if no match
 	}
-		
+
 $matched, $rows, $width
 }
 

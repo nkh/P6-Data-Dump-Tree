@@ -12,15 +12,15 @@ class Data::Dump::Tree::Horizontal
 Date::Dump::Tree::Horizontal - wrap an object to render it horizontally
 
 =SYNOPSIS
-	
+
 	# sub elements filter
 	sub ($d, $s, ($depth, $glyph, @renderings, $), @sub_elements)
 	{
-	if $depth == 2  
+	if $depth == 2
 		{
 		my $total_width = $d.width - (($depth  + 2 ) * 3) ;
 
-		@sub_elements = 
+		@sub_elements =
 			(
 				(
 				'',
@@ -152,7 +152,7 @@ https://github.com/nkh
 This program is free software; you can redistribute it and/or modify it
 under the same terms as Perl6 itself.
 
-=SEE-ALSO
+=head1 SEE-ALSO
 
 Data::Dump::Tree
 
@@ -169,7 +169,7 @@ has @.elements ;
 has $.flat_depth ;
 
 method ddt_get_header
-{ 
+{
 my @blocks = @.elements.map: -> ($k, $b, $sub_element)
 			{
 			$!dumper.get_dump_lines_integrated:
@@ -180,7 +180,7 @@ my @blocks = @.elements.map: -> ($k, $b, $sub_element)
 					:flat_depth($.flat_depth + 1),
 					:!nl,
 					:indent('') ;
-			} 
+			}
 
 my $columns ;
 
@@ -188,7 +188,7 @@ with $.rows
 	{
 	my @columns = $[] ;
 
-	for @blocks -> $block 
+	for @blocks -> $block
 		{
 		@columns.push: [] if @columns[*-1].elems >= $.rows ;
 
@@ -209,7 +209,7 @@ with $.rows
 		else
 			{
 			$column.push: |$block ;
-			} 
+			}
 
 		if $column.elems >= $.rows
 			{
@@ -225,7 +225,7 @@ else
 	$columns ~= "\n" ;
 	}
 
-($!title ne '' ?? "$!title\n" !! '') ~ $columns, '', DDT_FINAL 
+($!title ne '' ?? "$!title\n" !! '') ~ $columns, '', DDT_FINAL
 }
 
 

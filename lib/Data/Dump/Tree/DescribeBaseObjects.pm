@@ -10,10 +10,10 @@ role DDTR::DescribeBaseObjects
 {
 method get_P6_internal { ('!UNIT_MARKER', 'GLOBAL', 'EXPORT', 'Data', 'Test') }
 
-# ConsumeSeq 
+# ConsumeSeq
 has %.consume_seq is rw = (:!consume_lazy, :vertical, :max_element_vertical<10>, :max_element_horizontal<100>) ;
 
-multi method get_header (Seq $s) 
+multi method get_header (Seq $s)
 	{
 	%.consume_seq<consume_lazy vertical max_element_vertical max_element_horizontal> [Z//]= False, True, 10, 100 ;
 
@@ -25,12 +25,12 @@ multi method get_header (Seq $s)
 			}
 		else
 			{
-			if %.consume_seq<vertical> 
-				{ 
+			if %.consume_seq<vertical>
+				{
 				( '', '.' ~ $s.^name ~ '(*)' )
 				}
 			else
-				{ 
+				{
 				my @elements = ($s)[0..^%.consume_seq<max_element_horizontal>].map({.gist}) ;
 				@elements.push: '...*' ;
 
@@ -40,12 +40,12 @@ multi method get_header (Seq $s)
 		}
 	else
 		{
-		if %.consume_seq<vertical> 
-			{ 
+		if %.consume_seq<vertical>
+			{
 			( '', '.' ~ $s.^name ~ '(' ~ $s.elems ~ ')' )
 			}
 		else
-			{ 
+			{
 			my @elements = ($s)[0..^%.consume_seq<max_element_horizontal>].grep({.defined}).map({.gist})  ;
 			@elements.push: '...' if ($s)[%.consume_seq<max_element_horizontal>].defined ;
 
@@ -63,7 +63,7 @@ multi method get_elements (Seq $s)
 		if @cache[%.consume_seq<max_element_vertical>].defined ;
 
 	@elements
-	} 
+	}
 
 multi method get_header (Promise $p) { '', '.' ~ $p.^name ~ ' (' ~ $p.status ~ ')', DDT_FINAL }
 # we can get more information from a Promise, but we may want to filter out $.result
@@ -82,26 +82,26 @@ multi method get_elements (Buf $b) {
 	$b.list.map: {$++, ' = ', Data::Dump::Tree::Type::ValueOnly.new($_.fmt('%02x') ~ " " ~ chr($_) ~ "   ") } }
 
 multi method get_header (utf8 $b) { '', '.' ~ $b.^name ~ '[' ~ $b.elems ~ ']'  }
-multi method get_elements (utf8 $b) { 
+multi method get_elements (utf8 $b) {
 	$b.list.map: {$++, ' = ', Data::Dump::Tree::Type::ValueOnly.new($_.fmt('%02x') ~ " " ~ chr($_) ~ "   ") } }
 
-multi method get_header (IntStr $i) 
+multi method get_header (IntStr $i)
 {
-~$i.Int eq $i.Str 
+~$i.Int eq $i.Str
 	?? ( $i.Int ,  '.' ~ $i.^name, |is_final($i, 'IntStr') )
 	!! ( $i.Int ~ ' / "' ~ $i.Str ~ '"',  '.' ~ $i.^name, |is_final($i, 'IntStr') )
 }
 multi method get_elements (IntStr $e) { self!get_attributes($e) }
- 
+
 multi method get_header (Int:U $i) { '',  'Int', DDT_FINAL }
 multi method get_header (Int:D $i) { $i,  $i.^name eq 'Int' ?? '   ' !! '.' ~ $i.^name, |is_final($i, 'Int') }
 multi method get_elements (Int $e) { self!get_attributes($e) }
 
 multi method get_header (Str:U $s) { '', '.' ~ $s.^name, DDT_FINAL }
-multi method get_header (Str:D $s) { $s, '.' ~ $s.^name, |is_final($s, 'Str') } 
+multi method get_header (Str:D $s) { $s, '.' ~ $s.^name, |is_final($s, 'Str') }
 multi method get_elements (Str $e) { self!get_attributes($e) }
 
-multi method get_header (Num:D $n) { $n, '.' ~ $n.^name, |is_final($n, 'Num') } 
+multi method get_header (Num:D $n) { $n, '.' ~ $n.^name, |is_final($n, 'Num') }
 multi method get_header (Rat $r) { $r  ~ ' (' ~ $r.numerator ~ '/' ~ $r.denominator ~ ')', '.' ~ $r.^name, |is_final($r, 'Rat') }
 multi method get_elements (Rat $e) { self!get_attributes($e, <numerator denominator>) }
 
@@ -111,11 +111,11 @@ multi method get_elements (Range $e) { self!get_attributes($e, <is-int min max e
 multi method get_header (Bool $b) { ( $b, '', |is_final($b, 'Bool') ) }
 multi method get_elements (Bool $e) { self!get_attributes($e, <key value>) }
 
-multi method get_header (Regex $r) { $r.perl.substr(6) ,  '.' ~ $r.^name, DDT_FINAL } 
+multi method get_header (Regex $r) { $r.perl.substr(6) ,  '.' ~ $r.^name, DDT_FINAL }
 
-multi method get_header (Pair $p) 
+multi method get_header (Pair $p)
 	{
-	$p.key ~~ Str | Int && $p.value ~~ Str | Int 
+	$p.key ~~ Str | Int && $p.value ~~ Str | Int
 		?? ( '(' ~ $p.key ~ ', ' ~ $p.value ~ ')', '.' ~ $p.^name, |is_final($p, 'Pair') )
 		!! ('', '.' ~ $p.^name )
 	}
@@ -124,10 +124,10 @@ multi method get_elements (Pair $p)
 	{
 	|self!get_attributes($p, <key value WHICH>,),
 
-	$p.key ~~ Str | Int 
-		?? ('k:' ~ $p.key ~ ", v:", '', $p.value) 
+	$p.key ~~ Str | Int
+		?? ('k:' ~ $p.key ~ ", v:", '', $p.value)
 		!! (('key', ': ', $p.key), ('value', ' = ', $p.value))
-	} 
+	}
 
 multi method get_header (Junction $j) { $j.gist, '.' ~ $j.^name, DDT_FINAL }
 
@@ -136,23 +136,23 @@ multi method get_header (Match $m) { (~$m, Q/[/ ~ $m.from ~ '..' ~ $m.to - 1 ~ '
 # Block must be declare or it groaks when passed a Sub
 multi method get_header (Block $b) { $b.perl, '.' ~ $b.^name, DDT_FINAL }
 multi method get_header (Routine $r) { '' , '.' ~ $r.^name, DDT_FINAL }
-multi method get_header (Sub $s) 
+multi method get_header (Sub $s)
 {
 	($s.name || '<anon>') ~ ' ' ~ $s.signature.gist,
 	$s.^name  ~~ /NativeCall/ ?? '.Sub <NativeCall>' !! '.Sub',
 	DDT_FINAL
 }
 
-multi method get_header (Any $a) 
+multi method get_header (Any $a)
 {
-given $a.^name 
+given $a.^name
 	{
 	when 'any' { '', '.' ~ $a.^name, DDT_FINAL }
 	when any(self.get_P6_internal()) { '', '.' ~ $a.^name, DDT_FINAL }
-	default { '', self!get_class_and_parents($a) } # some object 
+	default { '', self!get_class_and_parents($a) } # some object
 	}
 }
-multi method get_elements (Any $a) { self!get_attributes($a) } 
+multi method get_elements (Any $a) { self!get_attributes($a) }
 
 multi method get_header (List:U $l) { '', '()', DDT_FINAL }
 multi method get_header (List:D $l) { '', '(' ~ $l.elems ~ ')' }
@@ -162,7 +162,7 @@ multi method get_elements (List $l) {
 
 multi method get_header (Array:U $a) { '', '[]', DDT_FINAL }
 multi method get_header (Array:D $a) { '', '[' ~ $a.elems ~ ']' ~ $a.^name.substr(5) }
-multi method get_elements (Array $a) { 
+multi method get_elements (Array $a) {
 	|self!get_attributes($a, <descriptor reified todo>),
 	|$a.list.map: {$++, ' = ', $_} }
 
@@ -182,12 +182,12 @@ multi method get_header (Stash $s) { '', '.' ~ $s.^name ~ ' {' ~ ($s.keys.flat.e
 #multi method get_elements (Stash $s) { $s.sort(*.key)>>.kv.map: -> ($k, $v) {$k, ' => ', $v} }
 multi method get_elements (Stash $s) { $s.sort(*.key)>>.&{.key, .value}.map: -> ($k, $v) {$k, ' => ', $v} }
 
-multi method get_header (Map $m) { '', '.' ~ $m.^name } 
+multi method get_header (Map $m) { '', '.' ~ $m.^name }
 multi method get_elements (Map $m) {
 	|self!get_attributes($m, (<storage>,)),
 	|$m.sort(*.key)>>.kv.map: -> ($k, $v) {$k, ' => ', $v} }
 
-multi method get_header (Enumeration $e) { '', '.' ~ $e.^name, DDT_FINAL } 
+multi method get_header (Enumeration $e) { '', '.' ~ $e.^name, DDT_FINAL }
 
 } #role
 
@@ -213,23 +213,23 @@ method limit_string(Str $s, $limit)
 {
 $limit.defined && $s.chars > $limit
 	?? $s.substr(0, $limit) ~ '(+' ~ $s.chars - $limit ~ ')'
-	!! $s 
+	!! $s
 }
 
 
 } #role
 
 
-role DDTR::QuotedString 
+role DDTR::QuotedString
 {
 multi method get_header (IntStr $i) { $i.Int ~ ' / "' ~ $i.Str ~ '"',  '.' ~ $i.^name, DDT_FINAL }
-multi method get_header (Str:D $s) { "'$s'", '.' ~ $s.^name, |is_final($s, 'Str') } 
+multi method get_header (Str:D $s) { "'$s'", '.' ~ $s.^name, |is_final($s, 'Str') }
 }
 
 role DDTR::PerlString
 {
 multi method get_header (IntStr $i) { $i.Int ~ ' / "' ~ $i.Str ~ '"',  '.' ~ $i.^name, DDT_FINAL }
-multi method get_header (Str:D $s) { $_ = $s.perl ; S:g/^\"(.*)\"$/$0/, '.' ~ $s.^name, |is_final($s, 'Str') } 
+multi method get_header (Str:D $s) { $_ = $s.perl ; S:g/^\"(.*)\"$/$0/, '.' ~ $s.^name, |is_final($s, 'Str') }
 }
 
 class Data::Dump::Tree::Type::MaxDepth
@@ -255,11 +255,11 @@ multi method ddt_get_header { $.value, $.type, DDT_FINAL }
 
 #`<<<
 example of how we could display hex
-sub ddt_get_elements_hexdump (List $b) 
-{ 
-('offset', ' 1    2    3    4  ...', Data::Dump::Tree::Type::ValueOnly.new('')), 
-('000000', ' ', Data::Dump::Tree::Type::ValueOnly.new('64 d 48 a 00   ')), 
-('000010', ' ', Data::Dump::Tree::Type::ValueOnly.new('65 e 51 z 10   ')), 
+sub ddt_get_elements_hexdump (List $b)
+{
+('offset', ' 1    2    3    4  ...', Data::Dump::Tree::Type::ValueOnly.new('')),
+('000000', ' ', Data::Dump::Tree::Type::ValueOnly.new('64 d 48 a 00   ')),
+('000010', ' ', Data::Dump::Tree::Type::ValueOnly.new('65 e 51 z 10   ')),
 }
 >>>
 
@@ -268,7 +268,7 @@ role DDTR::CompactUnicodeGlyphs
 
 multi method get_glyphs
 {
-	{ 
+	{
 	last => '└', not_last => '├', last_continuation => ' ', not_last_continuation => '│',
 	multi_line => '│', empty => ' ', max_depth => '…',
 	filter => '│', # not last continuation
@@ -286,7 +286,7 @@ multi method get_glyphs
 	{
 	last => "`- ", not_last => '|- ', last_continuation => '   ', not_last_continuation => '|  ',
 	multi_line => '|  ', empty => '   ', max_depth => '...',
-	filter => '|  ', # not last continuation 
+	filter => '|  ', # not last continuation
 	}
 }
 
@@ -298,7 +298,7 @@ role DDTR::DefaultGlyphs # unicode + space
 
 multi method get_glyphs
 {
-	{ 
+	{
 	last => '└ ', not_last => '├ ', last_continuation => '  ', not_last_continuation => '│ ',
 	multi_line => '│ ', empty => '  ', max_depth => '…',
 	filter => '│ ', # not last continuation

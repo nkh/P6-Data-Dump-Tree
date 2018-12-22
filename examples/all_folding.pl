@@ -14,17 +14,17 @@ class Strings
 
 method ddt_get_header { "say something about this class\nmultiline", '.' ~ self.^name ~ "\nmultiline classes" }
 
-method ddt_get_elements 
-{ 
-	('', '', 'has no name'), 
-	("very very long\nexplanation on multiple lines\n", '', "many lines\n" x 5), 
-	('single-long', ': ', 'x' x 300), 
-	('multiple-long', ': ', 'x' x 300 ~ "\n" ~ 'y' x 200), 
+method ddt_get_elements
+{
+	('', '', 'has no name'),
+	("very very long\nexplanation on multiple lines\n", '', "many lines\n" x 5),
+	('single-long', ': ', 'x' x 300),
+	('multiple-long', ': ', 'x' x 300 ~ "\n" ~ 'y' x 200),
 
 	('12345678901234567890123456789012345', '', [ 1, {a => 3} ]),
 	("12345678901234567890123456789012345\nxxx", '', 'test'),
 
-	('coefficient', ' = ', 1), 
+	('coefficient', ' = ', 1),
 }
 
 #class
@@ -40,9 +40,9 @@ class Dog { has $.name; }
 role DescribeDog
 {
 
-multi method get_header (Dog $d) 
+multi method get_header (Dog $d)
 {
-'Woof! ', '.Dog (but this one is vagrant, no address)', DDT_NOT_FINAL, DDT_HAS_NO_ADDRESS 
+'Woof! ', '.Dog (but this one is vagrant, no address)', DDT_NOT_FINAL, DDT_HAS_NO_ADDRESS
 }
 
 multi method get_elements (Dog $d) { (q/the dog's name is/, ': ', $d.name), }
@@ -62,7 +62,7 @@ role DescribeShy { multi method get_elements (Shy $d) { } }
 role DescribeShyFinal { multi method get_header (Shy $d) { 'Role{DescribeShyFinal} ', '.' ~ $d.^name, DDT_FINAL } }
 
 
-# class which returns computed "internal" representation 
+# class which returns computed "internal" representation
 class Mangled
 {
 method ddt_get_elements { ('inner structure', ' => ', [123, 456]),  }
@@ -75,11 +75,11 @@ class Table
 has Str $!title = 'mail addresses:' ;
 has $!int = 1 ;
 
-method ddt_get_elements 
+method ddt_get_elements
 {
 my @e ;
 
-try 
+try
 	{
 	require Text::Table::Simple <&lol2table> ;
 
@@ -108,7 +108,7 @@ $! ?? (('DDT exception', ': ', "$!"),)  !! @e ;
 
 sub MAIN(Bool :$debug)
 {
-ddt 	
+ddt
 	get_test_structure(),
 	:fold,
 	:$debug,
@@ -125,7 +125,7 @@ ddt
 
 sub get_test_structure
 {
-my $nil is default(Nil) = Nil; 
+my $nil is default(Nil) = Nil;
 my @a = 1 ;
 my $b = [< a >] ;
 my $list = < a b > ;
@@ -156,7 +156,7 @@ my $s = [
 	Table.new(),
 	(GenericClass.new(:x(5), :z('hi there')) does GenericRole) but Whatnot,
 	Mangled.new(),
-	Dog.new(name => 'fido'), 
+	Dog.new(name => 'fido'),
 	Shy.new(secret => 'I will not say'),
 	Strings.new(),
 	#regex

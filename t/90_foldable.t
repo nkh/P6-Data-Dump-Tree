@@ -6,14 +6,14 @@ use Data::Dump::Tree::Foldable ;
 use Test ;
 plan 26 ;
 
-# DDT filter to show the folding internal data in a better way 
+# DDT filter to show the folding internal data in a better way
 sub filter($dumper, \r, $s, ($, $path, @glyphs, @renderings), (\k, \b, \v, \f, \final, \want_address))
 {
 r = Data::Dump::Tree::Type::Nothing if k ~~ /'$.foldable'/ ;
 
-if k ~~ /'@.folds'/ 
+if k ~~ /'@.folds'/
 	{
-	try 
+	try
 		{
 		require Text::Table::Simple <&lol2table> ;
 
@@ -39,7 +39,7 @@ $g.set: :top_line<1>, :page_size<10> ;
 	@dump = $g.get_lines.map( { $_.map( {$_.join} ).join } ) ;
 	is @dump.elems, 10, '10 lines' or diag @dump.join("\n") ;
 	like @dump[0], /0/, 'top line changed' or diag @dump.join("\n") ;
- 
+
 $g.set: :page_size<-10> ;
 	@dump = $g.get_lines.map( { $_.map( {$_.join} ).join } ) ;
 	is @dump.elems, 0, '0 lines' or diag @dump.join("\n") ;

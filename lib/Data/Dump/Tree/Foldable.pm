@@ -1,7 +1,7 @@
 
 =begin pod
 
-=NAME Data::Dump::Tree::Foldable 
+=NAME Data::Dump::Tree::Foldable
 
 =SYNOPSIS
 
@@ -13,15 +13,15 @@
 	$v.set: :top_line<1>, :page_size<10> ; # set geometry
 	#get the lines to display
 	my @lines = $v.get_lines ;
-	 
+
 	# move in the data structure rendering
 	$v.line_down ;
 	$v.page_down ;
-	
+
 	# select a line and fold it, or unfold it if it is already folded
 	$v.set: :selected_line(7) ;
 	$v.fold_flip_selected ;
-	
+
 	#get the lines to display
 	@line = $v.get_lines ;
 
@@ -33,7 +33,7 @@ the base mechanisms needed to:
 =item display a structured rendered by <Data::Dump::Tree> in a viewport
 
 =item movement through the data structure in the viewport
- 
+
 =item folding the data structure.
 
 A simple search functionality is also planned in future versions.
@@ -45,13 +45,13 @@ A simple search functionality is also planned in future versions.
 
 
 A Foldable contains a U<Data:Dump::Tree> rendering. I takes the same arguments
-as U<Data:Dump::Tree>. 
+as U<Data:Dump::Tree>.
 
 =head2 method get_view
 
 	my $v = $f.get_view ;
 
-Returns a view to the rendering. You can create multiple views from a single 
+Returns a view to the rendering. You can create multiple views from a single
 Foldable object. The views share the Foldable but each view has its own folds
 and geometry.
 
@@ -97,9 +97,9 @@ Folds or unfolds the data under the selected_line, see I<set>.
 
 =head2 method fold_all()
 
-Folds all the data 
+Folds all the data
 
-=head2 method unfold_all() 
+=head2 method unfold_all()
 
 Unfolds all the data
 
@@ -120,7 +120,7 @@ to make the I match> visible.
 
 =item :$fold_other = False
 
-The folding if the data is normally only changed to display the I<match> but 
+The folding if the data is normally only changed to display the I<match> but
 if B<:$fold_other> is set, the data structure is folded at all levels and then
 unfolded to expose the I<match>
 
@@ -134,7 +134,7 @@ https://github.com/nkh
 This program is free software; you can redistribute it and/or modify it
 under the same terms as Perl6 itself.
 
-=SEE-ALSO
+=head1 SEE-ALSO
 
 Data::Dump::Tree
 
@@ -147,7 +147,7 @@ enum (NEXT => 0, 'START', 'LINES', 'FOLDS', 'FOLDED', 'PARENT_FOLDED') ;
 
 class Data::Dump::Tree::Foldable::View {...}
 
-class Data::Dump::Tree::Foldable 
+class Data::Dump::Tree::Foldable
 {
 has @.lines ;
 has @.line_lengths ;
@@ -160,7 +160,7 @@ my $dumper = %attributes<ddt_is> // Data::Dump::Tree.new ;
 
 my ($lines, $wrap_data) = $dumper.get_dump_lines:
 					$s,
-					|%attributes, 
+					|%attributes,
 					:wrap_header(&header_wrap),
 					:wrap_footer(&footer_wrap) ;
 my (@lines, @line_lengths) ;
@@ -187,7 +187,7 @@ my sub header_wrap(
 	Mu $s,
 	($depth, $path, $filter_glyph, @renderings),
 	($k, $b, $v, $f, $, $final, $want_address),
-	) 
+	)
 {
 wd<folds>.push: [@renderings.elems, @renderings.elems - $rendered_lines, $rendered_lines] ;
 
@@ -212,7 +212,7 @@ Data::Dump::Tree::Foldable::View.new:
 } # class
 
 
-class Data::Dump::Tree::Foldable::View 
+class Data::Dump::Tree::Foldable::View
 {
 has Data::Dump::Tree::Foldable $.foldable ;
 
@@ -222,13 +222,13 @@ has Int $.selected_line is readonly = 0 ;
 has @.folds ;
 
 method set(:$page_size, :$top_line, :$selected_line --> Bool)
-{ 
+{
 $page_size andthen $!page_size = max $page_size, 0 ;
 
 $top_line andthen $!top_line = max(min($top_line, @!folds - $!page_size), 0) ;
 
 $selected_line andthen $!selected_line = $selected_line ;
-	
+
 True
 }
 
@@ -243,7 +243,7 @@ while @!folds[$!top_line][PARENT_FOLDED]
 
 $!top_line max= 0 ;
 
-$!top_line != $line 
+$!top_line != $line
 }
 
 method line_down(-->Bool)
@@ -254,7 +254,7 @@ $!top_line = @!folds[$!top_line][FOLDED] ?? @!folds[$!top_line][NEXT] !! $!top_l
 
 $!top_line = $line if $!top_line > @!folds.end ;
 
-$!top_line != $line 
+$!top_line != $line
 }
 
 method page_up(--> Bool) { my Bool $refresh ;  $refresh++ if $.line_up for ^$!page_size ; $refresh }
@@ -282,9 +282,9 @@ True
 }
 
 method fold_flip_selected(--> Bool)
-{ 
+{
 my @lines := $.get_lines ;
-my $line = @lines[$!selected_line][0] ; 
+my $line = @lines[$!selected_line][0] ;
 
 return False unless @!folds[$line][FOLDS] ; # only fold foldable
 

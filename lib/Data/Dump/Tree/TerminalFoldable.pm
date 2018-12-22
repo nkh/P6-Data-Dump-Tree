@@ -1,9 +1,9 @@
 
-unit module Data::Dump::Tree::TerminalPrint ; 
+unit module Data::Dump::Tree::TerminalPrint ;
 
 =begin pod
 
-=NAME Data::Dump::Tree::TerminalPrint 
+=NAME Data::Dump::Tree::TerminalPrint
 
 =SYNOPSIS
 
@@ -29,9 +29,9 @@ https://github.com/nkh
 This program is free software; you can redistribute it and/or modify it
 under the same terms as Perl6 itself.
 
-=SEE-ALSO
+=head1 SEE-ALSO
 
-Terminal::Print 
+Terminal::Print
 
 =end pod
 
@@ -43,8 +43,8 @@ use Terminal::Print::DecodedInput;
 
 
 sub get_foldable ($s, *%options) is export
-{ 
-Data::Dump::Tree::Foldable.new: 
+{
+Data::Dump::Tree::Foldable.new:
 	$s,
 	|%options,
 	:width_minus(5) ;
@@ -65,7 +65,7 @@ $page_height max= +$ph ;
 
 my $g = $f.get_view ; $g.set: :page_size($page_height) ;
 
-my Bool $refresh = True ; 
+my Bool $refresh = True ;
 
 class Tick { }
 my $timer     = Supply.interval(2).map: { Tick } ;
@@ -87,7 +87,7 @@ if $refresh
 
 refresh ;
 
-react 
+react
 	{
 	whenever $supplies
 		{
@@ -127,20 +127,20 @@ my @lines = $g.get_lines ;
 for @lines Z 0..* -> ($line, $index)
 	{
 	my ($text, $length) = ($line[2], $line[3]) ;
- 
-	print $screen.cell-string(0, $index) 
+
+	print $screen.cell-string(0, $index)
 		~ ($g.selected_line == $index ?? '> ' !! '  ')
 		~ ($line[1] ?? '* ' !! '  ')
-		~ $text  
+		~ $text
 		~ (' ' x ($page_width - ($length + 5)) ) ;
 	}
-	
+
 my $blank = ' ' x ($page_width - 1) ;
 for @lines.elems..($page_height - 1)
 	{
 	print $screen.cell-string(0, $_) ~ $blank ;
 	}
-	
+
 }
 
 # ---------------------------------------------------------------------------------
@@ -148,23 +148,23 @@ for @lines.elems..($page_height - 1)
 sub debug ($screen, $geometry, :$debug_column)
 {
 my @lines = get_dump_lines $geometry,
-		:title<Geometry>, :!color, :!display_info, :does(DDTR::AsciiGlyphs,), 
+		:title<Geometry>, :!color, :!display_info, :does(DDTR::AsciiGlyphs,),
 		:header_filters(
 			 sub ($dumper, \r, $s, ($, $path, @glyphs, @renderings), (\k, \b, \v, \f, \final, \want_address))
 				{
-				# remove foldable object 
+				# remove foldable object
 				r = Data::Dump::Tree::Type::Nothing if k ~~ /'$.foldable'/ ;
 
-				# tabulate the folds data 
-				if k ~~ /'@.folds'/ 
+				# tabulate the folds data
+				if k ~~ /'@.folds'/
 					{
-					try 
+					try
 						{
 						require Text::Table::Simple <&lol2table> ;
 
 						r = lol2table(
 							< top index next start lines folds folded parent >,
-							($s.List Z 0..*).map: -> ($d, $i) 
+							($s.List Z 0..*).map: -> ($d, $i)
 								{
 								[ $geometry.top_line == $i ?? '*' !! '', $i, |$d]
 								},

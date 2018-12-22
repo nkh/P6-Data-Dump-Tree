@@ -65,7 +65,7 @@ class GumboNode is repr('CStruct') is export {
 	has size_t                        $.index_within_parent; # Typedef<size_t>->|unsigned int| index_within_parent
 	has int32                         $.parse_flags; # GumboParseFlags parse_flags
 	HAS GumboNode_v_Union             $.v; # Union v
-	submethod TWEAK() { $!v := GumboNode_v_Union.new }; 
+	submethod TWEAK() { $!v := GumboNode_v_Union.new };
 }
 class GumboOptions is repr('CStruct') is export {
 	has Pointer                       $.allocator; # Typedef<GumboAllocatorFunction>->|F:void* ( void*, Typedef<size_t>->|unsigned int|)*| allocator
@@ -94,7 +94,7 @@ ddt GumboNode, :indent('   '), :nl  ;
 my GumboNode $p = GumboNode.new ;
 my GumboNode $g = GumboNode.new ;
 #$g.parent := $p ;
- 
+
 dd $g  ;
 ''.say ;
 ddt $g, :indent('  '), :nl  ;

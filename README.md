@@ -1,4 +1,5 @@
 # Data::Dump::Tree 
+[![Build Status](https://travis-ci.org/nkh/P6-Data-Dump-Tree.svg?branch=master)](https://travis-ci.org/nkh/P6-Data-Dump-Tree)
 
 [![Build Status](https://travis-ci.org/nkh/P6-Data-Dump-Tree.svg?branch=release)](https://travis-ci.org/nkh/P6-Data-Dump-Tree)
 
@@ -16,7 +17,7 @@ https://perl6advent.wordpress.com/2016/12/21/show-me-the-data/
 
 ![Imgur](http://i.imgur.com/P7eRSwl.png?1)
 
-*Warning*: This module is developed and tested with the latest rakudo. It may not work or install properly with your version of rakudo, there is a test suite run to check its fitness. 
+*Warning*: This module is developed and tested with the latest rakudo. It may not work or install properly with your version of rakudo, there is a test suite run to check its fitness.
 
 NAME
 ====
@@ -67,7 +68,7 @@ sub ddt $data_to_dump, $data_to_dump, :adverb, :named_argument, ...
 
 Renders the data structure
 
-This interface accepts the following adverbs: 
+This interface accepts the following adverbs:
 
   * **:print** prints the rendered data, the default befhavior without adverb
 
@@ -85,14 +86,14 @@ This interface accepts the following adverbs:
 
 See examples/ddt.pl and ddt_receive.pl
 
-  * **:remote_fold** sends a foldable rendering the to listener 
+  * **:remote_fold** sends a foldable rendering the to listener
 
 See examples/ddt_fold_send.pl and ddt_fold_receive.pl.
 
 method ddt: $data_to_dump, $data_to_dump, :adverb, :named_argument, ...
 -----------------------------------------------------------------------
 
-Renders the data structure, see above for a list of adverbs. 
+Renders the data structure, see above for a list of adverbs.
 
 USAGE
 =====
@@ -133,10 +134,10 @@ Output
       ├ 1 = a[1]
       └ 2 = a[2]
 
-Rendering 
+Rendering
 ==========
 
-Each line of output consists 5 elements, 2 elements, the tree and the address, are under the control of Data::Dump::Tree, The three remaining elements can be under your control but Data::Dump::Tree provides defaults. 
+Each line of output consists 5 elements, 2 elements, the tree and the address, are under the control of Data::Dump::Tree, The three remaining elements can be under your control but Data::Dump::Tree provides defaults.
 
 Refer to section 'handling specific types' to learn how to render specific  types with your own type handlers.
 
@@ -157,7 +158,7 @@ The key is the name of the element being displayed; in the examples above, the c
 
 ### binder
 
-The string displayed between the key and the value. 
+The string displayed between the key and the value.
 
 ### value
 
@@ -191,7 +192,7 @@ See *Match objects* in the roles section below for configuration of the Match ob
 
 ### address
 
-The Data::Dump::Tree address is added to every container in the form of a '@' and an index that is incremented for each container. If a container is found multiple times in the output, it will be rendered once only then referred to  as '§first_time_seen' 
+The Data::Dump::Tree address is added to every container in the form of a '@' and an index that is incremented for each container. If a container is found multiple times in the output, it will be rendered once only then referred to  as '§first_time_seen'
 
 It is possible to name containers by using *set_element_name* before dumping  your data structure.
 
@@ -202,12 +203,12 @@ It is possible to name containers by using *set_element_name* before dumping  yo
 
     $d.ddt: $s ;
 
-If an element is named, its name will be displayed next to his address, the first time it is displayed and when an element refers to it. 
+If an element is named, its name will be displayed next to his address, the first time it is displayed and when an element refers to it.
 
 Configuration and Overrides
 ---------------------------
 
-There are multiple ways to configure the Dumper. You can pass a configuration to the ddt() sub or you can create a dumper object with your configuration. 
+There are multiple ways to configure the Dumper. You can pass a configuration to the ddt() sub or you can create a dumper object with your configuration.
 
     # subroutine interface
     ddt $s, :titlei<text>, :width(115), :!color  ;
@@ -234,23 +235,23 @@ The example directory contain a lot of examples. Read and run the examples to le
 
 ### colors
 
-#### $color = True 
+#### $color = True
 
 By default coloring is on if Term::ANSIColor is installed.
 
-Setting this option to False forces the output to be monochrome. 
+Setting this option to False forces the output to be monochrome.
 
     ddt $s, :!color ;
 
-#### %colors 
+#### %colors
 
 You can pass your own colors. The default are:
 
     %.colors =
 	    <
 	    ddt_address blue     perl_address yellow  link   green
-	    header      magenta  key         cyan     binder cyan 
-	    value       reset    
+	    header      magenta  key         cyan     binder cyan
+	    value       reset
 
 	    gl_0 yellow   gl_1 reset   gl_2 green   gl_3 red
 	    > ;
@@ -268,12 +269,12 @@ Will set a default glyph color cycle.
     # monochrome glyphs
     ddt @s ;
 
-    # colored glyphs, will cycle 
+    # colored glyphs, will cycle
     ddt @s, :color_glyphs ; # uses < gl_0 gl_1 gl_2 gl_3 >
 
 #### @glyph_colors
 
-You can also define your own cycle with **@glyph_colors**: 
+You can also define your own cycle with **@glyph_colors**:
 
     my @s = [ ... ] ;
 
@@ -328,7 +329,7 @@ Add an empty line to the rendering
 
 Dies after displaying the data
 
-### $max_depth = Int 
+### $max_depth = Int
 
 Limit the depth of a dump. There is no limit by default.
 
@@ -338,7 +339,7 @@ Display a message telling that you have reached the $max_depth limit, set this f
 
 ### $display_info = True
 
-By default, this option is set. When set to false, neither the type not the  address are displayed. 
+By default, this option is set. When set to false, neither the type not the  address are displayed.
 
 ### $display_type = True
 
@@ -348,7 +349,7 @@ By default this option is set.
 
 By default this option is set.
 
-### $display_perl_address = False 
+### $display_perl_address = False
 
 Display the internal address of the objects. Default is False.
 
@@ -360,7 +361,7 @@ The tree is draw with Unicode characters + one space by default. See roles Ascii
 
 You can use *:flat( conditions ...)* to render parts of your data horizontally. Horizontal layout is documented in the *LayoutHorizontal.pm* modeule and you can find multiple examples in *examples/flat.pm*.
 
-You can chose which elements, which type of element or even dynamically chose to flatten, say, Arrays with more than 15 elements. 
+You can chose which elements, which type of element or even dynamically chose to flatten, say, Arrays with more than 15 elements.
 
     dd's example output:
 
@@ -376,7 +377,7 @@ You can chose which elements, which type of element or even dynamically chose to
     [1, [2, [3, 4]]], [1, [2, [3, 4]]]).Seq], "12345678")
 
     Same data rendered with ddt and :flat(0):
-     
+
      (6) @0
        0 = [3] @1       1 = [2] @9   2 = [2] @12        3 = [10] @25
        ├ 0 = [2] @2     ├ 0 = [2] §2 ├ 0 = [2] @13      ├ 0 = [2] §2
@@ -409,25 +410,25 @@ It is important to understand that you precisely control how your class is  rend
 
 Data::Dump::Tree uses two methods, you can define either one or both.
 
-#### ddt_get_header, code is defined in your class 
+#### ddt_get_header, code is defined in your class
 
-    method ddt_get_header 
+    method ddt_get_header
     {
     # some comment, usually blank # class type
-    "something about this class", '.' ~ self.^name 
+    "something about this class", '.' ~ self.^name
     }
 
-#### ddt_get_elements, code is defined in your class 
+#### ddt_get_elements, code is defined in your class
 
     method ddt_get_elements
     {
-     
+
     #key           #binder   #value
-    (1,            ' = ',    'has no name'), 
-    (3,            ' => ',   'abc'), 
-    ('attribute',  ': ',     '' ~ 1), 
+    (1,            ' = ',    'has no name'),
+    (3,            ' => ',   'abc'),
+    ('attribute',  ': ',     '' ~ 1),
     ('sub object', '--> ',   [1 .. 3]),
-    ('from sub',   '',       something()), 
+    ('from sub',   '',       something()),
 
     }
 
@@ -445,7 +446,7 @@ The module tests, and examples directory, and  Data::Dump::Tree::DescribeBaseobj
 
 You can not add methods to classes that you do not control. Data::Dump::Tree has handlers, via roles, that it uses to display the elements of the structure you pass to dump(). You can override those handler and add new handlers.
 
-  * get_header 
+  * get_header
 
   * get_elements
 
@@ -460,7 +461,7 @@ Both work in the same fashion.
 	     { '', '{' ~ $h.elems ~ '}' }
 
 
-    multi method get_elements (Hash $h) 
+    multi method get_elements (Hash $h)
 	    { $h.sort(*.key)>>.kv.map: -> ($k, $v) {$k, ' => ', $v} }
 
     }
@@ -480,7 +481,7 @@ To make that handler active, make your dumper do the role
     my $d = Data::Dump::Tree.new ;
     $d.ddt: $m, :does(DDTR::MatchDetails, your_hash_handler) ;
 
-    # by passing roles to ddt sub 
+    # by passing roles to ddt sub
     ddt: $m, :does(DDTR::MatchDetails, your_hash_handler) ;
 
 ### FINAL elements
@@ -576,7 +577,7 @@ or change the **rendering** of the object
     want_address = True ;
     }
 
-Note: You can not filter elements of type _Mu_ with DDT_HEADER filters but you can in DDT_SUB_ELEMENTS filters. 
+Note: You can not filter elements of type _Mu_ with DDT_HEADER filters but you can in DDT_SUB_ELEMENTS filters.
 
 ### DDT_SUB_ELEMENTS filter
 
@@ -590,7 +591,7 @@ Called after the type's _get_elements_ ; you can change the sub elements.
 	    )
     {
     @renderings.push: (|$glyph, ('', 'SUB ELEMENTS', '')) ;
-    @sub_elements = (('key', ' => ', 'value'), ('other_key', ': ', 1)) ; 
+    @sub_elements = (('key', ' => ', 'value'), ('other_key', ': ', 1)) ;
     }
 
 ### DDT_FOOTER filter
@@ -607,7 +608,7 @@ Data::Dump::Tree::Type::Nothing
 
 You can use this type to have DDT make some elements of the structure vanish from the rendering
 
-### Filtering an element away 
+### Filtering an element away
 
 If you return a Data::Dump::Tree::Type::Nothing replacement in your filter, the element will not be displayed at all.
 
@@ -628,14 +629,14 @@ See *Type element with only a name* above.
 
 If the element you don't want to see only appears in some containers, you can create a type handler, or filter, for that container type and weed out any  reference to the element you don't want to see. This will draw proper glyph lines as the element, you don't want to see, is never seen by DDT.
 
-### Type element with only a name 
+### Type element with only a name
 
 If you return a Data::Dump::Tree::Type::Nothing in a type handler, only the key will be displayed.
 
-    method ddt_get_elements 
-    { 
+    method ddt_get_elements
+    {
 	    [
-	    ... 
+	    ...
 	    ('your key', '', Data::Dump::Tree::Type::Nothing),
 	    ...
 	    ]
@@ -662,7 +663,7 @@ This is the tightest rendering as only one character per level is used to displa
 
 Renders string containing control codes (eg: \n, ANSI, ...) with backslashed codes and hex values.
 
-### DDTR::FixedGlyphs 
+### DDTR::FixedGlyphs
 
 Replace all the glyphs by a single glyph; default is a three spaces glyph.
 
@@ -680,7 +681,7 @@ Use this role to display the type in Unicode superscript letters.
 
 Use this role to display the address in Unicode superscript letters.
 
-You can also use the method it provides in your type handlers and filters. 
+You can also use the method it provides in your type handlers and filters.
 
 ### DDTR::Superscribe
 
@@ -734,19 +735,19 @@ You can set the maximum string length either by specifying a length when the  ro
     # from examples/named_captures.pl
     $dumper does (DDTR::MatchDetails, DDTR::FixedGlyphs) ;
 
-    config [2]  
-       0 = \{ \\s* '[' (\\w+) ']' \\h* \\n+ }.Regex  
-       1 =     [passwords]\n        jack=password1\n (+74)[0..113]  
-          <section>     [passwords]\n        jack=password1\n (+29)[0..68]  
-	     <header>     [passwords]\n[0..15]  
-	        <0> passwords[5..13]  
-	     <kvpair>         jack=password1\n[16..38]  
-	        <identifier> jack[24..27]  
-	        <key> jack[24..27]  
-	        <identifier> password1[29..37]  
-	        <value> password1[29..37]  
-	     <kvpair>         joy=muchmoresecure123\n[39..68]  
-	        <identifier> joy[47..49]  
+    config [2]
+       0 = \{ \\s* '[' (\\w+) ']' \\h* \\n+ }.Regex
+       1 =     [passwords]\n        jack=password1\n (+74)[0..113]
+          <section>     [passwords]\n        jack=password1\n (+29)[0..68]
+	     <header>     [passwords]\n[0..15]
+	        <0> passwords[5..13]
+	     <kvpair>         jack=password1\n[16..38]
+	        <identifier> jack[24..27]
+	        <key> jack[24..27]
+	        <identifier> password1[29..37]
+	        <value> password1[29..37]
+	     <kvpair>         joy=muchmoresecure123\n[39..68]
+	        <identifier> joy[47..49]
 	        <key> joy[47..49]
 
 Deprecated interface
@@ -780,9 +781,9 @@ Submit bugs (preferably as executable tests) and feel free to make suggestions.
 Dumper Exception
 ----------------
 
-As this module uses the MOP interface, it happens that it may use interfaces not implemented by some internal classes. 
+As this module uses the MOP interface, it happens that it may use interfaces not implemented by some internal classes.
 
-An example is Grammar that I tried to dump and got an exception about a class that I didn't even know existed. 
+An example is Grammar that I tried to dump and got an exception about a class that I didn't even know existed.
 
 Those exception are caught and displayed by the dumper as  "DDT Exception: the_caught_exception"
 
@@ -811,7 +812,7 @@ Perl 6:
 
   * Data::Dump
 
-  * Pretty:Printer
+  * Pretty::Printer
 
 
 

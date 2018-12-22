@@ -17,7 +17,7 @@ $d.ddt: $m, :title<Glyphs, numbered levels>, :does(DDTR::NumberedLevel,) ;
 $d.ddt: $m, :title<Glyphs, colored glyphs default>, :color_glyphs ;
 
 $d.ddt: $m, :title<Glyphs, custom colors, 3 first level green>,
-		:colors(< gl_0 green gl_1 green gl_2 green >), 
+		:colors(< gl_0 green gl_1 green gl_2 green >),
 		:color_glyphs ;
 
 

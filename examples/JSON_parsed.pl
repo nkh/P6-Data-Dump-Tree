@@ -47,12 +47,12 @@ $parsed.gist.say ;
 
 # dump with DDT
 my $d = Data::Dump::Tree.new:
-		:title<Parsed JSON>, 
-		#:!color, :width(100), :!display_info, 
+		:title<Parsed JSON>,
+		#:!color, :width(100), :!display_info,
 		:display_address(DDT_DISPLAY_NONE),
 		:does(DDTR::MatchDetails, DDTR::PerlString, DDTR::Superscribe) ;
 
-# limit the output of the matched string to 40  characters in length	
+# limit the output of the matched string to 40  characters in length
 $d.match_string_limit = 40 ;
 $d.ddt: $parsed ;
 
@@ -64,10 +64,10 @@ sub header_filter($dumper, \r, $s, ($depth, $path, $glyph, @renderings), (\k, \b
 # simplifying the dump, this is optional
 
 # <pair> with a value that has no sub elements can be displayed in a more compact way
-if k eq "<pair>" 
-	{ 
+if k eq "<pair>"
+	{
 	my %caps = $s.caps ;
- 
+
 	if %caps<value>.caps[0][0].key eq 'string'
 		{
 		v = ls(~%caps<string>, 40)  ~ ' => ' ~ ls(~%caps<value>, 40) ;
@@ -77,7 +77,7 @@ if k eq "<pair>"
 
 # "<object>" | "<pairlist>" | "<array>" | '<arraylist>' need no details
 if k eq "<object>" | "<pairlist>" | "<array>" | '<arraylist>'
-	{ 
+	{
 	v = '' ;
 	f = '' ;
 	}
@@ -91,10 +91,10 @@ sub elements_filter($dumper, $s, ($depth, $glyph, @renderings, $element), @sub_e
 my ($k, $b) = $element ;
 
 # <string> matches will have two elements that add nothing to the dump, remove them
-@sub_elements = () if $k eq '<string>' ; 
+@sub_elements = () if $k eq '<string>' ;
 
 # <value> has a <string> element that add nothing to the dump; remove it
-@sub_elements = @sub_elements.grep({$_[0] ne '<string>' }) if $k eq "<value>" ; 
+@sub_elements = @sub_elements.grep({$_[0] ne '<string>' }) if $k eq "<value>" ;
 }
 
 
@@ -108,8 +108,8 @@ if $limit.defined && $s.chars > $limit
 	}
 else
 	{
-	$s 
-	}	
+	$s
+	}
 }
 
 

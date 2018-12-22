@@ -5,27 +5,27 @@
 Date::Dump::Tree::DHTML - Renders structure as DHTML
 
 =SYNOPSIS
-	
+
 =DESCRIPTION
 
 Data::Dump::Tree::DHTML is a Role you can add to a Data::Dump::Tree object.
 
-The role add a B<dump_dhtml> method to the object. 
+The role add a B<dump_dhtml> method to the object.
 
 =INTERFACE
 
-=item $dumper.dump_dhtml($s1, *%options) 
+=item $dumper.dump_dhtml($s1, *%options)
 
 Dump a HTML document with folding capacity.
 
-=item $dumper.get_dhtml_dump($s1, *%options) 
+=item $dumper.get_dhtml_dump($s1, *%options)
 
 Returns a HTML document with folding capacity on $*OUT.
 
 =USAGE
 
 	my $d = Data::Dump::Tree.new(title => 'test',  does => ( DDTR::DHTML,),) ;
-	
+
 	class Tomato{ has Int $seeds }
 	$d.dump_dhtml([ 1, { key => { sk1 => 'v1', sk2 => 'v2'},}, Tomato,]) ;
 
@@ -33,7 +33,7 @@ Returns a HTML document with folding capacity on $*OUT.
 
 You can call I<dump_dhtml> multiple times for different data structures. Each
 dump will have a separate body, class, style, and identifiers.
- 
+
 =head2 Configuration and Overrides
 
 Check B<Data::Dump::Tree> for the options that you can pass the dumper. Not all
@@ -44,7 +44,7 @@ Generally:
 - all data manipulation done in filters work as the DHTML is generated after the
 filters are called
 
-- data added to @renderings in the filters is not displayed in the dhtml 
+- data added to @renderings in the filters is not displayed in the dhtml
 
 - all coloring and format options are ignored
 
@@ -62,7 +62,7 @@ https://github.com/nkh
 This program is free software; you can redistribute it and/or modify it
 under the same terms as Perl6 itself.
 
-=SEE-ALSO
+=head1 SEE-ALSO
 
 Data::Dump::Tree
 

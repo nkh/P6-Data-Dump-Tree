@@ -6,21 +6,21 @@ role DDTR::MatchStringLimit does DDTR::StringLimiter
 {
 has $.match_string_limit is rw = 10 ;
 
-multi method get_header (Match:D $m) 
+multi method get_header (Match:D $m)
 {
-($.limit_string(~$m, $.match_string_limit), Q/[/ ~ $m.from ~ '..' ~ $m.to -1 ~ ']', DDT_FINAL) 
+($.limit_string(~$m, $.match_string_limit), Q/[/ ~ $m.from ~ '..' ~ $m.to -1 ~ ']', DDT_FINAL)
 }
 
 } #role
 
 
-role DDTR::MatchDetails does DDTR::StringLimiter 
+role DDTR::MatchDetails does DDTR::StringLimiter
 {
 
 has $.match_string_limit is rw ;
 
 multi method get_header (Match:U $m) { '', '.' ~ $m.^name, DDT_FINAL }
-multi method get_header (Match:D $m) 
+multi method get_header (Match:D $m)
 {
 $m.caps.elems
 	?? ($.limit_string(~$m, $.match_string_limit), Q/[/ ~ $m.from ~ '..' ~ $m.to - 1 ~ ']')
@@ -30,7 +30,7 @@ $m.caps.elems
 
 multi method get_elements (Match $m)
 {
-$m.caps>>.kv.map: -> ($k, $v) { ( "<$k>", ' ', $v ) } 
+$m.caps>>.kv.map: -> ($k, $v) { ( "<$k>", ' ', $v ) }
 }
 
 } # role
@@ -40,20 +40,20 @@ $m.caps>>.kv.map: -> ($k, $v) { ( "<$k>", ' ', $v ) }
 # role to display Match internals, commented out so we don't waste time compiling it
 
 use Data::Dump::Tree ;
-role DDTR::MatchObject does DDTR::StringLimiter 
+role DDTR::MatchObject does DDTR::StringLimiter
 {
 # displays type as .Match and details about Match object
 has $.match_string_limit is rw ;
 
 multi method get_header (Match:U $m) { '', '.' ~ $m.^name, DDT_FINAL }
-multi method get_header (Match:D $m) 
+multi method get_header (Match:D $m)
 {
 $m.caps.elems
-	?? ( $.limit_string(~$m, $.match_string_limit), Q/[/ ~ $m.from ~ '..' ~ $m.to ~ '|' ) 
-	!! ( $.limit_string(~$m, $.match_string_limit), Q/[/ ~ $m.from ~ '..' ~ $m.to ~ '|', DDT_FINAL, DDT_HAS_ADDRESS ) 
+	?? ( $.limit_string(~$m, $.match_string_limit), Q/[/ ~ $m.from ~ '..' ~ $m.to ~ '|' )
+	!! ( $.limit_string(~$m, $.match_string_limit), Q/[/ ~ $m.from ~ '..' ~ $m.to ~ '|', DDT_FINAL, DDT_HAS_ADDRESS )
 }
 
-multi method get_elements (Match $m) { get_attributes($m) } 
+multi method get_elements (Match $m) { get_attributes($m) }
 
 } #role
 }}
@@ -67,7 +67,7 @@ multi method get_glyphs
 	{
 	last => $.fixed_glyph, not_last => $.fixed_glyph,
 	last_continuation => $.fixed_glyph, not_last_continuation => $.fixed_glyph,
-	multi_line => $.fixed_glyph, empty => ' ' x $.fixed_glyph.chars, max_depth => '...', 
+	multi_line => $.fixed_glyph, empty => ' ' x $.fixed_glyph.chars, max_depth => '...',
 	filter => $.fixed_glyph,
 	}
 }
@@ -114,7 +114,7 @@ for 	(
 	< . ( ) + - = @ [ ] | > , (|< · ⁽ ⁾ ⁺ ⁻ ⁼ >, '', ' ', '', ''),
 	('0'..'9')        , < ⁰ ¹ ² ³ ⁴ ⁵ ⁶ ⁷ ⁸ ⁹ >,
 	('a'..'z')        , < ᵃ ᵇ ᶜ ᵈ ᵉ ᶠ ᵍ ʰ ⁱ ʲ ᵏ ˡ ᵐ ⁿ ᵒ ᵖ ᵠ ʳ ˢ ᵗ ᵘ ᵛ ʷ ˣ ʸ ᶻ >,
-	('A'..'Z')        , < ᴬ ᴮ ᶜ ᴰ ᴱ ᶠ ᴳ ᴴ ᴵ ᴶ ᴷ ᴸ ᴹ ᴺ ᴼ ᴾ ᵠ ᴿ ˢ ᵀ ᵁ ⱽ ᵂ ˣ ʸ ᶻ >, 
+	('A'..'Z')        , < ᴬ ᴮ ᶜ ᴰ ᴱ ᶠ ᴳ ᴴ ᴵ ᴶ ᴷ ᴸ ᴹ ᴺ ᴼ ᴾ ᵠ ᴿ ˢ ᵀ ᵁ ⱽ ᵂ ˣ ʸ ᶻ >,
 	)
 	-> $A, $s { @ssl[|$A.map: {.ord}] = |$s	}
 
