@@ -1,9 +1,11 @@
 # Data::Dump::Tree 
 [![Build Status](https://travis-ci.org/nkh/P6-Data-Dump-Tree.svg?branch=master)](https://travis-ci.org/nkh/P6-Data-Dump-Tree)
 
+[![Build Status](https://travis-ci.org/nkh/P6-Data-Dump-Tree.svg?branch=release)](https://travis-ci.org/nkh/P6-Data-Dump-Tree)
+
 ## For perl6
 
-Date::Dump::Tree - Renders data structures in a tree fashion with colors
+Data::Dump::Tree - Renders data structures in a tree fashion with colors
 
 Some blog entries you may want to look at:
 
@@ -20,7 +22,7 @@ https://perl6advent.wordpress.com/2016/12/21/show-me-the-data/
 NAME
 ====
 
-Date::Dump::Tree - Renders data structures in a tree fashion
+Data::Dump::Tree - Renders data structures in a tree fashion
 
 SYNOPSIS
 ========
@@ -38,7 +40,7 @@ SYNOPSIS
 DESCRIPTION
 ===========
 
-Data::Dump::Tree renders your data structures in a tree fashion for legibility.
+`Data::Dump::Tree` renders your data structures in a tree fashion for legibility.
 
 It also can:
 
