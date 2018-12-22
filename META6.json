@@ -32,7 +32,7 @@
 	"Data::Dump::Tree::MultiColumns" : "lib/Data/Dump/Tree/MultiColumns.pm"
 	},
 
-"depends" : [ ],
+"depends" : [ "Terminal::Print" ],
 "test-depends" : [ "Test", "Test::META"  ],
 
 "tags" :

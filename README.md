@@ -1,4 +1,5 @@
-# Data::Dump::Tree
+# Data::Dump::Tree 
+[![Build Status](https://travis-ci.org/nkh/P6-Data-Dump-Tree.svg?branch=master)](https://travis-ci.org/nkh/P6-Data-Dump-Tree)
 
 ## For perl6
 
@@ -809,7 +810,7 @@ Perl 6:
 
   * Data::Dump
 
-  * Pretty:Printer
+  * Pretty::Printer
 
 
 
