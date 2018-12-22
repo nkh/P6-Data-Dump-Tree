@@ -22,10 +22,10 @@ $d.dump_synched: %df1, %df2, :compact_width, :does(DDTR::MatchDetails,) ;
 ''.say ;
 
 $d.dump_synched: %df1, %df2, :compact_width, :does(DDTR::MatchDetails,), :color_glyphs,
-		
+
 		# show only difference
 		:!diff_glyphs, :remove_eq, :remove_eqv,
-		
+
 		# give names to the data structures
 		:rhs_title<rhs_title>,
 		:title<title> ;
@@ -39,7 +39,7 @@ say "ran for {now - INIT now} s" ;
 sub get_data_structures
 {
 # define some elements to put in the data structures
-class O { has $.a ; }  
+class O { has $.a ; }
 multi infix:<eqv>(O $l, O $r) { True }
 my $o1 = O.new(a => 1) ;
 my $o2 = O.new(a => 2) ;

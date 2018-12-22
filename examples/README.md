@@ -3,7 +3,7 @@ Examples for Data::Dump::Tree
 
 - all.pl	 		dump multiple type of elements and some filters examples
 
-- dhtml.pl 			create a DHTML file you can view in a browser 
+- dhtml.pl 			create a DHTML file you can view in a browser
 
 - diff.pl	 		diff between two data structures
 

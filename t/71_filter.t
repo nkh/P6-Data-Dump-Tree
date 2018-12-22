@@ -9,7 +9,7 @@ plan 4 ;
 # this is a small example of a filter. I was curious about how DDT would
 # render itself. After a few try runs, with different options, I got tired of
 # seeing a long list which consists of a lot of colors so I decided to filter
-# them out 
+# them out
 
 
 # remove the Hashes

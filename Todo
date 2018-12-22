@@ -1,7 +1,7 @@
 ddt callframe fails
 
 :condition and :cut
-	
+
 object size
 
 hexdump object
@@ -16,7 +16,7 @@ render role inheritance
 
 Serialization and attributes links
 	https://github.com/FROGGS/p6-Ser/blob/master/lib/Ser.pm
-	https://github.com/Skarsnik/nativecall-typediag/blob/master/lib/NativeCall/TypeDiag.pm6#L96	
+	https://github.com/Skarsnik/nativecall-typediag/blob/master/lib/NativeCall/TypeDiag.pm6#L96
 
 !get_header and get_elements could know about remaining width, options, ....
 
@@ -40,12 +40,12 @@ Serialization and attributes links
 #utf8 address is always 0!
 	utf8 does not have a WHICH
 	it does have a WHERE but it is not stable beffore it gets accessed multiple times
-	
+
 #search unfold command
 	searching for data also means showing them
 	the fold information could be manipulated by the search
 		search($data, :unfold, :fold_other,:center)
-		
+
 	it can also return a list of commands to display the next/previous result
 
 #ddt adverbs
@@ -83,9 +83,9 @@ Serialization and attributes links
 		eg: if a column contains 5 elements with each a sub element that takes
 		10 lines to render, then the column will be 50 in hight, instead, if a
 		element passes the column row limit, the next element is shifted to next column
-		
+
 		in the eg above this could become 5 column of ten(ish) lines rather than one
-		column of 50+lines. 
+		column of 50+lines.
 
 	#simplified Block interface
 
@@ -100,7 +100,7 @@ Serialization and attributes links
 
 #multiple arguments
 	#handle options override
-	!option to have them bunched together rather than separate 
+	!option to have them bunched together rather than separate
 
 #extra attributes
 	#display origin
@@ -125,11 +125,11 @@ Serialization and attributes links
 
 	#this can be done with filter but means a lot of boilerplate code
 
-	create a tuple/table plugin filter with simplified interface 
-		also tag an array or list to get it's elements displayed horizontally 
+	create a tuple/table plugin filter with simplified interface
+		also tag an array or list to get it's elements displayed horizontally
 			if the list elements are too wide, display them on multiple lines
 
-	#tuples could also be parts of the dump, with color	
+	#tuples could also be parts of the dump, with color
 
 #override default colors without having to redefine all of them
 
@@ -144,9 +144,9 @@ Create a handler DDTR
 #
 # ├ $.title = Nil.Str
 # ├ $.caller = False.Bool
-# 
+#
 # ├ $.color = False.Bool
-# 
+#
 # │ removing %.colors
 # show the colors in color
 #
@@ -156,7 +156,7 @@ Create a handler DDTR
 # ├ @.glyph_colors_cycle = [0] @5
 #
 # ├ $.color_kbs = Nil.Str
-# display over all the color information 
+# display over all the color information
 #
 # ├ @.kb_colors = [1] @6
 # │ └ 0 = kb_1.Str
@@ -170,7 +170,7 @@ Create a handler DDTR
 #
 # ├ $!address = Nil.Str
 # ├ %!rendered = {0} @11
-# 
+#
 # ├ %!element_names = {0} @12
 #
 #
@@ -209,7 +209,7 @@ eqv not implemented for Match
 	give names to all possible elements or example a filter that can add names/hilight
 
 #user defined address name
-	is some nodes are of specific importance, give them name that can be used to 
+	is some nodes are of specific importance, give them name that can be used to
 	display the reference rather than a standard @1234, eg, @important_node
 
 #color objects
@@ -218,7 +218,7 @@ eqv not implemented for Match
 
 #paths
 	can be used in filters
-	
+
 #diff list
 	can use paths
 
@@ -235,7 +235,7 @@ Requirements:
 user interaction layer
 	!cache
 		to avoid re-generating the data
-	
+
 	representation in
 		Prima, curses, gtk, dhtml, #terminal
 
@@ -247,7 +247,7 @@ dumper
 	name
 		allow dumper to be switched on and off by name at higher level
 		eg: a piece of code contains a dumper but the user wants to control
-			in which scope the dump should be done		
+			in which scope the dump should be done
 
 	#handles multiple iterators
 		synchronized glyphs (diff)
@@ -263,14 +263,14 @@ dumper
 	#dumps can be gathered from multiple source dynamically
 		when getting to a specific point, data is gathered from another source
 		no need to create a data structure in advance
-	
+
 		=> any object can declare handler, including dynamic sources
 
 	!dump, gather, dump_gathered, reset interface.
 
 	!dumper can re-synchronize the glyphs
 		if a stream ends, the glyph for the previous element
-		may need to be changed	
+		may need to be changed
 
 	supports threads
 
@@ -287,7 +287,7 @@ dumper
 #row representation
 	can contain multiple fields for each data element dumped
 		level, #data, #type, #inheritance, size, taint, tie, weak references, ...
-	
+
 	#user registrable representation generators
 	class defined generator
 		it can use this module and the glyphs get aligned properly

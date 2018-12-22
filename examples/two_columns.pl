@@ -16,7 +16,7 @@ for
 	(),
 	)
 	{
-	my (:@a, :@p) := $_.classify: { $_ !~~ Pair ?? 'a' !! 'p' }; 
+	my (:@a, :@p) := $_.classify: { $_ !~~ Pair ?? 'a' !! 'p' };
 
 	say get_columns(|@a, |%(@p)) ;
 	}

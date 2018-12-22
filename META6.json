@@ -9,7 +9,7 @@
 "authors" : ["Nadim Khemir"],
 
 "description" : "Render data structures as trees; user definable filters",
-"provides" : 
+"provides" :
 	{
 	"DDT" : "lib/Data/Dump/Tree.pm",
 

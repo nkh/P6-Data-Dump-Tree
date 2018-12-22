@@ -18,7 +18,7 @@ my $s = [
 my $d = Data::Dump::Tree.new ;
 
 # add a name to some containers to make it easier to see them in the dump
-# the name is displayed after the address (and the link to an address) so 
+# the name is displayed after the address (and the link to an address) so
 # addresses must be enabled. Enabling address display is recommended when
 # dumping a structure with linked data
 

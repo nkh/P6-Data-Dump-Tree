@@ -25,7 +25,7 @@ multi sub header_filter($dumper, \r, $s, ($depth, $path, $glyph, @renderings), $
 # get a rendering from the dumper, IE an array of 6 elements would give [6]
 # append it to the key, and add it as an extra information to the current
 # element. Eg: element 3 of an array of 6 elements would be rendered
-# as [6]/3.  
+# as [6]/3.
 
 my $path_rendered = ('', ($path.map: { $d.get_element_header($_[0])[1] ~ '/' ~ $_[1]}).join(' '), '').List ;
 

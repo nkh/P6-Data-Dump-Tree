@@ -14,7 +14,7 @@ my $contents = q:to/EOI/;
         joy=42
 EOI
 
-# define some regexp structure 
+# define some regexp structure
 my regex header { \s* '[' (\w+) ']' \h* \n+ }
 my regex identifier  { \w+ }
 my regex kvpair { \s* <key=identifier> '=' <value=identifier> \n+ }
@@ -23,7 +23,7 @@ my regex section { <header> <kvpair>* }
 # create a match object to dump
 my $m = $contents ~~ /<section>*/ ;
 
-# dump with different roles 
+# dump with different roles
 my $d = Data::Dump::Tree.new ;
 
 $d.ddt: :title<Parsing>, $m ;

@@ -6,7 +6,7 @@ use Data::Dump::Tree ;
 use Data::Dump::Tree::Enums ;
 use Data::Dump::Tree::DescribeBaseObjects ;
 
-role my_role { has $.something } # test that Int+something type displays correctly 
+role my_role { has $.something } # test that Int+something type displays correctly
 
 class Point is repr('CStruct') {
     has num64 $.x is rw;
@@ -24,8 +24,8 @@ class Parts is repr('CUnion') {
 my Parts $union = Parts.new: :abc(10 ** 10) ;
 
 class MyStruct is repr('CStruct') {
-	has Point $.point;  # referenced 
-	submethod TWEAK() { $!point := Point.new }; 
+	has Point $.point;  # referenced
+	submethod TWEAK() { $!point := Point.new };
 }
 
 my $mystruct = MyStruct.new ;
@@ -33,8 +33,8 @@ $mystruct.point.x = num64.new(888e0)  ;
 
 
 class MyStruct2 is repr('CStruct') {
-	HAS Point $.point;  # embedded 
-	submethod TWEAK() { $!point := Point.new }; 
+	HAS Point $.point;  # embedded
+	submethod TWEAK() { $!point := Point.new };
 }
 
 my $mystruct2 = MyStruct2.new ;
@@ -43,9 +43,9 @@ $mystruct2.point.x = num64.new(777e0)  ;
 
 
 class MyStruct3 is repr('CStruct') {
-	HAS Point $.point;  # embedded 
+	HAS Point $.point;  # embedded
 	has int32 $.int32 ;
-	submethod TWEAK() { $!point := Point.new }; 
+	submethod TWEAK() { $!point := Point.new };
 }
 
 my $mystruct3 = MyStruct3.new: :int32(7) ;
@@ -87,8 +87,8 @@ class MyHandle is repr('CPointer') {}
 my Pointer[int32] $pointer ;
 
 my int32 $int32 = 7 ;
-my @with_int32 = $int32, 7, 8 ; 
-my int32 @int32 = $int32, 7, 8 ; 
+my @with_int32 = $int32, 7, 8 ;
+my int32 @int32 = $int32, 7, 8 ;
 
 my $string = "FOO";
 my @carray := CArray[uint8].new($string.encode.list);
@@ -112,9 +112,9 @@ my $d4 = (Types, $types) ;
 my $d5 = (Point, $point, $union, MyStruct) ;
 my $d6 = StructiWithHandler ;
 
-my $d7 = (MyStruct,  MyStruct.new,  $mystruct,  DVO "native_size: {nativesizeof MyStruct}", ) ; 
-my $d8 = (MyStruct2, MyStruct2.new, $mystruct2, DVO "native_size: {nativesizeof MyStruct2}", ) ; 
-my $d9 = (MyStruct3, MyStruct3.new, $mystruct3, DVO "native_size: {nativesizeof MyStruct3}", ) ; 
+my $d7 = (MyStruct,  MyStruct.new,  $mystruct,  DVO "native_size: {nativesizeof MyStruct}", ) ;
+my $d8 = (MyStruct2, MyStruct2.new, $mystruct2, DVO "native_size: {nativesizeof MyStruct2}", ) ;
+my $d9 = (MyStruct3, MyStruct3.new, $mystruct3, DVO "native_size: {nativesizeof MyStruct3}", ) ;
 
 ddt $d1, :indent('  '), :nl ;
 ddt $d2, :indent('  '), :nl ;

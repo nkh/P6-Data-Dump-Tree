@@ -6,7 +6,7 @@ use Data::Dump::Tree::DescribeBaseObjects ;
 role DDTR::Diff
 {
 has Bool $diff_glyphs = True ;
-has %diff_glyphs = 
+has %diff_glyphs =
 	same_object          => '===',
 	same_type_same_value => 'eqv',
 	same_type_diff_value => '!= ',
@@ -20,7 +20,7 @@ has %diff_glyphs =
 
 has $diff_synch_filter ;
 
-method dump_synched($s1, $s2, *%options) 
+method dump_synched($s1, $s2, *%options)
 {
 $diff_synch_filter = %options<diff_synch_filter> ;
 
@@ -35,13 +35,13 @@ my $diff_glyph_width = max(%diff_glyphs.values>>.chars) + 2 ;
 
 my $width = Int(((%options<width> // $.width) - ($diff_glyph_width + 1)) / 2) ;
 my $d1 = Data::Dump::Tree.new(
-		|%options, width => $width, 
+		|%options, width => $width,
 		title => (%options<lhs_title title>:v)[0] // '',
 		header_filters => %options<header_filters lhs_header_filters>:v,
 		elements_filters => %options<elements_filters lhs_elements_filters>:v,
 		footer_filters => %options<footer_filters lhs_footer_filters>:v,
 		) ;
- 
+
 $d1.reset ; #setup object
 
 my $d2 = Data::Dump::Tree.new(
@@ -51,7 +51,7 @@ my $d2 = Data::Dump::Tree.new(
 		elements_filters => %options<elements_filters rhs_elements_filters>:v,
 		footer_filters => %options<footer_filters rhs_footer_filters>:v,
 		) ;
- 
+
 $d2.reset ; # setup object
 
 my @diff_glyphs ;
@@ -74,17 +74,17 @@ if %options<compact_width>
 	my $max_line_width ;
 
 	for $d1.get_renderings Z @diff_glyphs -> ($r1, $dg)
-		{ 
+		{
 		next if $remove_eq && $dg eq %diff_glyphs<same_object> ;
 		next if $remove_eqv && $dg eq %diff_glyphs<same_type_same_value> ;
 
 		$max_line_width max=  $r1.map( { $_[1] } ).join.chars ;
 		}
-	
+
 	$width = min $width, $max_line_width ;
 	}
 
-for $d1.get_renderings Z @diff_glyphs Z $d2.get_renderings -> ($r1, $dg is copy, $r2) 
+for $d1.get_renderings Z @diff_glyphs Z $d2.get_renderings -> ($r1, $dg is copy, $r2)
 	{
 	next if $remove_eq && $dg eq %diff_glyphs<same_object> ;
 	next if $remove_eqv && $dg eq %diff_glyphs<same_type_same_value> ;
@@ -93,7 +93,7 @@ for $d1.get_renderings Z @diff_glyphs Z $d2.get_renderings -> ($r1, $dg is copy,
 
 	my $r1c = $r1.map( { $_.join } ).join ;
 	my $r1w = $r1.map( { $_[1] } ).join.chars ;
- 
+
 	my $color_width = $r1c.chars - $r1w ;
 
 	printf "%-{$width + $color_width}s %-{$diff_glyph_width}s %s",
@@ -111,11 +111,11 @@ method diff_elements(
 	$d2, $s2_header, $cd2, $head_glyph2, @glyphs2,
 	)
 {
-my ($final1, $rendered1, $s1, $cont_glyph1) = 
-	$d1.render_element($s1_header, $cd1, $head_glyph1, @glyphs1) ; 
+my ($final1, $rendered1, $s1, $cont_glyph1) =
+	$d1.render_element($s1_header, $cd1, $head_glyph1, @glyphs1) ;
 
-my ($final2, $rendered2, $s2, $cont_glyph2) = 
-	$d2.render_element($s2_header, $cd2, $head_glyph2, @glyphs2) ; 
+my ($final2, $rendered2, $s2, $cont_glyph2) =
+	$d2.render_element($s2_header, $cd2, $head_glyph2, @glyphs2) ;
 
 # handle Seq as they get consumed during the diff
 my sub cache_seq(Seq $s)
@@ -149,16 +149,16 @@ elsif !$final1 && $final2  # different types
 	$diff_glyph = %diff_glyphs<container_right> ;
 	$d1.render_non_final($s1, $cd1, (|$head_glyph1, $cont_glyph1), $s1_header) unless $rendered1 ;
 	$is_different++ ;
-	} 
+	}
 elsif $final1 && $final2
 	{
 	$diff_glyph = $s1.^name ~~ $s2.^name
-			?? ($s1.WHERE == $s2.WHERE) 
-				?? %diff_glyphs<same_object> 
+			?? ($s1.WHERE == $s2.WHERE)
+				?? %diff_glyphs<same_object>
 				!! $s1 eqv $s2
 					?? %diff_glyphs<same_type_same_value>
 					!! do { $is_different++ ; %diff_glyphs<same_type_diff_value> }
-			!! do { $is_different++ ; %diff_glyphs<different_type> } ;	
+			!! do { $is_different++ ; %diff_glyphs<different_type> } ;
 	}
 else
 	{
@@ -179,14 +179,14 @@ else
 		else
 			{
 			$diff_glyph = %diff_glyphs<same_container> ;
-			
+
 			synch_renderings(
 				$d1.get_renderings, $pad_glyph1,
 				$d2.get_renderings, $pad_glyph2,
 				@diff_glyphs, $diff_glyph,
 				) ;
 
-			my $index = @diff_glyphs.end ; # may have to change the glyph after rendering sub levels 
+			my $index = @diff_glyphs.end ; # may have to change the glyph after rendering sub levels
 
 			my (@sub_elements1, %glyphs1) := $d1.get_sub_elements($s1, $cd1, (|$head_glyph1, $cont_glyph1), $s1_header) ;
 			my (@sub_elements2, %glyphs2) := $d2.get_sub_elements($s2, $cd2, (|$head_glyph2, $cont_glyph2), $s2_header) ;
@@ -221,7 +221,7 @@ else
 				if $sub1.defined && $sub2.defined
 					{
 					$is_different +=  $.diff_elements(
-								$d1, $sub1, $cd1 + 1, (|$head_glyph1, $cont_glyph1), $sub_element_glyphs1, 
+								$d1, $sub1, $cd1 + 1, (|$head_glyph1, $cont_glyph1), $sub_element_glyphs1,
 								@diff_glyphs,
 								$d2, $sub2, $cd2 + 1, (|$head_glyph2, $cont_glyph2), $sub_element_glyphs2,
 								) ;
@@ -236,7 +236,7 @@ else
 					{
 					$is_different++ ;
 					$diff_glyph = %diff_glyphs<only_rhs> ;
-					$d2.render_element_structure($sub2, $cd2 + 1, (|$head_glyph1, $cont_glyph2), $sub_element_glyphs2) ; 
+					$d2.render_element_structure($sub2, $cd2 + 1, (|$head_glyph1, $cont_glyph2), $sub_element_glyphs2) ;
 					}
 				}
 
@@ -263,11 +263,11 @@ else
 		}
 	}
 
-# footer filter 
-$d1.footer_filters and $s1.WHAT !=:= Mu and 
+# footer filter
+$d1.footer_filters and $s1.WHAT !=:= Mu and
 	$d1.filter_footer($s1, ($cd1, (|$head_glyph1, $cont_glyph1), $d1.get_renderings))  ;
 
-$d2.footer_filters and $s2.WHAT !=:= Mu and 
+$d2.footer_filters and $s2.WHAT !=:= Mu and
 	$d2.filter_footer($s2, ($cd2, (|$head_glyph2, $cont_glyph2), $d2.get_renderings))  ;
 
 synch_renderings(
