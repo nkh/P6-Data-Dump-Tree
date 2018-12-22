@@ -68,6 +68,7 @@ has $.flat_depth = 0 ;
 has $.width is rw ;
 has $.width_minus = 0 ;
 
+has $.max_lines is rw = -1 ;
 has $.max_depth is rw = -1 ;
 has Bool $.max_depth_message is rw = True ;
 
@@ -258,6 +259,8 @@ my (@sub_elements, %glyphs) := $.get_sub_elements($s, $current_depth, @head_glyp
 
 for @sub_elements Z 0..* -> ($sub_element, $index)
 	{
+	last if $!max_lines != -1 and  @!renderings > $!max_lines ;
+
 	self.render_element_structure(
 		$sub_element,
 		$current_depth + 1,

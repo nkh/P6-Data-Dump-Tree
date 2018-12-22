@@ -334,6 +334,11 @@ Limit the depth of a dump. There is no limit by default.
 Display a message telling that you have reached the $max_depth limit, set this flag
 to false disable the message.
 
+=head3 $max_lines = Int
+
+Limit the number of lines in the rendering, an approximation as I<ddt> does not
+end rendering in the middle of a multi line. There is no limit by default.
+
 =head3 $display_info = True
 
 By default, this option is set. When set to false, neither the type not the
