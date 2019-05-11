@@ -25,11 +25,10 @@ my $s2 =
 	},
 	] ;
 
-# dump unfiltered
-ddt $s2 ;
+ddt $s2, :title<unfiltered output>, :nl ;
 
-# dump filtered
-ddt $s2, :!color, header_filters => (&my_filter,), elements_filters => (&my_filter,), footer_filters => (&my_filter,) ;
+ddt $s2, :title<filtered output>, :nl, header_filters => (&my_filter,), elements_filters => (&my_filter,), footer_filters => (&my_filter,) ;
+ddt $s2, :title<filtered output>, header_filters => (&my_filter,) ;
 
 
 # -----------
@@ -41,7 +40,7 @@ ddt $s2, :!color, header_filters => (&my_filter,), elements_filters => (&my_filt
 
 
 # HEADER FILTER
-multi sub my_filter(\r, Int $s, ($depth, $path, $glyph, @renderings), (\k, \b, \v, \f, \final, \want_address))
+multi sub my_filter($dumper, $r, Int $s, ($depth, $path, $glyph, @renderings), (\k, \b, \v, \f, \final, \want_address))
 {
 # add text in the rendering
 @renderings.push: (|$glyph, (color('bold white on_yellow'), "Int HEADER filter", color('reset'))) ;
@@ -49,10 +48,10 @@ multi sub my_filter(\r, Int $s, ($depth, $path, $glyph, @renderings), (\k, \b, \
 # can replace ourselves with something else, do not forget to update k, b, v, accordingly
 # r = < abc def > ;
 
-k = '<Int> ' ;
-b = '<b>' ;
-v = '<v>' ;
-f = '<f>' ;
+k = '<my Int> ' ;
+b = '<my b>' ;
+v = '<my v>' ;
+f = '<my f>' ;
 final = DDT_NOT_FINAL ;
 want_address = True ;
 }
