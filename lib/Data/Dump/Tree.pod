@@ -348,9 +348,15 @@ address are displayed.
 
 By default this option is set.
 
-=head3 $display_address = True
+=head3 $display_address = DDT_DISPLAY_ALL
 
-By default this option is set.
+By default this option is set, to change it use:
+
+ use Data::Dump::Tree;
+ use Data::Dump::Tree::Enums;
+ 
+ my $ddt = Data::Dump::Tree.new( :display_address(DDT_DISPLAY_NONE) );
+ 
 
 =head3 $display_perl_address = False
 
