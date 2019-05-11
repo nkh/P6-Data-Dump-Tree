@@ -66,13 +66,12 @@ my $dump = $d.ddt:
 		:get,
 		get_test_structure(),
 		title =>'test data',
-		caller => True,
 		max_depth => 3,
 		display_perl_address => True,
 		width => 75,
 		:!color ;
 
-is( $dump.lines.elems, 83, 'all lines') or diag $dump ;
+is( $dump.lines.elems, 81, 'all lines') or diag $dump ;
 
 # ------------- helpers  -------------
 
