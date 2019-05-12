@@ -204,11 +204,11 @@ else
 				if $s1 ~~ Hash and $s2 ~~ Hash
 					{
 					my %h1 = @sub_elements1.map: { $_[0] => $_ }  ;
-					($s2.keys (-) $s1.keys).map: { %h1{$_.key} = ($_.key, ' (-)', Data::Dump::Tree::Type::Nothing.new) } ;
+					($s2.keys (-) $s1.keys).map: { %h1{$_.key} = ('', '!', Data::Dump::Tree::Type::Nothing.new) } ;
 					@sub_elements1 = %h1.sort(*.key)>>.kv.map: -> ($k, $v) { $v }
 
 					my %h2 = @sub_elements2.map: { $_[0] => $_ }  ;
-					($s1.keys (-) $s2.keys).map: { %h2{$_.key} = ($_.key, ' (-)', Data::Dump::Tree::Type::Nothing.new) } ;
+					($s1.keys (-) $s2.keys).map: { %h2{$_.key} = ('', '!', Data::Dump::Tree::Type::Nothing.new) } ;
 					@sub_elements2 = %h2.sort(*.key)>>.kv.map: -> ($k, $v) { $v }
 					}
 				}

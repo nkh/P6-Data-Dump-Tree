@@ -18,7 +18,7 @@ my class Tomatoe{ has $.color ;}
         Tomatoe,
         [ [ [ Tomatoe, ] ], ],
         123,
-        [ |1..3 ],
+        [ |(1..3) ],
         ] ;
 }
 

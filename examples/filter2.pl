@@ -30,7 +30,7 @@ if k ~~ /color/
 
 # we can also act at a higher level, this filter catches the DDT object
 # before the Hashes are displayed
-multi sub my_filter($dumper, Data::Dump::Tree $s, ($, $glyph, @renderings, $), @sub_elements)
+multi sub my_element_filter($dumper, Data::Dump::Tree $s, ($, $glyph, @renderings, $), @sub_elements)
 {
 # simply show that we were called
 @renderings.push: (|$glyph, ('', 'sub elements filter called ' ~ $s.^name, '')) ;
@@ -43,6 +43,6 @@ multi sub my_filter($dumper, Data::Dump::Tree $s, ($, $glyph, @renderings, $), @
 $d.ddt: $d ;
 
 # filtering on
-$d.ddt: $d, :header_filters(&my_filter,), :elements_filters(&my_filter,) ;
+$d.ddt: $d, :header_filters(&my_filter,), :elements_filters(&my_element_filter,) ;
 
 

@@ -170,11 +170,25 @@ has $.flat_depth ;
 
 method ddt_get_header
 {
-my @blocks = @.elements.map: -> ($k, $b, $sub_element)
+#`{{
+my @blocks = @!elements.map: -> ($k, $b, $sub_element)
 			{
 			$!dumper.get_dump_lines_integrated:
 					$sub_element,
 					:title( S/(' ')$// given $k ~ $b ) ,
+					:width($.total_width),
+					:address_from($!dumper),
+					:flat_depth($.flat_depth + 1),
+					:!nl,
+					:indent('') ;
+			}
+}}
+
+my @blocks = @!elements.map: -> @element
+			{
+			$!dumper.get_dump_lines_integrated:
+					@element[2],
+					:title( S/(' ')$// given @element[0] ~ @element[1] ) ,
 					:width($.total_width),
 					:address_from($!dumper),
 					:flat_depth($.flat_depth + 1),

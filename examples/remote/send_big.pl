@@ -4,7 +4,7 @@ use Data::Dump::Tree::Ddt ; # for ddt_remote
 
 # a data structure we know will be more than 64 KB in size when we send it
 # over the network
-my $s = [|1..1_500];
+my $s = [|(1..1_500)];
 
 "object.perl.chars: {$s.perl.chars}".say ;
 

@@ -447,7 +447,6 @@ for @.header_filters -> $filter
 	{
 	#$filter($self, s_replacement, $s, ($current_depth, $path, @glyphs, @renderings), (k, b, v, f, final, want_address)) ;
 	$filter($self, s_replacement, $s, @rend, @ref) ;
-
 	CATCH
 		{
 		when X::Multi::NoMatch { } #no match
@@ -461,7 +460,6 @@ method filter_sub_elements($self, Mu $s, ($current_depth, @glyphs, @renderings, 
 for |@.elements_filters, |@.elements_post_filters -> $filter
 	{
 	$filter($self, $s, ($current_depth, @glyphs, @renderings, $element), @sub_elements) ;
-
 	CATCH
 		{
 		when X::Multi::NoMatch { } #no match

@@ -29,8 +29,7 @@ class MyStruct is repr('CStruct') {
 }
 
 my $mystruct = MyStruct.new ;
-$mystruct.point.x = num64.new(888e0)  ;
-
+$mystruct.point.x = (my num64 $ = 888e0)  ;
 
 class MyStruct2 is repr('CStruct') {
 	HAS Point $.point;  # embedded
@@ -38,7 +37,7 @@ class MyStruct2 is repr('CStruct') {
 }
 
 my $mystruct2 = MyStruct2.new ;
-$mystruct2.point.x = num64.new(777e0)  ;
+$mystruct2.point.x = (my num64 $ = 777e0)  ;
 
 
 
@@ -49,7 +48,7 @@ class MyStruct3 is repr('CStruct') {
 }
 
 my $mystruct3 = MyStruct3.new: :int32(7) ;
-$mystruct3.point.x = num64.new(777e0)  ;
+$mystruct.point.x = (my num64 $ = 777e0)  ;
 
 
 sub add_p6(Int, Int) returns Int { 1 }
