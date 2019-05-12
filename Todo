@@ -1,3 +1,10 @@
+
+containers elements do not match when filters remove element 
+
+is it possible toapply filters in :flat mode?
+	flat is run as a post filter and the code says one or the other
+	
+
 ddt callframe fails
 
 :condition and :cut

@@ -47,6 +47,7 @@ has @.header_filters ;
 has @.elements_filters ;
 has @.elements_post_filters ;
 has @.footer_filters ;
+has @.removal_filters ;
 
 has $.address_from ;
 
@@ -247,7 +248,7 @@ my ($final, $rendered, $s, $continuation_glyph, $wh_token) =
 self.render_non_final($s, $current_depth, (|@head_glyphs, $continuation_glyph), $element) unless ($final || $rendered) ;
 
 @!footer_filters and $s.WHAT !=:= Mu and
-	$.filter_footer(self, $s, ($current_depth, (|@head_glyphs, $continuation_glyph), @!renderings))  ;
+	$.filter_footer($s, ($current_depth, (|@head_glyphs, $continuation_glyph), @!renderings))  ;
 
 my $wf = $.wrap_footer ;
 $wf.defined and $wf($.wrap_data, $s, $final, ($current_depth, (|@head_glyphs, $continuation_glyph), @!renderings), $wh_token)  ;
@@ -256,6 +257,30 @@ $wf.defined and $wf($.wrap_data, $s, $final, ($current_depth, (|@head_glyphs, $c
 method render_non_final(Mu $s, $current_depth, @head_glyphs, $element)
 {
 my (@sub_elements, %glyphs) := $.get_sub_elements($s, $current_depth, @head_glyphs, $element) ;
+
+# run removal filters
+for @sub_elements Z 0..* -> ($sub_element, $index)
+	{
+	my ($, $, $s, $path) = $sub_element ;
+
+	if @!removal_filters and $s.WHAT !=:= Mu
+		{
+		my $remove = False ;
+
+		for @.removal_filters -> $filter
+			{
+			$remove += $filter(self, $s, $path) // False;
+
+			CATCH
+				{
+				when X::Multi::NoMatch { } #no match
+				default                { .rethrow }
+				}
+			}
+
+		@sub_elements[$index]:delete if	$remove ;
+		}
+	}
 
 for @sub_elements Z 0..* -> ($sub_element, $index)
 	{
@@ -311,7 +336,7 @@ else
 
 @!header_filters and $s.WHAT !=:= Mu and
 	$.filter_header(
-		self, my $s_replacement, $s,
+		my $s_replacement, $s,
 		($current_depth, $path, (|@head_glyphs, $filter_glyph), @!renderings),
 		($k, $b, $v, $f, $final, $want_address)) ;
 
@@ -434,19 +459,17 @@ if $.keep_paths
 	}
 
 (@!elements_filters || @!elements_post_filters) and $s.WHAT !=:= Mu and
-	$.filter_sub_elements(self, $s, ($current_depth, (|@head_glyphs , %glyphs<filter>), @!renderings, $element), @sub_elements)  ;
-
+	$.filter_sub_elements($s, ($current_depth, (|@head_glyphs , %glyphs<filter>), @!renderings, $element), @sub_elements)  ;
 
 @sub_elements, %glyphs
 }
 
-
-method filter_header($self, \s_replacement, Mu $s, @rend, @ref)
+method filter_header(\s_replacement, Mu $s, @rend, @ref)
 {
 for @.header_filters -> $filter
 	{
 	#$filter($self, s_replacement, $s, ($current_depth, $path, @glyphs, @renderings), (k, b, v, f, final, want_address)) ;
-	$filter($self, s_replacement, $s, @rend, @ref) ;
+	$filter(self, s_replacement, $s, @rend, @ref) ;
 	CATCH
 		{
 		when X::Multi::NoMatch { } #no match
@@ -455,11 +478,11 @@ for @.header_filters -> $filter
 	}
 }
 
-method filter_sub_elements($self, Mu $s, ($current_depth, @glyphs, @renderings, $element), @sub_elements)
+method filter_sub_elements(Mu $s, ($current_depth, @glyphs, @renderings, $element), @sub_elements)
 {
 for |@.elements_filters, |@.elements_post_filters -> $filter
 	{
-	$filter($self, $s, ($current_depth, @glyphs, @renderings, $element), @sub_elements) ;
+	$filter(self, $s, ($current_depth, @glyphs, @renderings, $element), @sub_elements) ;
 	CATCH
 		{
 		when X::Multi::NoMatch { } #no match
@@ -468,11 +491,11 @@ for |@.elements_filters, |@.elements_post_filters -> $filter
 	}
 }
 
-method filter_footer($self, Mu $s, ($current_depth, @glyphs, @renderings))
+method filter_footer(Mu $s, ($current_depth, @glyphs, @renderings))
 {
 for @.footer_filters -> $filter
 	{
-	$filter($self, $s, ($current_depth, @glyphs, @renderings)) ;
+	$filter(self, $s, ($current_depth, @glyphs, @renderings)) ;
 
 	CATCH
 		{

@@ -17,6 +17,8 @@ Examples for Data::Dump::Tree
 
 - filter2.pl 			filter example
 
+- removal.pl 			remove elements from rendering with filters
+
 - folding.pl 			data structure folding
 
 - glyphs_color.pl 		different rendering of the glyphs
