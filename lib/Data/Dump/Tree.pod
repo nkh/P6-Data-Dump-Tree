@@ -576,7 +576,7 @@ after the element is rendered
 This is called before the type's handler B<get_header> is called. This allows
 you to efficiently remove elements from the rendering.
  
-	multi sub removifilter(
+	multi sub remove_filter(
 		$dumper,
 		$s, 		# "read only" object
 		$path		# path in the data structure
@@ -634,7 +634,7 @@ or change the default B<rendering> of the object
 Note: You can not filter elements of type U<Mu> with header filters but
 you can in element filters.
 
-=head3 element filter
+=head3 elements filter
 
 Called after the type's U<get_elements>. You can change the elements.
 
@@ -674,6 +674,8 @@ See removal filters above.
 
 =head3 In header filters
 
+=item remove the element 
+
 If you return a Data::Dump::Tree::Type::Nothing replacement in your filter,
 the element will not be displayed at all.
 
@@ -682,32 +684,36 @@ the element will not be displayed at all.
 	replacement = Data::Dump::Tree::Type::Nothing ;
 	}
 
-As DDT streams the rendering, it can not go back to fix the glyphs of the when
+As DDT streams the rendering, it can not go back to fix the glyphs of the
 previous element, this will probably show as slightly wrong glyph lines.
 
 Nevertheless, when duping big structures which contains elements you
-don't want to see
+don't want to see this can be very useful and simple to add
 
-=item use an element filter for the container of the type you want to remove
+=item or reduce the type's rendering in a type handler
+
+This does not remove the element but can be useful, create a type handler which
+renders the type with minimal text. 
+
+=head3 In elements filters
+
+=item use an elements filter for the B<container> of the type you want to remove
 
 If the element you don't want to see only appears in some containers, you can
 create a type handler, or filter, for that container type and weed out any
-reference to the element you don't want to see. This will draw proper glyph
-lines as the element, you don't want to see, is never seen by DDT.
+reference to the element you don't want to see. This will draw proper glyphs.
 
-=item reduce the type's rendering in a type handler
+=item or reduce the element rendering 
 
-this does not remove the element but can be useful, rather than removing the 
-element, create a type handler which renders the type with minimal text. 
+Returning a Data::Dump::Tree::Type::Nothing.new as value, that type renders an
+empty string.
 
-=item reduce the type's rendering in an element filter or B<get_elements> method
-
-Returning a Data::Dump::Tree::Type::Nothing will only render the key.
-
-	method ddt_get_elements
+	multi sub elements_filter( ... )
 	{
 		# other elements data ...
 		
+		# the element to reduce rendering of 
+
 		# key          # binder   #value
 		('your key',   '',        Data::Dump::Tree::Type::Nothing.new),
 	}

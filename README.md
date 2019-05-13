@@ -134,11 +134,11 @@ Output
       └ 2 = a[2]
 
 Rendering
-==========
+=========
 
 Each line of output consists 5 elements, 2 elements, the tree and the address, are under the control of Data::Dump::Tree, The three remaining elements can be under your control but Data::Dump::Tree provides defaults.
 
-Refer to section 'handling specific types' to learn how to render specific  types with your own type handlers.
+Refer to section 'handling specific types' to learn how to render specific types with your own type handlers.
 
 Elements of the dump
 --------------------
@@ -557,7 +557,7 @@ after the element is rendered
 
 This is called before the type's handler **get_header** is called. This allows you to efficiently remove elements from the rendering.
 
-    multi sub removifilter(
+    multi sub remove_filter(
 	    $dumper,
 	    $s, 		# "read only" object
 	    $path		# path in the data structure
@@ -656,6 +656,8 @@ See removal filters above.
 
 ### In header filters
 
+  * remove the element 
+
 If you return a Data::Dump::Tree::Type::Nothing replacement in your filter, the element will not be displayed at all.
 
     multi sub header_filter($dumper, \replacement, Tomatoe $s, $, $)
@@ -663,26 +665,30 @@ If you return a Data::Dump::Tree::Type::Nothing replacement in your filter, the 
     replacement = Data::Dump::Tree::Type::Nothing ;
     }
 
-As DDT streams the rendering, it can not go back to fix the glyphs of the when previous element, this will probably show as slightly wrong glyph lines.
+As DDT streams the rendering, it can not go back to fix the glyphs of the previous element, this will probably show as slightly wrong glyph lines.
 
-Nevertheless, when duping big structures which contains elements you don't want to see
+Nevertheless, when duping big structures which contains elements you don't want to see this can be very useful and simple to add
 
-  * use an element filter for the container of the type you want to remove
+  * or reduce the type's rendering in a type handler
 
-If the element you don't want to see only appears in some containers, you can create a type handler, or filter, for that container type and weed out any reference to the element you don't want to see. This will draw proper glyph lines as the element, you don't want to see, is never seen by DDT.
+This does not remove the element but can be useful, create a type handler which renders the type with minimal text. 
 
-  * reduce the type's rendering in a type handler
+### In elements filters
 
-this does not remove the element but can be useful, rather than removing the element, create a type handler which renders the type with minimal text. 
+  * use an elements filter for the **container** of the type you want to remove
 
-  * reduce the type's rendering in an element filter or **get_elements** method
+If the element you don't want to see only appears in some containers, you can create a type handler, or filter, for that container type and weed out any reference to the element you don't want to see. This will draw proper glyphs.
 
-Returning a Data::Dump::Tree::Type::Nothing will only render the key.
+  * or reduce the element rendering 
 
-    method ddt_get_elements
+Returning a Data::Dump::Tree::Type::Nothing.new as value, that type renders an empty string.
+
+    multi sub elements_filter( ... )
     {
 	    # other elements data ...
 	    
+	    # the element to reduce rendering of 
+
 	    # key          # binder   #value
 	    ('your key',   '',        Data::Dump::Tree::Type::Nothing.new),
     }
@@ -755,7 +761,7 @@ Limits the length of the match string.
     # default max length of 10 characters
     aaaaa\naaaa(+14)[0..23]
 
-You can set the maximum string length either by specifying a length when the  role is added to the dumper.
+You can set the maximum string length either by specifying a length when the role is added to the dumper.
 
     $dumper does DDTR::MatchLimit(15) ;
 
@@ -775,7 +781,7 @@ The specified length is displayed, the length of the remaining part is displayed
 
 Give complete details about a Match. The match string is displayed as well as the match start and end position.
 
-You can set the maximum string length either by specifying a length when the  role is added to the dumper or by setting the _$.match_string_limit_ member variable.
+You can set the maximum string length either by specifying a length when the role is added to the dumper or by setting the _$.match_string_limit_ member variable.
 
     # from examples/named_captures.pl
     $dumper does (DDTR::MatchDetails, DDTR::FixedGlyphs) ;
