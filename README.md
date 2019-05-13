@@ -525,15 +525,22 @@ Data::Dump::Tree lets you defined filters to influence the rendering of the data
 
 NOTE: filter must be **multi** subs.
 
+NOTE: B<$path>, a list passed to filters, is set if you use B<:keep_paths>
+option, otherwise an empty list is passed to the filters.
+
 To pass a filter to the dumper:
 
     ddt(
-	    $s,
-	    :removal_filter(&removal_filter, ...),
-	    :header_filters(&header_filter, ...),
-	    :elements_filters(&elements_filter,),
-	    :footer_filters(&footer_filters,),
-	    ) ;
+        $s,
+
+        # all optional
+        :removal_filter(&removal_filter, ...),
+        :header_filters(&header_filter, ...),
+        :elements_filters(&elements_filter,),
+        :footer_filters(&footer_filters,),
+
+        :keep_paths
+        ) ;
 
 Data::Dump::Tree filters are called in this order:
 

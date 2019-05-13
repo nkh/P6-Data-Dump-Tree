@@ -1,10 +1,4 @@
 
-containers elements do not match when filters remove element 
-
-is it possible toapply filters in :flat mode?
-	flat is run as a post filter and the code says one or the other
-	
-
 ddt callframe fails
 
 :condition and :cut
@@ -12,7 +6,28 @@ ddt callframe fails
 object size
 
 hexdump object
+	P6 module: HexDump::Tiny
+
 	how do we handle lack of space, eg: wraping so the display still makes sense
+
+	hex dump can only display data not objects, a data to hex type could handle the rendering
+
+	to wrap data in a hex dumper:
+
+	class HexWrapper
+		has $.title
+		has $.width
+		has $.data
+
+		ddt_get_header
+		ddt_get_element # if we want to have the hex dump lines in separate elements
+
+
+	filter
+		key, binder, HexWrapper.new(data. :title<xxx>)
+
+
+
 
 dhtml
 	user css override
@@ -24,6 +39,13 @@ render role inheritance
 Serialization and attributes links
 	https://github.com/FROGGS/p6-Ser/blob/master/lib/Ser.pm
 	https://github.com/Skarsnik/nativecall-typediag/blob/master/lib/NativeCall/TypeDiag.pm6#L96
+
+!containers elements number do not match when filters remove element 
+	=> container header is called before get_elements and elements filters
+ 		the generic solution is prohibitively expensive (in memory) and not really logical
+		for application where containers that really must display the right amount of elements
+		after filtering the elements, it is better to have a specific container that know what
+		will be removes and display its header properly
 
 !get_header and get_elements could know about remaining width, options, ....
 

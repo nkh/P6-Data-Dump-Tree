@@ -448,13 +448,20 @@ else
 		}
 	}
 
-if $.keep_paths
+for @sub_elements Z 0..* -> (@x, $index)
 	{
-	for @sub_elements Z 0..* -> (($k, $b, $element), $index)
+	# work around P6 bug, confusing named parameters and pair in signatures
+	my ($k, $b, $element) = @x ;
+
+	if $.keep_paths
 		{
 		%.paths{$element.WHICH} = [|(%.paths{$s.WHICH}:v), [$s, $k]] ;
 
 		@sub_elements[$index] = ($k, $b, $element, %.paths{$element.WHICH}) ;
+		}
+	else
+		{
+		@sub_elements[$index] = ($k, $b, $element, []) ;
 		}
 	}
 

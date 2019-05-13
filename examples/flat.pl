@@ -3,11 +3,11 @@
 use Data::Dump::Tree ;
 use Data::Dump::Tree::MultiColumns ;
 
-test1 ;
-test2 ;
+#test1 ;
+#test2 ;
 test3 ;
-test4 ;
-test5 ;
+#test4 ;
+#test5 ;
 
 sub test1
 {
@@ -27,13 +27,35 @@ ddt get_small_test_structure_hash ;
 ddt get_small_test_structure_hash, :flat ;
 }
 
+multi sub elements_filter(
+	$dumper,
+	Array $s,
+
+	# rendering data you can optionaly use 
+	($depth, $glyph, @renderings, ($key, $binder, $value, $path)),
+
+	# elements you can modify 
+	@sub_elements
+	)
+{
+# optionaly add something in the rendering
+@renderings.push: (|$glyph, ('', 'SUB ELEMENTS', '')) ;
+
+# set/filter  the elements 
+@sub_elements.push: ('path', ' => ', $path.elems) ;
+}
+
 sub test3
 {
-ddt get_test_structure ;
-dd get_test_structure ;
+#ddt get_test_structure ;
+#dd get_test_structure ;
 
-ddt get_test_structure, :flat(0) ;
+#ddt get_test_structure, :flat(0) ;
+ddt get_test_structure, :flat(0), :elements_filters(&elements_filter,) ;
+
+
 ddt get_test_structure, :flat(1) ;
+
 ddt get_test_structure, :flat(2) ;
 
 my $width = %+((qx[stty size] || '0 80') ~~ /\d+ \s+ (\d+)/)[0] ;
@@ -41,12 +63,12 @@ $width = ($width / 2).Int ;
 
 display_columns
 	get_dump_lines_integrated(
-				get_test_structure,
-				:$width,
-				:flat(0),
-				),
-	get_dump_lines_integrated(
 			get_test_structure,
+			:$width,
+			:flat(0),
+			),
+	get_dump_lines_integrated(
+		get_test_structure,
 				:$width,
 				:header_filters(),
 				) ;
