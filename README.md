@@ -153,7 +153,7 @@ You can control the color of the tree portion and if it is rendered with ASCII o
 
 ### key
 
-The key is the name of the element being displayed; in the examples above, the container is an array; Data:Dump::Tree gives the index of the element as the  key of the element. IE: '0', '1', '2', ...
+The key is the name of the element being displayed; in the examples above, the container is an array; Data:Dump::Tree gives the index of the element as the key of the element. IE: '0', '1', '2', ...
 
 ### binder
 
@@ -183,7 +183,7 @@ Data::Dump::Tree will display
 
 You control if the sequences are dumped vertically or horizontally, how much of the sequence is dumped and if lazy sequences are dumped (you decide how many elements for lazy sequences too).
 
-Check file *examples/sequences.pl* in the distribution as well as the  implementation in *lib/Data/Dump/Tree/DescribeBaseObjects.pm*.
+Check file *examples/sequences.pl* in the distribution as well as the implementation in *lib/Data/Dump/Tree/DescribeBaseObjects.pm*.
 
   * Matches as '[x..y]' where x..y is the match range
 
@@ -191,9 +191,9 @@ See *Match objects* in the roles section below for configuration of the Match ob
 
 ### address
 
-The Data::Dump::Tree address is added to every container in the form of a '@' and an index that is incremented for each container. If a container is found multiple times in the output, it will be rendered once only then referred to  as '§first_time_seen'
+The Data::Dump::Tree address is added to every container in the form of a '@' and an index that is incremented for each container. If a container is found multiple times in the output, it will be rendered once only then referred to as '§first_time_seen'
 
-It is possible to name containers by using *set_element_name* before dumping  your data structure.
+It is possible to name containers by using *set_element_name* before dumping your data structure.
 
     my $d = Data::Dump::Tree.new ;
 
@@ -336,17 +336,26 @@ Limit the depth of a dump. There is no limit by default.
 
 Display a message telling that you have reached the $max_depth limit, set this flag to false disable the message.
 
+### $max_lines = Int
+
+Limit the number of lines in the rendering, an approximation as *ddt* does not end rendering in the middle of a multi line. There is no limit by default.
+
 ### $display_info = True
 
-By default, this option is set. When set to false, neither the type not the  address are displayed.
+By default, this option is set. When set to false, neither the type not the address are displayed.
 
 ### $display_type = True
 
 By default this option is set.
 
-### $display_address = True
+### $display_address = DDT_DISPLAY_ALL
 
-By default this option is set.
+By default this option is set, to change it use:
+
+    use Data::Dump::Tree;
+    use Data::Dump::Tree::Enums;
+
+    my $ddt = Data::Dump::Tree.new( :display_address(DDT_DISPLAY_NONE) );
 
 ### $display_perl_address = False
 
@@ -399,57 +408,54 @@ You can chose which elements, which type of element or even dynamically chose to
 Handling specific types
 -----------------------
 
-This section will show you how to write specific handlers in the classes that you create and to create a custom rendering for a specific class, even if it  is not under your control.
+This section will show you how to write specific handlers in the classes that you create and how to create a custom rendering for a class, that is not under your control.
 
 ### your own classes
 
 When Data::Dump::Tree renders an object, it first checks if it has an internal handler for that type; if no handler is found, the object is queried and its handler is used, if none; finally, Data::Dump::Tree uses a generic handler.
 
-It is important to understand that you precisely control how your class is  rendered, You can even return completely different data than the one contained in your class.
+The module tests, examples directory, and Data::Dump::Tree::DescribeBaseobjects are a good place to look at for more examples of classes defining these methods.
 
-Data::Dump::Tree uses two methods, you can define either one or both.
-
-#### ddt_get_header, code is defined in your class
+#### defined method **ddt_get_header** in your class
 
     method ddt_get_header
     {
-    # some comment, usually blank # class type
-    "something about this class", '.' ~ self.^name
+    # return 
+
+    # some comment, usually blank     # class type
+    "something about this class",     '.' ~ self.^name
     }
 
-#### ddt_get_elements, code is defined in your class
+#### defined method **ddt_get_elements** in your class
 
     method ddt_get_elements
     {
-
-    #key           #binder   #value
-    (1,            ' = ',    'has no name'),
-    (3,            ' => ',   'abc'),
-    ('attribute',  ': ',     '' ~ 1),
-    ('sub object', '--> ',   [1 .. 3]),
-    ('from sub',   '',       something()),
+    #return a list of elements data, for each element
+     
+    #key            #binder    #value
+    (1,             ' = ',     'has no name'),
+    (3,             ' => ',    'abc'),
+    ('attribute',   ': ',      '' ~ 1),
+    ('sub object',  '--> ',    [1 .. 3]),
+    ('from sub',    '',        something()),
 
     }
 
-In the type handler, you can:
+You can:
 
   * Remove/add elements
 
   * Change the keys, values description
 
-If your keys or values are text string and they contain embedded "\n",  Data::Dump::Tree will display them on multiple lines. See the Role section.
+Note: If your keys or values are text string and they contain embedded "\n", Data::Dump::Tree will display them on multiple lines. See the Role section.
 
-The module tests, and examples directory, and  Data::Dump::Tree::DescribeBaseobjects are a good place to look at for more examples.
+### someone else's class and base types
 
-### classes defined by someone else and base types
+You can not add methods to classes that you do not control. Data::Dump::Tree has type handlers, via roles, that it uses to handle specific types contained the structure you want to render.
 
-You can not add methods to classes that you do not control. Data::Dump::Tree has handlers, via roles, that it uses to display the elements of the structure you pass to dump(). You can override those handler and add new handlers.
+You can override the default handlers and add new ones.
 
-  * get_header
-
-  * get_elements
-
-Both work in the same fashion.
+Create a role following this template: 
 
     role your_hash_handler
     {
@@ -457,15 +463,21 @@ Both work in the same fashion.
     #                        ||||
     #                        vvvv
     multi method get_header (Hash $h)
-	     { '', '{' ~ $h.elems ~ '}' }
+	    {
+	    # return 
+	    # optional description    # type (string to display)
+	    '',                       '{' ~ $h.elems ~ '}' }
 
 
     multi method get_elements (Hash $h)
-	    { $h.sort(*.key)>>.kv.map: -> ($k, $v) {$k, ' => ', $v} }
+	    {
+	    # return the elements of your object (here a hash as example)
 
+	    $h.sort(*.key)>>.kv.map: -> ($k, $v) {$k, ' => ', $v} 
+	    }
     }
 
-To make that handler active, make your dumper do the role
+To make that handler active, make your dumper **do** the role
 
     # using 'does'
     my $d = Data::Dump::Tree.new: :width(80) ;
@@ -473,172 +485,206 @@ To make that handler active, make your dumper do the role
 
     $d.ddt: @your_data ;
 
-    # by passing roles to the constructor
+    # or by passing roles to the constructor
     my $d = Data::Dump::Tree.new: :does(DDTR::MatchDetails, your_hash_handler) ;
 
-    # by passing roles to dump() method
+    # or by passing roles to dump() method
     my $d = Data::Dump::Tree.new ;
     $d.ddt: $m, :does(DDTR::MatchDetails, your_hash_handler) ;
 
-    # by passing roles to ddt sub
+    # or by passing roles to ddt sub
     ddt: $m, :does(DDTR::MatchDetails, your_hash_handler) ;
 
 ### FINAL elements
 
 So far we have seen how to render containers but sometimes we want to handle a type as if it was a Str or an Int, EG: not display its elements but instead display it on a single line.
 
-You can, in a handler, tell Data::Dump::Tree that a type rendering is DDT_FINAL.
+You can, in a handler, tell Data::Dump::Tree that a type rendering is not a container, by returning DDT_FINAL in the type _get_header_ handler.
 
-The default role has a handler that is specific for the Rat class. Rather than show a floating number, as "say $rat;" would, or render the Rat type with it's  attributes, we display the Rat on a single line. Here is the handler:
+For example, the Rat class type handler does not show a floating number, it displays the Rat on a single line. Here is the handler:
 
     multi method get_header (Rat $r)
     {
     # the rendering of the Rat
     $r ~ ' (' ~ $r.numerator ~ '/' ~ $r.denominator ~ ')',
 
-    #its type
+    # its type
     '.' ~ $r.^name,
 
-    # optional hint to DDT that this is final
+    # hint to DDT that this is final
     DDT_FINAL,
 
-    # optional hint to DDT that this is has an address or not
+    # hint to DDT that this is has an address
     DDT_HAS_ADDRESS,
     }
 
-Handling specific objects, filtering
-------------------------------------
+Filtering
+---------
 
-In the previous section we discussed rendering types with specific handler. The handlers apply to all the objects of the type. Sometimes you want to  handle instances differently. An example would be having three Hashes, the Hash handler will display each key and it's value; If you want to handle  the first Hash and the third Hash differently, you can write a filter.
+Data::Dump::Tree lets you defined filters to influence the rendering of the data to dump.
+
+NOTE: filter must be **multi** subs.
 
 To pass a filter to the dumper:
 
     ddt(
 	    $s,
+	    :removal_filter(&removal_filter, ...),
 	    :header_filters(&header_filter, ...),
 	    :elements_filters(&elements_filter,),
 	    :footer_filters(&footer_filters,),
 	    ) ;
 
-Data::Dump::Tree cycle is:
+Data::Dump::Tree filters are called in this order:
 
-when the element is to be displayed, DDT calls the element which return a description of itself then
+check if the element is to be removed from the rendering
 
-    * DDT_HEADER filters are called
+    * removal filters are called
 
-when sub elements of an element are to be displayed, DDT calls the element which returns a list of the sub elements in the form ('name' 'binder' 'sub_element')
+let you change the header rendering returned by the type's handler
 
-    * DDT_SUB_ELEMENTS filters are called
+    * header filters are called
 
-when DDT has rendered the element and will get to the next element
+let you change the elements of a container returned by the type's handler
 
-    * DDT_FOOTER filters are called
+    * element filters are called
 
-### DDT_HEADER filter
+after the element is rendered
+
+    * footer filters are called
+
+### removal filter
+
+This is called before the type's handler **get_header** is called. This allows you to efficiently remove elements from the rendering.
+
+    multi sub removifilter(
+	    $dumper,
+	    $s, 		# "read only" object
+	    $path		# path in the data structure
+	    )
+    {
+    True # return True if you want the element removed
+    }
+
+### header filter
 
 This is called just after the type's _get_header_ is called, this allows you, EG, to insert something in the tree rendering
 
-    sub header_filter(
+    multi sub header_filter(
 	    $dumper,				# the dumper
-	    $r,                                     # replacement
+	    $replacement                            # replacement
 	    $s,                                     # "read only" object
 	    ($depth, $path, $glyph, @renderings),   # info about tree
-	    ($k, $b, $v, $f, $final, $want_address) # element info
+
+	    ($key, $binder, $value, $type, $final, $want_address) # element info
 	    )
     {
     # Add something to the tree
     @renderings.push: (|$glyph , ('', "HEADER", '')) ;
     }
 
-or change the **rendering** of the object
+or change the default **rendering** of the object
 
-    sub header_filter(
+    multi sub header_filter(
 	    $dumper,				# the dumper
-	    \r,                                     # replacement
-	    Int $s,                                 # filter Ints
+	    \replacement                            # replacement
+	    Int $s,                                 # will only filter Ints
 	    ($depth, $path, $glyph, @renderings),   # info about the tree
-	    (\k, \b, \v, \f, \final, \want_address) # reference, can change
+
+	    # what the type's handler has returned
+	    (\key, \binder, \value, \type, \final, \want_address) # reference, can be changed
 	    )
     {
     @renderings.push: (|$glyph, ('', 'Int HEADER ' ~ $depth, '')) ;
 
-    # need to set limit or we would create lists forever
-    if $depth < 2 { r = <1 2> } ;
+    # in this example we need to set limit or we would create lists forever
+    if $depth < 2 { replacement = <1 2> } ;
 
-    # k, b, v, f are text
+    # key, binder, value, and type are Str
 
-    k = k ~ ' will be replaced by Hash ' ;
-    #b = '' ;
-    #v = '' ;
-    #f = '' ;
+    key = key ~ ' will be replaced by Hash ' ;
+    #binder = '' ;
+    #value = '' ;
+    #type = '' ;
 
     final = DDT_NOT_FINAL ;
     want_address = True ;
     }
 
-Note: You can not filter elements of type _Mu_ with DDT_HEADER filters but you can in DDT_SUB_ELEMENTS filters.
+Note: You can not filter elements of type _Mu_ with header filters but you can in element filters.
 
-### DDT_SUB_ELEMENTS filter
+### element filter
 
-Called after the type's _get_elements_ ; you can change the sub elements.
+Called after the type's _get_elements_. You can change the elements.
 
-    sub sub_elements_filter(
+    multi sub elements_filter(
 	    $dumper,
-	    Hash $s,
-	    ($depth, $glyph, @renderings, ($key, $binder, $, $path)),
-	    @sub_elements
-	    )
+	    Hash $s, # type to filter (in this example)
+
+    # rendering data you can optionaly use
+
+    ($depth, $glyph, @renderings, ($key, $binder, $value, $path)),
+
+    # elements you can modify 
+    @sub_elements
+    )
+
     {
+    # optionaly add something in the rendering
     @renderings.push: (|$glyph, ('', 'SUB ELEMENTS', '')) ;
+
+    # set/filter  the elements 
     @sub_elements = (('key', ' => ', 'value'), ('other_key', ': ', 1)) ;
     }
 
-### DDT_FOOTER filter
+### footer filter
 
 Called when the element rendering is done.
 
-    sub footer_filter($dumper, $s, ($depth, $filter_glyph, @renderings))
+    multi sub footer_filter($dumper, $s, ($depth, $filter_glyph, @renderings))
     {
-    @renderings.push: (|$filter_glyph, ('', "FOOTER for {$s.^name}", '')) ;
+    # add message to the rendering after the element is rendered
+    @renderings.push: (|$filter_glyph, ('', "done with {$s.^name}", '')) ;
     }
 
-Data::Dump::Tree::Type::Nothing
--------------------------------
+Removing elements 
+------------------
 
-You can use this type to have DDT make some elements of the structure vanish from the rendering
+### In removal filters
 
-### Filtering an element away
+See removal filters above.
+
+### In header filters
 
 If you return a Data::Dump::Tree::Type::Nothing replacement in your filter, the element will not be displayed at all.
 
-    sub my_filter($, \r, Tomatoe $s, $, $)
+    multi sub header_filter($dumper, \replacement, Tomatoe $s, $, $)
     {
-    r = Data::Dump::Tree::Type::Nothing ;
+    replacement = Data::Dump::Tree::Type::Nothing ;
     }
 
-As DDT streams the rendering, it can not go back to fix the glyphs when an  element is filtered away, this will probably show as slightly wrong glyph lines. Nevertheless, when duping big structures which contains elements you don't want to see, this is an easy an effective manner; the other, better, ways are
+As DDT streams the rendering, it can not go back to fix the glyphs of the when previous element, this will probably show as slightly wrong glyph lines.
 
-  * Create a type handler
+Nevertheless, when duping big structures which contains elements you don't want to see
 
-You can minimize the rendering of the type.
+  * use an element filter for the container of the type you want to remove
 
-See *Type element with only a name* above.
+If the element you don't want to see only appears in some containers, you can create a type handler, or filter, for that container type and weed out any reference to the element you don't want to see. This will draw proper glyph lines as the element, you don't want to see, is never seen by DDT.
 
-  * Create a filter for containers
+  * reduce the type's rendering in a type handler
 
-If the element you don't want to see only appears in some containers, you can create a type handler, or filter, for that container type and weed out any  reference to the element you don't want to see. This will draw proper glyph lines as the element, you don't want to see, is never seen by DDT.
+this does not remove the element but can be useful, rather than removing the element, create a type handler which renders the type with minimal text. 
 
-### Type element with only a name
+  * reduce the type's rendering in an element filter or **get_elements** method
 
-If you return a Data::Dump::Tree::Type::Nothing in a type handler, only the key will be displayed.
+Returning a Data::Dump::Tree::Type::Nothing will only render the key.
 
     method ddt_get_elements
     {
-	    [
-	    ...
-	    ('your key', '', Data::Dump::Tree::Type::Nothing),
-	    ...
-	    ]
+	    # other elements data ...
+	    
+	    # key          # binder   #value
+	    ('your key',   '',        Data::Dump::Tree::Type::Nothing.new),
     }
 
 Roles provided with Data::Dump::Tree
@@ -784,9 +830,9 @@ As this module uses the MOP interface, it happens that it may use interfaces not
 
 An example is Grammar that I tried to dump and got an exception about a class that I didn't even know existed.
 
-Those exception are caught and displayed by the dumper as  "DDT Exception: the_caught_exception"
+Those exception are caught and displayed by the dumper as "DDT Exception: the_caught_exception"
 
-Please let me know about them so I can add the necessary handlers to the  distribution.
+Please let me know about them so I can add the necessary handlers to the distribution.
 
 AUTHOR
 ======
