@@ -83,5 +83,26 @@ ddt 1 => 'a' ;
 
 ddt ($p, $p, $p, $p, a => (|< a b c >, ($p,$p))) ;
 
+dd a => (< a >, b => 2) ;
+ddt (a => (< a >, b => 2)) ;
+
+dd (a => (< a >, b => 2)) ;
+ddt (a => (< a >, b => 2)) ;
+
+dd (a => 2) ;
+ddt (a => 2) ;
+
+dd Pair.new('B', 1) => a => 2 ;
+ddt (Pair.new('B', 1) => a => 2) ;
+
+dd ('B'=> 1 => a => 2) ;
+ddt ('B'=> 1 => a => 2) ;
+
+dd (Pair.new('B', 1) => 1) ;
+ddt (Pair.new('B', 1) => 1) ;
+
+dd ([Pair.new('B', 1), 3] => 2) ;
+ddt ([Pair.new('B', 1), 3] => 2) ;
+
 
 

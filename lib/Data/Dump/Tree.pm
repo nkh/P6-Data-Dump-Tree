@@ -448,10 +448,10 @@ else
 		}
 	}
 
-for @sub_elements Z 0..* -> (@x, $index)
+for @sub_elements Z 0..* -> (@buggy, $index)
 	{
-	# work around P6 bug, confusing named parameters and pair in signatures
-	my ($k, $b, $element) = @x ;
+	# work around P6 "bug", confusing named parameters and pair in signatures
+	my ($k, $b, $element) = @buggy ;
 
 	if $.keep_paths
 		{

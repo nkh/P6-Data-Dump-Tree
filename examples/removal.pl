@@ -1,20 +1,25 @@
 
 use Data::Dump::Tree ;
 
-my $s2 =
+my $s =
 	[
 	123,
 	456,
 	class Tomatoe {has $.seeds}.new(:seeds<3>),
 	] ;
 
-ddt $s2, :title<With Tomatoe>, :nl ;
-ddt $s2, :title<remove Tomatoe>, :nl, removal_filters => (&remove_tomatoe,) ;
-ddt $s2, :title<Filter Nil>, :nl, removal_filters => (&return_Nil,) ;
-ddt $s2, :title<remove Tomatoe 2 filters>, :nl, removal_filters => (&remove_tomatoe, &keep_tomatoe) ;
-ddt $s2, :title<broken gllyph>, :nl, header_filters => (&remove_tomatoe_header_filter,) ;
-ddt $s2, :title<container filter 1>, :nl, elements_filters => (&remove_tomatoe_container_filter_1,) ;
-ddt $s2, :title<container filter 2>, :nl, elements_filters => (&remove_tomatoe_container_filter_2,) ;
+"
+NOTE: the array shows 3 elements even when an element is removed, this is because
+the filters is done after the header for the Array is rendered
+". say ;
+
+ddt $s, :title<With Tomatoe>, :nl ;
+ddt $s, :title<remove Tomatoe>, :nl, removal_filters => (&remove_tomatoe,) ;
+ddt $s, :title<Filter Nil>, :nl, removal_filters => (&return_Nil,) ;
+ddt $s, :title<remove Tomatoe 2 filters>, :nl, removal_filters => (&remove_tomatoe, &keep_tomatoe) ;
+ddt $s, :title<broken gllyph>, :nl, header_filters => (&remove_tomatoe_header_filter,) ;
+ddt $s, :title<container filter 1>, :nl, elements_filters => (&remove_tomatoe_container_filter_1,) ;
+ddt $s, :title<container filter 2>, :nl, elements_filters => (&remove_tomatoe_container_filter_2,) ;
 
 
 multi sub remove_tomatoe($dumper, Tomatoe $s, $path) { True }
@@ -56,7 +61,7 @@ multi sub remove_tomatoe_container_filter_2(
 	)
 {
 # set/filter  the elements 
-@sub_elements[2] = ('tomatoe', '', Data::Dump::Tree::Type::Nothing) ;
+@sub_elements[2] = ('tomatoe', '', Data::Dump::Tree::Type::Nothing.new) ;
 }
 
 

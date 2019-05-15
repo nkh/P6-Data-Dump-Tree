@@ -124,9 +124,13 @@ multi method get_elements (Pair $p)
 	{
 	|self!get_attributes($p, <key value WHICH>,),
 
-	$p.key ~~ Str | Int
-		?? ('k:' ~ $p.key ~ ", v:", '', $p.value)
-		!! (('key', ': ', $p.key), ('value', ' = ', $p.value))
+	# slightly more compact representation but less readable
+	#$p.key ~~ Str | Int
+		#?? (('k: ' ~ $p.key ~ '.' ~ $p.key.^name ~ ", v: ", '', $p.value),) 
+		#!! (('k: ', '', $p.key), ('v: ', '', $p.value))
+
+	('k: ', '', $p.key),
+	('v: ', '', $p.value)
 	}
 
 multi method get_header (Junction $j) { $j.gist, '.' ~ $j.^name, DDT_FINAL }

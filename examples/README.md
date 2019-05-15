@@ -15,8 +15,6 @@ Examples for Data::Dump::Tree
 
 - filter1.pl 			filter example
 
-- filter2.pl 			filter example
-
 - removal.pl 			remove elements from rendering with filters
 
 - folding.pl 			data structure folding

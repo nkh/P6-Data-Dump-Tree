@@ -1,8 +1,7 @@
 
-ddt callframe fails
-
-:condition and :cut
-
+:color_type
+	change the color, specially background, for specific types
+	
 object size
 
 hexdump object
