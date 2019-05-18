@@ -110,6 +110,11 @@ Renders the data structure, see above for a list of adverbs.
 	  ├ 1 = a[1]
 	  └ 2 = a[2]
 
+=head2  method ddt_backtrace: $backtrace = True
+
+All the calls to method B<ddt>, or sub B<ddt>, after a call to B<ddt_backtrace>
+will display a call stack.
+
 =head1 Rendering
 
 Each line of output consists 5 elements, 2 elements, the tree and the address,

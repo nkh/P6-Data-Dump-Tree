@@ -76,6 +76,9 @@ has Bool $.max_depth_message is rw = True ;
 has @!renderings ;
 method get_renderings() { @!renderings }
 
+my $ddt_backtrace ;
+sub ddt_backtrace($b = True) is export { $ddt_backtrace = $b }
+
 method new(*%attributes)
 {
 my %colors = %attributes<colors> // (), %default_colors ;
@@ -99,6 +102,8 @@ sub DDT(|args) is export { Data::Dump::Tree.new(|args.hash) }
 
 sub ddt(|args) is export
 {
+if $ddt_backtrace { note ~Backtrace.new; }
+
 if	args.hash<print> 		{ print get_dump(|args) }
 elsif	args.hash<note> 		{ note get_dump(|args) }
 elsif 	args.hash<get>			{ get_dump |args }
@@ -120,6 +125,8 @@ Data::Dump::Tree.new(|args.hash).get_dump_lines(|args.list).map( { $_.map({ $_.j
 
 method ddt(|args)
 {
+if $ddt_backtrace { note ~Backtrace.new; }
+
 if	args.hash<print> 		{ print self.get_dump(|args) }
 elsif	args.hash<note> 		{ note self.get_dump(|args) }
 elsif 	args.hash<get>			{ self.get_dump: |args }
