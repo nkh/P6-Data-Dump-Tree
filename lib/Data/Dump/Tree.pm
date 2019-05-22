@@ -523,18 +523,23 @@ method get_element_header(Mu $e)
 {
 (self.can('get_header')[0].candidates.grep: {.signature.params[1].type ~~ $e.WHAT})
 	?? $.get_header($e) #specific to $e
-	!! $e.^name ~~ none(self.get_P6_internal()) && $e.can('ddt_get_header')
-		?? $e.ddt_get_header() # $e class provided
-		!! $.get_header($e) ;  # generic handler
+	!! $e.REPR ~~ 'Uninstantiable'
+		?? $.get_header($e) # can't apply .can on an Uninstantiable
+		!! $e.^name ~~ none(self.get_P6_internal()) && $e.can('ddt_get_header')
+			?? $e.ddt_get_header() # $e class provided
+			!! $.get_header($e) ;  # generic handler
+		
 }
 
 method !get_element_subs(Mu $s)
 {
 (self.can('get_elements')[0].candidates.grep: {.signature.params[1].type ~~ $s.WHAT})
 	?? $.get_elements($s) # self is  $s specific
-	!! $s.^name ~~ none(self.get_P6_internal()) && $s.can('ddt_get_elements')
-		?? $s.ddt_get_elements() # $s class provided
-		!! $.get_elements($s) ;  # generic handler
+	!! $s.REPR ~~ 'Uninstantiable'
+		?? $.get_elements($s) # can't apply .can on an Uninstantiable
+		!! $s.^name ~~ none(self.get_P6_internal()) && $s.can('ddt_get_elements')
+			?? $s.ddt_get_elements() # $s class provided
+			!! $.get_elements($s) ;  # generic handler
 }
 
 my regex ansi_color { \e \[ \d+ [\;\d+]* <?before [\;\d+]* > m }
@@ -811,8 +816,11 @@ $! ?? (('DDT exception', ': ', "$!"),)  !! @a ;
 
 method !get_attributes (Any $a, @ignore?)
 {
-my @a = try { @a = get_attributes($a, @ignore) }  ;
-$! ?? (('DDT exception', ': ', $!.message),)  !! @a ;
+if $a.REPR !~~ 'Uninstantiable'
+	{
+	my @a = try { get_attributes($a, @ignore) }  ;
+	$! ?? (('DDT exception', ': ', $!.message),)  !! @a ;
+	}
 }
 
 multi sub get_attributes (Any $a, @ignore?) is export

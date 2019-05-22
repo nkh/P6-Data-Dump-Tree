@@ -142,8 +142,17 @@ multi method get_header (Block $b) { $b.perl, '.' ~ $b.^name, DDT_FINAL }
 multi method get_header (Routine $r) { '' , '.' ~ $r.^name, DDT_FINAL }
 multi method get_header (Sub $s)
 {
-	($s.name || '<anon>') ~ ' ' ~ $s.signature.gist,
+	# to add sub package
+	#($s.package.^name eq 'GLOBAL' ?? '' !! $s.package.^name ~ ':: ')
+ 
+	($s.candidates».multi ?? 'multi ' !! '')
+	~ ($s.name || '<anon>') ~ ' '
+	~ $s.signature.gist,
+
 	$s.^name  ~~ /NativeCall/ ?? '.Sub <NativeCall>' !! '.Sub',
+	# to add sub definition location 
+	#~ ' @ ' ~ $s.file ~ ':' ~ $s.line
+
 	DDT_FINAL
 }
 
