@@ -75,6 +75,10 @@ multi method get_header (Bag:U $b) { '', '.' ~ $b.^name, DDT_FINAL }
 multi method get_header (Bag:D $b) { '', '.' ~ $b.^name ~ '(' ~ $b.elems ~ ')' }
 multi method get_elements (Bag $b) { |($b.sort(*.key)>>.kv.map: -> ($k, $v) {$k, ' => ', $v}) }
 
+multi method get_header (BagHash:U $b) { '', '.' ~ $b.^name, DDT_FINAL }
+multi method get_header (BagHash:D $b) { '', '.' ~ $b.^name ~ '(' ~ $b.elems ~ ')' }
+multi method get_elements (BagHash $b) { |($b.sort(*.key)>>.kv.map: -> ($k, $v) {$k, ' => ', $v}) }
+
 multi method get_header (Set:D $s) { '', '.' ~ $s.^name ~ '(' ~ $s.elems ~ ')'  }
 multi method get_elements (Set $s) {
 	|self!get_attributes($s, <WHICH elems>),
