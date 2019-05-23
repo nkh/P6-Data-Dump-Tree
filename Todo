@@ -39,6 +39,8 @@ Serialization and attributes links
 	https://github.com/FROGGS/p6-Ser/blob/master/lib/Ser.pm
 	https://github.com/Skarsnik/nativecall-typediag/blob/master/lib/NativeCall/TypeDiag.pm6#L96
 
+# set variable name when no title and one element to dump
+
 !containers elements number do not match when filters remove element 
 	=> container header is called before get_elements and elements filters
  		the generic solution is prohibitively expensive (in memory) and not really logical

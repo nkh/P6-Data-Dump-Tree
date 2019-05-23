@@ -9,8 +9,8 @@ use Data::Dump::Tree::ExtraRoles ;
 my $d = Data::Dump::Tree.new: :!color ;
 
 my $dump = $d.ddt: :get, :!color ;
-is $dump.lines.elems, 1, '1 line' or diag $dump ;
-like $dump, /^ 'DDT called without arguments'/, 'error' or diag $dump ;
+is $dump.lines.elems, 0, '0 line' or diag $dump ;
+is $dump, '', 'error' or diag $dump ;
 
 
 $dump = $d.ddt: :get, 1, :!color ;

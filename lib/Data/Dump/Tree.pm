@@ -21,12 +21,15 @@ my %default_colors =
 
 	kb_0 178   kb_1 172   kb_2 33   kb_3 27   kb_4 175   kb_5 169
 	kb_6 34    kb_7 28    kb_8 160  kb_9 124
+
+	dim  236
 	> ;
 
 has @.title is rw ;
 has $.indent = '' ;
 has Bool $.nl is rw ; # add empty line to the rendering
 has Bool $.caller is rw = False ;
+has Int $.caller_depth is rw = 0 ;
 
 has Bool $.color is rw = True ;
 has %.colors ;
@@ -170,14 +173,22 @@ $!.note if $! ;
 
 given args.list.elems
 	{
-	when 0 { return 'DDT called without arguments @ ' ~ callframe(2).file ~ ':' ~ callframe(2).line ~ ' ' }
-	when 1 { $clone.render_root: args.list[0] }
+	when 0 { return  $clone.render_root: Data::Dump::Tree::Type::Nothing.new }
+	when 1 
+		{
+		$clone.title ||= args.list[0].VAR.?name !=== Nil ?? "{args.list[0].VAR.name} =" !! '' ;
+		$clone.caller_depth = 1 ;
+		$clone.render_root: args.list[0] ;
+		}
 	default
 		{
 		$clone.reset ;
 		$clone.nl = False ;
 
+		$clone.caller_depth = 3 ;
 		@.title andthen $clone.render_root: Data::Dump::Tree::Type::Nothing.new ;
+
+		$clone.caller = False ;
 
 		for args.list
 			{
@@ -905,17 +916,27 @@ for $a.^attributes.grep({$_.^isa(Attribute)})
 
 method get_title()
 {
+my $depth = 7 + $.caller_depth ;
 my Str $t = '' ;
 
 if @.title
 	{
-	if $.caller // False { $t = (@.title.join(' ')) ~  ' @ ' ~ callframe(3).file ~ ':' ~ callframe(3).line ~ ' ' }
-	else                 { $t = @.title.join(' ') }
+	if $.caller // False 
+		{
+		@!renderings.push: ( $!colorizer.color('ddt called @ ' ~ callframe($depth).file ~ ':' ~ callframe($depth).line, 'dim')) ; 
+		$t = (@.title.join(' '))
+		}
+	else	
+		{
+		$t = @.title.join(' ')
+		}
 	}
 else
 	{
-	if $.caller // False { $t = '@ ' ~ callframe(3).file ~ ':' ~ callframe(3).line ~ ' ' }
-	else                 { $t = '' }
+	if $.caller // False
+		{
+		@!renderings.push: ( $!colorizer.color('ddt called @ ' ~ callframe($depth).file ~ ':' ~ callframe($depth).line, 'dim')) ; 
+		}
 	}
 
 $t ~= ' ' if $t ne '' ;

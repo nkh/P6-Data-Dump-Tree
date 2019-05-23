@@ -110,9 +110,11 @@ Renders the data structure, see above for a list of adverbs.
 	  ├ 1 = a[1]
 	  └ 2 = a[2]
 
-=head2  method ddt_backtrace: $backtrace = True
+=head2  :caller and method ddt_backtrace: $backtrace = True
 
-All the calls to method B<ddt>, or sub B<ddt>, after a call to B<ddt_backtrace>
+if B<:caller> is given as an argument, the call site is added to the title 
+
+if you call B<ddt_backtrace>, all the calls to method B<ddt>, or sub B<ddt>, 
 will display a call stack.
 
 =head1 Rendering
