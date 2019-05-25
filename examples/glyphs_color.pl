@@ -4,9 +4,9 @@ use Data::Dump::Tree::DescribeBaseObjects ;
 use Data::Dump::Tree::ExtraRoles ;
 use Data::Dump::Tree::Enums ;
 
-my $d = Data::Dump::Tree.new ;
 my $m = [ [ |(1..3), [ |(1..3), [ |(1..3), [ |(1..3), [ 1..3 ] ] ], |(1..3) ] ], 1] ;
 
+my $d = Data::Dump::Tree.new ;
 $d does DDTR::SuperscribeType ;
 $d does DDTR::SuperscribeAddress ;
 

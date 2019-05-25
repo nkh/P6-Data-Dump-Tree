@@ -175,7 +175,7 @@ given args.list.elems
 	when 0 { return  $clone.render_root: Data::Dump::Tree::Type::Nothing.new }
 	when 1 
 		{
-		$clone.title ||= args.list[0].VAR.?name !=== Nil ?? "{args.list[0].VAR.name} =" !! '' ;
+		#$clone.title ||= args.list[0].VAR.?name !=== Nil ?? "{args.list[0].VAR.name} =" !! '' ;
 
 		my $s = args.list[0] ;
 		$s = Data::Dump::Tree::Type::SlipWrapper.new(:slip($s)) if $s ~~ Slip ;		
@@ -195,7 +195,7 @@ given args.list.elems
 
 		for args.list
 			{
-			$clone.title = $_.VAR.?name !=== Nil ?? "{$_.VAR.name} =" !! '' ;
+			#$clone.title = $_.VAR.?name !=== Nil ?? "{$_.VAR.name} =" !! '' ;
 			
 			my $s = $_ ;
 			$s = Data::Dump::Tree::Type::SlipWrapper.new(:slip($s)) if $s ~~ Slip ;		
@@ -950,7 +950,6 @@ $t ~= ' ' if $t ne '' ;
 
 $t
 }
-
 
 #class
 }

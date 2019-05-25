@@ -87,14 +87,18 @@ try
 	my @rows    = ([1,"John Doe",'johndoe@cpan.org'], [2,'Jane Doe','mrsjanedoe@hushmail.com'],);
 	my $table = lol2table(@columns, @rows).join("\n") ;
 
+	# Add some fancy data rendering
+	# on the left side row number 1..7, then 3 separate rendering side by side
+	# DVO removes the type of the fancy rendering
 	use Data::Dump::Tree::MultiColumns ;
+	use Data::Dump::Tree::ExtraRoles ;
 
 	my $element = [1, [2, [3, 4]]] ;
-	my $data = [ $element, ([6, [3]],), $element ] ;
+	my @data = $element, ([6, [3]],), $element ;
 
-	my $columns = get_columns (1..7), |($data.map({ get_dump_lines_integrated($_) })) ;
+	my $columns = get_columns (1..7), |(@data.map({ get_dump_lines_integrated $_, :does[DDTR::Superscribe] })) ;
 
-	@e = ($!title, '', $table ~ "\n" ~ $columns), |get_attributes(self),  ;
+	@e = ($!title, '', $table), ('fancy table data', ':', DVO($columns)), |get_attributes(self),  ;
 	}
 
 $! ?? (('DDT exception', ': ', "$!"),)  !! @e ;
@@ -107,12 +111,12 @@ $! ?? (('DDT exception', ': ', "$!"),)  !! @e ;
 
 ddt
 	get_test_structure(),
-	title =>'test data',
-	caller => True,
-	display_perl_address => True,
-	width => 75,
-	does => (DescribeDog, DescribeShyFinal),
-	max_depth => 3 ;
+	:title<test data>,
+	:caller,
+	:display_perl_address,
+	:width(75),
+	:does<DescribeDog DescribeShyFinal>,
+	:max_depth(3) ;
 
 # ------------- helpers  -------------
 

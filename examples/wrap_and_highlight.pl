@@ -36,4 +36,5 @@ if $s ~~ 'parsed'
 }
 
 ddt :header_filters[&f], (s(5, 6), S.new(:0a, :0b), I.new(:0a, :7b), 'string', 'parsed').Seq ;
+ddt :flat(0), :header_filters[&f], (s(5, 6), S.new(:0a, :0b), I.new(:0a, :7b), 'string', 'parsed').Seq ;
 
