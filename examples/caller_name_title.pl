@@ -22,4 +22,7 @@ ddt @a, :title<title> ;
 ddt True, @a, :caller;
 ddt True, @a, :title<title> ;
 
+my Int $int = 3 ;
+dd $int ;
+ddt $int ;
 

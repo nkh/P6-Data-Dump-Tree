@@ -3,6 +3,7 @@ use Data::Dump::Tree::Enums ;
 
 class Data::Dump::Tree::Type::Nothing {...}
 class Data::Dump::Tree::Type::ValueOnly {...}
+class Data::Dump::Tree::Type::SlipWrapper { has Slip $.slip }
 
 my sub is_final($element, $name) { $element.^name eq $name ??  (DDT_FINAL,) !! (DDT_NOT_FINAL, DDT_HAS_NO_ADDRESS) }
 
@@ -174,6 +175,17 @@ given $a.^name
 	}
 }
 multi method get_elements (Any $a) { self!get_attributes($a) }
+
+multi method get_header (Data::Dump::Tree::Type::SlipWrapper:U $s) { die }
+multi method get_header (Data::Dump::Tree::Type::SlipWrapper:D $s)
+	{
+	$s.slip ~~ Slip:D
+		?? $s.slip.elems
+			?? ('', '(' ~ $s.slip.elems ~ ').Slip')
+			!! ('', '(0).Slip', DDT_FINAL)
+		!! ('', '.Slip:U', DDT_FINAL)
+	}
+multi method get_elements (Data::Dump::Tree::Type::SlipWrapper $l) { |$l.slip.list.map: {$++, ' = ', $_} }
 
 multi method get_header (List:U $l) { '', '()', DDT_FINAL }
 multi method get_header (List:D $l) { '', '(' ~ $l.elems ~ ')' }

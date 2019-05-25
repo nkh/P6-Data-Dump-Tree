@@ -21,7 +21,9 @@ Examples for Data::Dump::Tree
 
 - glyphs_color.pl 		different rendering of the glyphs
 
-- highlight.pl 			how to highligh specific elements of the dump with colors
+- highlight.pl 			how to highlight specific elements of the dump with colors
+
+- wrap_and_highlight.pl		munge so elements and also highlight them
 
 - flat.pl			horizontal layout examples
 
