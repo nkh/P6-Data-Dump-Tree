@@ -161,7 +161,7 @@ if args.hash<display_info>
 
 if $clone.flat && (try require Data::Dump::Tree::LayHorizontal <&lay_horizontal>) !=== Nil
 	{
-	$clone.elements_post_filters = lay_horizontal($clone.flat)
+	$clone.elements_post_filters = lay_horizontal($clone.flat eqv [True] ?? (0,) !! $clone.flat)
 	}
 else
 	{

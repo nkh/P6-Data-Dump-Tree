@@ -3,7 +3,7 @@
 use Data::Dump::Tree ;
 
 use Test ;
-plan 21 ;
+plan 23 ;
 
 my @a = [4..5] ;
 my $d = [[[[1..2],[3..4],],]] ;
@@ -22,7 +22,9 @@ for
 	(13,	:title<test 10, string>,	 	$s, 		:flat(10, <hello>)),
 	(13,	:title<test [1..3]>, 			$s, 		:flat([1..3],)),
 	(14,	:title<test Hash>, 			$s, 		:flat(Hash,)),
+	(6,	:title<test flat:>, 			$s, 		:flat),
 	(6,	:title<test 0>, 			$s, 		:flat(0)),
+	(13,	:title<test 1>, 			$s, 		:flat(1)),
 	(11,	:title<test 2>, 			($d, [3..5]), 	:flat(2)),
 	(14,	:title<test 3>, 			($d, [3..5], $d), :flat(3)),
 	(13,	:title<<test %(a => 1, b => 2)>>, 	$s, 		:flat(%(a => 1, b => 2),)),
@@ -53,7 +55,7 @@ for
 	is($r.elems, $lines) or do
 		{
 		diag ddt :get, |$title, $ds ;
-		diag ddt :get, |$c, :width(80) ;
+		#diag ddt :get, |$c, :width(80) ;
 
 		diag $r.join("\n") ;
 		}
