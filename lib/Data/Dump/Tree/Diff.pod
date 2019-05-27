@@ -104,7 +104,7 @@ The default glyphs are:
 
 =item diff_glyphs
 
-You can set this  option to False if you do not want the diff glyph column
+You can set this option to False if you do not want the diff glyph column
 to be displayed.
 
 =head3 Displaying only the difference between the data structures
@@ -130,10 +130,10 @@ You can set
 
 =item remove_eq
 
-set if you want the to remove from the display the objects that are exactely
+set if you want the to remove from the display the objects that are exactly
 the same in both data structures.
 
-=item $remove_eqv
+=item remove_eqv
 
 set if you want the to remove from the display the objects that are equivalent
 in both data structures.
@@ -143,14 +143,13 @@ in both data structures.
 you can set U<header_filters>, U<elements_filters>, and U<footer_filters> as
 described in U<Data::Dump::Tree> documentation.
 
-You can alsospecify filters that are specific to a side of the diff
+You can also specify filters that are specific to a side of the diff
 
 =item rhs_header_filters and lhs_header_filters
 
 =item rhs_elements_filters and lhs_elements_filters
 
 =item rhs_footer_filters and lhs_footer_filters
-
 
 =head3 diff synchronization filter
 

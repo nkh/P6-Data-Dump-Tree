@@ -4,8 +4,8 @@ use Data::Dump::Tree ;
 use Data::Dump::Tree::MultiColumns ;
 
 #test1 ;
-#test2 ;
-test3 ;
+test2 ;
+#test3 ;
 #test4 ;
 #test5 ;
 

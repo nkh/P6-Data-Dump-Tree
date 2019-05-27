@@ -5,7 +5,7 @@ use Data::Dump::Tree::DescribeBaseObjects ;
 
 role DDTR::DHTML
 {
-my $a2h = ( [ "'", '"', '&', '<', '>' ] =>  [ '&apos;', '&quot;', '&amp;', '&lt;', '&gt;' ]) ;
+my $a2h = ( [ "'", '"', '&', '<', '>' ] => [ '&apos;', '&quot;', '&amp;', '&lt;', '&gt;' ] ) ;
 my $class_bag = (^10_000).BagHash ;
 
 method dump_dhtml($s, *%options) is export { say $.get_dhtml_dump($s, |%options) }

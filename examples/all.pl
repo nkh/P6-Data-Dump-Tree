@@ -115,7 +115,7 @@ ddt
 	:caller,
 	:display_perl_address,
 	:width(75),
-	:does<DescribeDog DescribeShyFinal>,
+	:does[DescribeDog, DescribeShyFinal], #DescribeShy
 	:max_depth(3) ;
 
 # ------------- helpers  -------------
