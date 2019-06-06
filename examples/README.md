@@ -15,6 +15,8 @@ Examples for Data::Dump::Tree
 
 - filter1.pl 			filter example
 
+- JSON_filter.pl		compare json to possible ddt rendering
+
 - removal.pl 			remove elements from rendering with filters
 
 - folding.pl 			data structure folding

@@ -10,26 +10,30 @@ use JSON::Tiny ;
 # The Json that needs parsing
 my $JSON =
 Q<<{
-    "glossary": {
-        "title": "example glossary",
-		"GlossDiv": {
-            "title": "S",
-			"GlossList": {
-                "GlossEntry": {
-                    "ID": "SGML",
-					"SortAs": "SGML",
-					"GlossTerm": "Standard Generalized Markup Language",
-					"Acronym": "SGML",
-					"Abbrev": "ISO 8879:1986",
-					"GlossDef": {
-                        "para": "A meta-markup language, used to create markup languages such as DocBook.",
-						"GlossSeeAlso": ["GML", "XML"]
-                    },
-					"GlossSee": "markup"
-                }
-            }
+  "glossary": {
+    "title": "example glossary",
+    "GlossDiv": {
+      "integer": 1,
+      "title": "S",
+      "GlossList": {
+        "GlossEntry": {
+          "ID": "SGML",
+          "SortAs": "SGML",
+          "GlossTerm": "Standard Generalized Markup Language",
+          "Acronym": "SGML",
+          "Abbrev": "ISO 8879:1986",
+          "GlossDef": {
+            "para": "A meta-markup language, used to create markup languages such as DocBook.",
+            "GlossSeeAlso": [
+              "GML",
+              "XML"
+            ]
+          },
+          "GlossSee": "markup"
         }
+      }
     }
+  }
 }>> ;
 
 # parse data
@@ -56,7 +60,6 @@ my $d = Data::Dump::Tree.new:
 $d.match_string_limit = 40 ;
 $d.ddt: $parsed ;
 
-
 $d.ddt: $parsed, :header_filters(&header_filter,), :elements_filters(&elements_filter,) ;
 
 sub header_filter($dumper, \r, $s, ($depth, $path, $glyph, @renderings), (\k, \b, \v, \f, \final, \want_address))
@@ -68,7 +71,7 @@ if k eq "<pair>"
 	{
 	my %caps = $s.caps ;
 
-	if %caps<value>.caps[0][0].key eq 'string'
+	if %caps<value>.caps[0][0].key ~~ 'string'
 		{
 		v = ls(~%caps<string>, 40)  ~ ' => ' ~ ls(~%caps<value>, 40) ;
 		final = DDT_FINAL ;
