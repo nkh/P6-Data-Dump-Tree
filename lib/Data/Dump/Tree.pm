@@ -38,7 +38,7 @@ has $.color_glyphs ;
 has @.glyph_colors ;
 has @.glyph_colors_cycle ;
 
-has $.color_kbs ;
+has $.color_kbs is rw;
 has @.kb_colors ;
 has @.kb_colors_cycle ;
 
@@ -152,6 +152,8 @@ method get_dump_lines(|args)
 my $clone = self.clone(|args.hash) ;
 
 for args.hash<does> // () -> $role { $clone does $role }
+
+$clone.custom_setup if $clone.can('custom_setup') ;
 
 if args.hash<display_info>
 	{
@@ -298,7 +300,7 @@ for @sub_elements Z 0..* -> ($sub_element, $index)
 
 			CATCH
 				{
-				when X::Multi::NoMatch { } #no match
+				when X::Multi::NoMatch { } 
 				default                { .rethrow }
 				}
 			}
@@ -504,7 +506,7 @@ for @.header_filters -> $filter
 	$filter(self, s_replacement, $s, @rend, @ref) ;
 	CATCH
 		{
-		when X::Multi::NoMatch { } #no match
+		when X::Multi::NoMatch { }
 		default                { .rethrow }
 		}
 	}
@@ -517,7 +519,7 @@ for |@.elements_filters, |@.elements_post_filters -> $filter
 	$filter(self, $s, ($current_depth, @glyphs, @renderings, $element), @sub_elements) ;
 	CATCH
 		{
-		when X::Multi::NoMatch { } #no match
+		when X::Multi::NoMatch { }
 		default                { .rethrow }
 		}
 	}
@@ -531,7 +533,7 @@ for @.footer_filters -> $filter
 
 	CATCH
 		{
-		when X::Multi::NoMatch { } #no match
+		when X::Multi::NoMatch { }
 		default                { .rethrow }
 		}
 	}

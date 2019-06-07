@@ -118,12 +118,9 @@ sub final_first($dumper, $, $, @sub_elements)
 
 sub non_final_no_binder ($dumper, $, $, @sub_elements)
 {
-for @sub_elements -> @e
+for @sub_elements -> ($k, $binder is rw, $value, $)
 	{
-	if $dumper.get_element_header(@e[2])[2] !~~ DDT_FINAL 
-		{
-		@e[1] = '' ; 
-		}
+	$binder = '' if $dumper.get_element_header($value)[2] !~~ DDT_FINAL ;
 	}
 }
 

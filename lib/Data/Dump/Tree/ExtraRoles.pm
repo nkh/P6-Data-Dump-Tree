@@ -22,6 +22,8 @@ has $.match_string_limit is rw ;
 multi method get_header (Match:U $m) { '', '.' ~ $m.^name, DDT_FINAL }
 multi method get_header (Match:D $m)
 {
+return ('', '[no match]', DDT_FINAL) if $m.pos == 0 ;
+
 $m.caps.elems
 	?? ($.limit_string(~$m, $.match_string_limit), Q/[/ ~ $m.from ~ '..' ~ $m.to - 1 ~ ']')
 	!! ($.limit_string(~$m, $.match_string_limit), Q/[/ ~ $m.from ~ '..' ~ $m.to -1 ~ ']', DDT_FINAL, DDT_HAS_ADDRESS)

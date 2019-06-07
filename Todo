@@ -1,4 +1,11 @@
 
+randomize color
+
+Custom Setup role
+	sort non terminal first
+	align elements
+	remove non final binder
+
 :color_type
 	change the color, specially background, for specific types
 	

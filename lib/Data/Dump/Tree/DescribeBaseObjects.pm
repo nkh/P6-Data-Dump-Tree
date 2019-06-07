@@ -144,7 +144,12 @@ multi method get_elements (Pair $p)
 
 multi method get_header (Junction $j) { $j.gist, '.' ~ $j.^name, DDT_FINAL }
 
-multi method get_header (Match $m) { (~$m, Q/[/ ~ $m.from ~ '..' ~ $m.to - 1 ~ ']', DDT_FINAL) }
+multi method get_header (Match $m) 
+{
+return ('', '[no match]', DDT_FINAL) if $m.pos == 0 ;
+
+(~$m, Q/[/ ~ $m.from ~ '..' ~ $m.to - 1 ~ ']', DDT_FINAL)
+}
 
 # Block must be declare or it groaks when passed a Sub
 multi method get_header (Block $b) { $b.perl, '.' ~ $b.^name, DDT_FINAL }

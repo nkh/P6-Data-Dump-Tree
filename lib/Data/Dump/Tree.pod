@@ -822,6 +822,17 @@ variable.
 		    <identifier> joy[47..49]
 		    <key> joy[47..49]
 
+=head2 Custom Setup Roles
+
+If you configure DDT in different ways to render different types, and you
+should, you will en up writing boilerplate setup code everywhere, you can
+define functions to return a setup object (or call ddt) or you can use a
+I<custom setup role>. Custom Setup roles define a B<custom_setup> method which
+is called by DDT before rendering your data.
+
+A complete example can be found in I<examples/CustomSetup/CustomSetup.pm> and
+I<examples/custom_setup.pl>.
+
 =head1 BUGS
 
 Submit bugs (preferably as executable tests) and feel free to make suggestions.

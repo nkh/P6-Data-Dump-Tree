@@ -15,7 +15,9 @@ Examples for Data::Dump::Tree
 
 - filter1.pl 			filter example
 
-- JSON_filter.pl		compare json to possible ddt rendering
+- JSON_filter.pl		compare json rendering to possible ddt rendering
+
+- jddt.pl			reads json file and pretty prints it
 
 - removal.pl 			remove elements from rendering with filters
 
@@ -26,6 +28,8 @@ Examples for Data::Dump::Tree
 - highlight.pl 			how to highlight specific elements of the dump with colors
 
 - wrap_and_highlight.pl		munge so elements and also highlight them
+
+- custom_setup.pl		extra dumper setup via a role
 
 - flat.pl			horizontal layout examples
 
