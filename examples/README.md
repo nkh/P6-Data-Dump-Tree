@@ -19,6 +19,8 @@ Examples for Data::Dump::Tree
 
 - jddt.pl			reads json file and pretty prints it
 
+- jflat.pl			reads json file and "flattens2 it, see data_source.pl
+
 - removal.pl 			remove elements from rendering with filters
 
 - folding.pl 			data structure folding

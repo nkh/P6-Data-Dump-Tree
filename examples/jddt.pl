@@ -13,7 +13,7 @@ my $d = Data::Dump::Tree.new does DDTR::FixedGlyphs('  ') ;
 
 
 $d.ddt: $json, 
-	:title("$file_name:")
+	:title("$file_name:"),
 	:nl,
 	:!display_type,
 	:display_address(DDT_DISPLAY_NONE),

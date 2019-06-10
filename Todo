@@ -25,10 +25,7 @@ randomize color
 
 	write a filter!
 
-#Custom Setup role
-	sort non terminal first
-	align elements
-	remove non final binder
+	every x lines add a colored banner in the rendering
 
 :color_types
 	!change the color, specially background, for specific types
@@ -73,6 +70,29 @@ render role inheritance
 Serialization and attributes links
 	https://github.com/FROGGS/p6-Ser/blob/master/lib/Ser.pm
 	https://github.com/Skarsnik/nativecall-typediag/blob/master/lib/NativeCall/TypeDiag.pm6#L96
+
+#data source
+	#separator
+		''  by default 
+		inserted between k,b, v, ...
+
+	#no_multiline
+		necessary to be a shell source
+		=> can be emulated with width(INF)
+
+	#output path before key
+		makes it possible to use dump as data source
+		=> filter
+	
+	#no tree (as :no_tree)
+		=> $d does DDTR::FixedGlyphs('') ;
+
+	#create custom setup role
+	
+#Custom Setup role
+	sort non terminal first
+	align elements
+	remove non final binder
 
 # set variable name when no title and one element to dump
 
