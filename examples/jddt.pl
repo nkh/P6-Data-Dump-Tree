@@ -5,13 +5,14 @@ use Data::Dump::Tree::Enums ;
 use Data::Dump::Tree::ExtraRoles ;
 use JSON::Tiny ;
 
-sub MAIN($file_name) 
+sub MAIN($file_name, Bool :$keep_lines = False) 
 {
 my $json = from-json($file_name.IO.slurp) ;
 
 my $d = Data::Dump::Tree.new does DDTR::FixedGlyphs('  ') ;
 
-$d.ddt: $json,
+
+$d.ddt: $json, 
 	:title("$file_name:")
 	:nl,
 	:!display_type,
@@ -28,19 +29,17 @@ sub final_first($dumper, $, $, @sub_elements)
 
 sub non_final_no_binder ($dumper, $, $, @sub_elements)
 {
-@sub_elements = @sub_elements.map: -> @e
-			{
-			$dumper.get_element_header(@e[2])[2] !~~ DDT_FINAL
-				?? (@e[0], '', |@e[2..*]) 
-				!! @e ;
-			}
+for @sub_elements -> ($k, $binder is rw, $value, $)
+	{
+	$binder = '' if $dumper.get_element_header($value)[2] !~~ DDT_FINAL ;
+	}
 }
 
 sub align_keys ($dumper, $, $, @sub_elements)
 {
 my $max_kb = ( my @cache = @sub_elements.map: { (.[0] ~ .[1]).chars }).max  ;
 
-@sub_elements = (@sub_elements Z @cache).map: -> (@e, $l) {  (@e[0] ~ ' ' x $max_kb - $l, |@e[1..*]) }
+for @sub_elements Z @cache -> (@e, $l) { @e[0] ~= ' ' x $max_kb - $l }
 }
 
 sub json_filter($dumper, $, $, @sub_elements)
@@ -51,13 +50,15 @@ my $max_kb = ( my @cache = @sub_elements.map: { (.[0] ~ .[1]).chars }).max  ;
 
 for (@sub_elements Z @cache) -> (@e, $l)
 	{
+	my $padded = @e[0] ~ ' ' x $max_kb - $l ;
+
 	if $dumper.get_element_header(@e[2])[2] ~~ DDT_FINAL
 		{
-		@finals.push: (@e[0] ~ ' ' x $max_kb - $l, |@e[1..*]) ;
+		@finals.push: ($padded, |@e[1..*]) ;
 		}
 	else
 		{
-		@non_finals.push: (@e[0] ~ ' ' x $max_kb - $l, '', |@e[2..*]) ;
+		@non_finals.push: ($padded, '', |@e[2..*]) ;
 		}
 	}
 

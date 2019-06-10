@@ -72,6 +72,8 @@ multi method get_header (Promise $p) { '', '.' ~ $p.^name ~ ' (' ~ $p.status ~ '
 #multi method get_elements (Promise $p) { self!get_attributes($p) }
 #multi method get_header (PromiseStatus $p) { '', '.' ~ $p.^name ~ ' (' ~ $p.key ~ ')', DDT_FINAL }
 
+multi method get_header (Grammar:U $g) { '', '.' ~ $g.^name, DDT_FINAL }
+
 multi method get_header (Bag:U $b) { '', '.' ~ $b.^name, DDT_FINAL }
 multi method get_header (Bag:D $b) { '', '.' ~ $b.^name ~ '(' ~ $b.elems ~ ')' }
 multi method get_elements (Bag $b) { |($b.sort(*.key)>>.kv.map: -> ($k, $v) {$k, ' => ', $v}) }

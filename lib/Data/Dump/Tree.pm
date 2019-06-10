@@ -27,6 +27,7 @@ my %default_colors =
 
 has @.title is rw ;
 has $.indent = '' ;
+has $.tab_size is rw = 8 ;
 has Bool $.nl is rw ; # add empty line to the rendering
 has Bool $.caller is rw = False ;
 has Int $.caller_depth is rw = 0 ;
@@ -482,9 +483,9 @@ for @sub_elements Z 0..* -> (@buggy, $index)
 
 	if $.keep_paths
 		{
-		%.paths{$element.WHICH} = [|(%.paths{$s.WHICH}:v), [$s, $k]] ;
+		my $path = %.paths{$element.WHICH} = [|(%.paths{$s.WHICH}:v), [$s, $k]] ;
 
-		@sub_elements[$index] = ($k, $b, $element, %.paths{$element.WHICH}) ;
+		@sub_elements[$index] = ($k, $b, $element, $path) ;
 		}
 	else
 		{
@@ -565,14 +566,15 @@ method !get_element_subs(Mu $s)
 my regex ansi_color { \e \[ \d+ [\;\d+]* <?before [\;\d+]* > m }
 
 method !split_entry(
-	Int $current_depth, Int $width, Cool $k, Cool $b,
+	Int $current_depth, $width, Cool $k, Cool $b,
 	Int $glyph_width, Cool $v, $f is copy,
 	($ddt_address is copy, $link, $perl_address))
 {
 my (@kvf, @ks, @vs, @fs) ;
 
 # handle \t
-my ($k2, $v2, $f2)  = ($k // '', $v // '', $f // '').map: { .subst(/\t/, ' ' x 8, :g) } ;
+my ($k2, $v2, $f2) = ($k // '', $v // '', $f // '')  ;
+if $.tab_size { ($k2, $v2, $f2) = ($k2, $v2, $f2).map: { .subst(/\t/, ' ' x $.tab_size, :g) } }
 
 my $v2_width = (S:g/ <ansi_color> // given $v2).chars ;
 
@@ -676,7 +678,7 @@ multi method split_text(Cool:D $text, $width)
 {
 # given a, possibly empty, string, split the string on \n and width
 
-return $text if $width < 1 ;
+return $text if $width < 1 || $width ~~ NaN ;
 
 # combing an empty line returns nothing but we still want a line
 $text.lines.map: { (|.comb($width)) || '' } ;
@@ -947,8 +949,6 @@ else
 		@!renderings.push: ( $!colorizer.color('ddt called @ ' ~ callframe($depth).file ~ ':' ~ callframe($depth).line, 'dim')) ; 
 		}
 	}
-
-$t ~= ' ' if $t ne '' ;
 
 $t
 }

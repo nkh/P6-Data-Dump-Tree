@@ -143,7 +143,7 @@ if you call **ddt_backtrace**, all the calls to method **ddt**, or sub **ddt**, 
 Rendering
 =========
 
-Each line of output consists 5 elements, 2 elements, the tree and the address, are under Data::Dump::Tree's control; the three remaining elements are under your control but Data::Dump::Tree provides defaults.
+Each line of output consists 6 elements, 2 elements, the tree and the address, are under Data::Dump::Tree's control; the three remaining elements are under your control but Data::Dump::Tree provides defaults.
 
 Refer to section 'handling specific types' to learn how to render specific types with your own type handlers.
 
@@ -204,7 +204,7 @@ See *Match objects* in the roles section below for configuration of the Match ob
 
 The Data::Dump::Tree address is added to every container in the form of a '@' and an index that is incremented for each container. If a container is found multiple times in the output, it will be rendered as *@address* once then as a reference as *§address*
 
-Containers can be names using *set_element_name* prior to rendering.
+Containers can be named using *set_element_name* prior to rendering.
 
     my $d = Data::Dump::Tree.new ;
 
@@ -402,7 +402,7 @@ You can chose which elements, which type of element, even dynamically, to flatte
 Handling specific types
 -----------------------
 
-This section explains how to write specific handlers in classes that creates a custom rendering
+This section explains how to write specific handlers in classes that create a custom rendering
 
 ### in your own classes
 
@@ -493,7 +493,7 @@ To make that handler active, make your dumper **do** the role
 
 So far we have seen how to render containers but sometimes we want to handle a type as if it was a Str or an Int, EG: not display its elements but instead display it on a single line.
 
-You can, in a handler, specify that a type rendered is not a container, by returning DDT_FINAL in the type _get_header_ handler.
+You can, in a handler, specify that a type rendered is not a container, by returning DDT_FINAL in the type's _get_header_ handler.
 
 For example, the Rat class type handler does not show a floating number, it displays the Rat on a single line. Here is the handler:
 
@@ -774,7 +774,7 @@ or by setting the _$.match_string_limit_ member variable
 
     aaaaa\naaaaa\n(+12)[0..23]
 
-The specified length is displayed, the length of the remaining part length is displayed within parenthesis.
+The specified length is displayed, the length of the remaining part is displayed within parenthesis.
 
 #### DDTR::MatchDetails
 

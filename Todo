@@ -1,14 +1,42 @@
 
-randomize color
+data source
+	#separator
+		''  by default 
+		inserted between k,b, v, ...
 
-Custom Setup role
+	#no_multiline
+		necessary to be a shell source
+		=> can be emulated with width(INF)
+
+	#output path before key
+		makes it possible to use dump as data source
+		=> filter
+	
+	#no tree (as :no_tree)
+		=> $d does DDTR::FixedGlyphs('') ;
+
+	create custom setup role
+	
+randomize color
+	!either background color or kb colors
+
+	when scrolling large amount of repeated data it becomes difficult 
+	to see where data block start and end
+
+	write a filter!
+
+#Custom Setup role
 	sort non terminal first
 	align elements
 	remove non final binder
 
-:color_type
-	change the color, specially background, for specific types
+:color_types
+	!change the color, specially background, for specific types
 	
+	write a filter!
+		or a filter generator
+		or a role with custom setup	
+
 object size
 
 hexdump object

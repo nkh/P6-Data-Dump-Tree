@@ -9,7 +9,6 @@ use Terminal::ANSIColor ;
 # display a data structure after passing through user defined filters
 # -------------------------------------------------------------------
 
-
 # the data structure to dump
 
 class Tomatoe{}

@@ -118,7 +118,7 @@ will display a call stack.
 
 =head1 Rendering
 
-Each line of output consists 5 elements, 2 elements, the tree and the address,
+Each line of output consists 6 elements, 2 elements, the tree and the address,
 are under Data::Dump::Tree's control; the three remaining elements are under
 your control but Data::Dump::Tree provides defaults.
 
@@ -192,7 +192,7 @@ and an index that is incremented for each container. If a container is found
 multiple times in the output, it will be rendered as I<@address> once then
 as a reference as I<§address>
 
-Containers can be names using I<set_element_name> prior to rendering.
+Containers can be named using I<set_element_name> prior to rendering.
 
 	my $d = Data::Dump::Tree.new ;
 
@@ -398,7 +398,7 @@ flatten, EG: Arrays with more than 15 elements.
 =head2 Handling specific types
 
 This section explains how to write specific handlers in classes that
-creates a custom rendering
+create a custom rendering
 
 =head3 in your own classes
 
@@ -498,7 +498,7 @@ type as if it was a Str or an Int, EG: not display its elements but instead
 display it on a single line.
 
 You can, in a handler, specify that a type rendered is not a container, by
-returning DDT_FINAL in the type U<get_header> handler.
+returning DDT_FINAL in the type's U<get_header> handler.
 
 For example, the Rat class type handler does not show a floating number, it 
 displays the Rat on a single line. Here is the handler:
@@ -792,7 +792,7 @@ or by setting the U<$.match_string_limit> member variable
 
 	aaaaa\naaaaa\n(+12)[0..23]
 
-The specified length is displayed, the length of the remaining part length is
+The specified length is displayed, the length of the remaining part is
 displayed within parenthesis.
 
 =head4 DDTR::MatchDetails
