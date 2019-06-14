@@ -678,7 +678,7 @@ multi method split_text(Cool:D $text, $width)
 {
 # given a, possibly empty, string, split the string on \n and width
 
-return $text if $width < 1 || $width ~~ NaN ;
+return $text if $width < 1 || $width !~~ Int ;
 
 # combing an empty line returns nothing but we still want a line
 $text.lines.map: { (|.comb($width)) || '' } ;
