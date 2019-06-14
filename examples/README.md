@@ -27,9 +27,11 @@ Examples for Data::Dump::Tree
 
 - glyphs_color.pl 		different rendering of the glyphs
 
+- background_color.pl		display elements with background color
+
 - highlight.pl 			how to highlight specific elements of the dump with colors
 
-- wrap_and_highlight.pl		munge so elements and also highlight them
+- wrap_and_highlight.pl		munge elements and also highlight them
 
 - custom_setup.pl		extra dumper setup via a role
 

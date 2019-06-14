@@ -62,7 +62,7 @@ multi method get_elements (Match $m) { get_attributes($m) }
 
 role DDTR::FixedGlyphs
 {
-has $.fixed_glyph  = '   ' ;
+has $.fixed_glyph  = '  ' ;
 
 multi method get_glyphs
 {
@@ -113,7 +113,7 @@ $root
 my @ssl ;
 
 for 	(
-	< . ( ) + - = @ [ ] | { } > , (|< · ⁽ ⁾ ⁺ ⁻ ⁼ >, '', ' ', '', '', '', '' ),
+	< … . ( ) + - = @ [ ] | { } > , (|< ⁻ · ⁽ ⁾ ⁺ ⁻ ⁼ >, '', ' ', '', '', '', '' ),
 	('0'..'9')        , < ⁰ ¹ ² ³ ⁴ ⁵ ⁶ ⁷ ⁸ ⁹ >,
 	('a'..'z')        , < ᵃ ᵇ ᶜ ᵈ ᵉ ᶠ ᵍ ʰ ⁱ ʲ ᵏ ˡ ᵐ ⁿ ᵒ ᵖ ᵠ ʳ ˢ ᵗ ᵘ ᵛ ʷ ˣ ʸ ᶻ >,
 	('A'..'Z')        , < ᴬ ᴮ ᶜ ᴰ ᴱ ᶠ ᴳ ᴴ ᴵ ᴶ ᴷ ᴸ ᴹ ᴺ ᴼ ᴾ ᵠ ᴿ ˢ ᵀ ᵁ ⱽ ᵂ ˣ ʸ ᶻ >,

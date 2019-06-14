@@ -143,9 +143,9 @@ if you call **ddt_backtrace**, all the calls to method **ddt**, or sub **ddt**, 
 Rendering
 =========
 
-Each line of output consists 6 elements, 2 elements, the tree and the address, are under Data::Dump::Tree's control; the three remaining elements are under your control but Data::Dump::Tree provides defaults.
+Each line of output consists 6 elements.
 
-Refer to section 'handling specific types' to learn how to render specific types with your own type handlers.
+Data::Dump::Tree (DDT) has a default render mode for all data types but you can greatly influence what and how things are rendered.
 
 Rendering elements
 ------------------
@@ -160,7 +160,7 @@ Rendering elements
 
 The tree shows the relationship between the data elements. Data is indented under its container.
 
-You can control the color of the tree and it's rendering with ASCII or Unicode.
+DDT default tree rendering makes it easy to see relationship between the elements of your data structure but you can influence its rendering.
 
 ### key
 
@@ -355,9 +355,29 @@ By default this option is set, to change it use:
 
 Display the internal address of the objects. Default is False.
 
-### Unicode vs ANSI tree drawing
+### Tree rendering
 
-The tree is draw with Unicode characters + one space by default. See roles AsciiGlyphs and CompactUnicodeGlyphs.
+The tree is drawn by default with Unicode characters (glyphs) + one space.
+
+You can influence the rendering of the tree in multiple ways:
+
+  * using glyphs or simple indenting
+
+See role *DDTR::FixedGlyphs*.
+
+  * rendering caracter set and spacing
+
+See role *AsciiGlyphs* and *CompactUnicodeGlyphs*.
+
+You can also create a role that defines the glyphs to use.
+
+  * the color of the tree
+
+See *$color_glyphs* above.
+
+  * "color blob mode"
+
+See <Color Blob mode> for a way to gain control over the tree rendering at every node rendering.
 
 ### Horizontal layout
 
@@ -695,6 +715,21 @@ Returning a Data::Dump::Tree::Type::Nothing.new as value, that type renders an e
 	    ('your key',   '',        Data::Dump::Tree::Type::Nothing.new),
     }
 
+Color Blob Mode (for lack of a better name)
+-------------------------------------------
+
+When rendering very large data structures the default coloring helps, a better way to render large data set is to turn off coloring for most of the data and highlight only the data that is of greater interest. This lets you skip large amount of data quickly. The best way of highlighting is by using background color not text color as it gets lost in the amount of data.
+
+You can define "color filter" that control the color of the glyphs, the data, and will pad the colored lines to the end of terminal width.
+
+An example can be found in *examples/background_color.pl6*. A few renderings are generated, some look noisy but they are there to show you the different possibilities, the most interesting examples are the ones that highlight as little as possible. Remember to pass :!color to DDT so element coloring is off.
+
+As "Color blob mode" colors whole lines, DDT passes to you the glyphs and expects you to return the color you want for the line and the glyph, (that you can change). 
+
+if you forget to pass :!colorto DDT, only the glyphs will be highlighter as can be seen in the last renderings of the example.
+
+This mode also work surprisingly well for very short renderings, in that case try to use role *DDTR::FixedGlyphs*.
+
 Roles provided with Data::Dump::Tree
 ------------------------------------
 
@@ -718,7 +753,7 @@ Renders string containing control codes (eg: \n, ANSI, ...) with backslashed cod
 
 ### DDTR::FixedGlyphs
 
-Replace all the glyphs by a single glyph; default is a three spaces glyph.
+Replace all the glyphs by a single glyph; default is a two spaces glyph.
 
     my $d = Data::Dump::Tree.new does DDTR::FixedGlyphs(' . ') ;
 
@@ -784,27 +819,25 @@ Give complete details about a Match. The match string is displayed as well as th
 
 You can set the maximum string length either by specifying a length when the role is added to the dumper or by setting the _$.match_string_limit_ member variable.
 
-	# from examples/match.pl
+    # from examples/match.pl
 
-	Match    [passwords]\n        jack=password1\n (+74) ⁰··¹¹³
-	├ <section>  ⁰··⁶⁸
-	│ ├ <header> [passwords]⁴··¹⁴
-	│ ├ <kvpair>
-	│ │ ├ <key> jack ²⁴··²⁷
-	│ │ └ <value> password1 ²⁹··³⁷
-	│ └ <kvpair>
-	│   ├ <key> joy ⁴⁷··⁴⁹
-	│   └ <value> muchmoresecure123 ⁵¹··⁶⁷
-	└ <section>  ⁶⁹··¹¹³
-	  ├ <header> [quotas]⁷³··⁸⁰
-	  ├ <kvpair>
-	  │ ├ <key> jack ⁹⁰··⁹³
-	  │ └ <value> 123 ⁹⁵··⁹⁷
-	  └ <kvpair>
-	    ├ <key> joy ¹⁰⁷··¹⁰⁹
-	    └ <value> 42 ¹¹¹··¹¹²
-
-![Imgur](https://i.imgur.com/tssZj5I.png)
+    Match    [passwords]\n        jack=password1\n (+74) ⁰··¹¹³
+    ├ <section>  ⁰··⁶⁸
+    │ ├ <header> [passwords]⁴··¹⁴
+    │ ├ <kvpair>
+    │ │ ├ <key> jack ²⁴··²⁷
+    │ │ └ <value> password1 ²⁹··³⁷
+    │ └ <kvpair>
+    │   ├ <key> joy ⁴⁷··⁴⁹
+    │   └ <value> muchmoresecure123 ⁵¹··⁶⁷
+    └ <section>  ⁶⁹··¹¹³
+      ├ <header> [quotas]⁷³··⁸⁰
+      ├ <kvpair>
+      │ ├ <key> jack ⁹⁰··⁹³
+      │ └ <value> 123 ⁹⁵··⁹⁷
+      └ <kvpair>
+        ├ <key> joy ¹⁰⁷··¹⁰⁹
+        └ <value> 42 ¹¹¹··¹¹²
 
 Custom Setup Roles
 ------------------
@@ -833,6 +866,8 @@ AUTHOR
 ======
 
 Nadim ibn hamouda el Khemir https://github.com/nkh
+
+Do not hesitate to ask for help.
 
 LICENSE
 =======

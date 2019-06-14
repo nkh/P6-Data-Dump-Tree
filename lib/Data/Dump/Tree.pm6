@@ -47,11 +47,12 @@ has $.wrap_data is rw ;
 has $.wrap_header ;
 has $.wrap_footer ;
 
+has @.color_filters ;
+has @.removal_filters ;
 has @.header_filters ;
 has @.elements_filters ;
 has @.elements_post_filters ;
 has @.footer_filters ;
-has @.removal_filters ;
 
 has $.address_from ;
 
@@ -276,7 +277,7 @@ my ($final, $rendered, $s, $continuation_glyph, $wh_token) =
 self.render_non_final($s, $current_depth, (|@head_glyphs, $continuation_glyph), $element) unless ($final || $rendered) ;
 
 @!footer_filters and $s.WHAT !=:= Mu and
-	$.filter_footer($s, ($current_depth, (|@head_glyphs, $continuation_glyph), @!renderings))  ;
+	$.filter_footer($s, ($current_depth, (|@head_glyphs, $continuation_glyph), @!renderings)) ;
 
 my $wf = $.wrap_footer ;
 $wf.defined and $wf($.wrap_data, $s, $final, ($current_depth, (|@head_glyphs, $continuation_glyph), @!renderings), $wh_token)  ;
@@ -331,6 +332,22 @@ my ($k, $b, $s, $path) = $element ;
 my ($glyph_width, $glyph, $continuation_glyph, $multi_line_glyph, $empty_glyph, $filter_glyph) = @glyphs ;
 
 my $width = $!width - ($glyph_width * ($current_depth + 1)) ;
+
+my $color ;
+my @reset_color ;
+
+@!color_filters andthen
+	{
+	$.filter_colors(
+		$s,
+		$current_depth,
+		$path,
+		$k,
+		($glyph_width, $glyph, $continuation_glyph, $multi_line_glyph, $empty_glyph, $filter_glyph),
+		$color,
+		@reset_color
+		) ;
+	}
 
 my ($v, $f, $final, $want_address) =
 	$s.WHAT =:= Mu
@@ -411,11 +428,11 @@ my (@kvf, @ks, @vs, @fs) := self!split_entry(
 				$glyph_width, $v, $f,
 				($ddt_address, $link, $perl_address) ) ;
 
-my $render_lines = @!renderings.end ;
+my $rendered_lines = @!renderings.end ;
 
 if @kvf # single line rendering
 	{
-	@!renderings.push: (|@head_glyphs, $glyph , |@kvf[0]) ;
+	@!renderings.push: (|@head_glyphs, $glyph , |@kvf[0], |@reset_color) ;
 	}
 else
 	{
@@ -425,23 +442,22 @@ else
 		{
 		for @ks[1..*-1] -> $ks
 			{
-			@!renderings.push: (|@head_glyphs, $continuation_glyph, |$ks) ;
+			@!renderings.push: (|@head_glyphs, $continuation_glyph, |$ks, |@reset_color) ;
 			}
 		}
 
-	for @vs { @!renderings.push: (|@head_glyphs, $continuation_glyph, $multi_line_glyph, |$_) }
+	for @vs { @!renderings.push: (|@head_glyphs, $continuation_glyph, $multi_line_glyph, |$_, |@reset_color) }
 
 	if $.display_info
 		{
 
-		for @fs { @!renderings.push: (|@head_glyphs, $continuation_glyph, $multi_line_glyph, |$_) }
+		for @fs { @!renderings.push: (|@head_glyphs, $continuation_glyph, $multi_line_glyph, |$_, |@reset_color) }
 		}
 	}
 
-
 my ($wh, $wh_token) = ($.wrap_header, ) ;
 $wh.defined and $wh_token = $wh(
-				$.wrap_data, (@!renderings.end - $render_lines),
+				$.wrap_data, (@!renderings.end - $rendered_lines),
 				(@head_glyphs, $glyph, $continuation_glyph, $multi_line_glyph),
 				(@kvf, @ks, @vs, @fs),
 				$s,
@@ -497,6 +513,20 @@ for @sub_elements Z 0..* -> (@buggy, $index)
 	$.filter_sub_elements($s, ($current_depth, (|@head_glyphs , %glyphs<filter>), @!renderings, $element), @sub_elements)  ;
 
 @sub_elements, %glyphs
+}
+
+method filter_colors(Mu $s, $current_depth, $path, $key, @c_glyphs, \color, @reset_color)
+{
+for @.color_filters -> $filter
+	{
+	$filter(self, $s,  $current_depth, $path, $key, @c_glyphs, color, @reset_color) ;
+
+	CATCH
+		{
+		when X::Multi::NoMatch { }
+		default                { .rethrow }
+		}
+	}
 }
 
 method filter_header(\s_replacement, Mu $s, @rend, @ref)
@@ -578,7 +608,12 @@ if $.tab_size { ($k2, $v2, $f2) = ($k2, $v2, $f2).map: { .subst(/\t/, ' ' x $.ta
 
 my $v2_width = (S:g/ <ansi_color> // given $v2).chars ;
 
-if none($k2, $v2, $f2) ~~ /\n/	&& ($k2 ~ $b ~ $f2 ~ $ddt_address ~ $perl_address ~ $link).chars + $v2_width <= $width
+my $one_line_width = ($k2 ~ $b ~ $f2 ~ $ddt_address ~ $link, $perl_address).chars + $v2_width ;
+$one_line_width++ if $ddt_address.chars ;
+$one_line_width++ if $link.chars ;
+$one_line_width++ if $perl_address.chars ;
+
+if none($k2, $v2, $f2) ~~ /\n/ && $one_line_width <= $width
 	{
 	for
 		($k2, 		$k2,				$.color_kbs ?? @.kb_colors_cycle[$current_depth] !! 'key'),
@@ -586,40 +621,102 @@ if none($k2, $v2, $f2) ~~ /\n/	&& ($k2 ~ $b ~ $f2 ~ $ddt_address ~ $perl_address
 		($v2, 		$v2,				'value'),
 		($f2, 		$.superscribe_type($f2),	'header'),
 		($ddt_address, 	' ' ~ $ddt_address,		'ddt_address'),
-		($link, 	$link,				'link'),
+		($link, 	' ' ~ $link,			'link'),
 		($perl_address, ' ' ~ $perl_address,		'perl_address')
 		->
 		($entry,	$text, 				$color)
 		{
 		@kvf[0].push: $!colorizer.color($text, $color) if $entry ne '' ;
 		}
+
+	if @!color_filters
+		{
+		my $terminal_width = %+((qx[stty size] || '0 80') ~~ /\d+ \s+ (\d+)/)[0] ;
+		my $padding =  $terminal_width - ( $one_line_width  + ($current_depth * $glyph_width) ) ;
+		$padding++ ;
+		@kvf[0].push: ('', ' ' x $padding , '') ;
+		}
 	}
 else
 	{
-	@ks = self.split_text($k2, $width + $glyph_width).map:
-		{ ($!colorizer.color($_, $.color_kbs ?? @.kb_colors_cycle[$current_depth] !! 'key'), ) }
+	my $line_length = 0 ;
+	my $terminal_width = %+((qx[stty size] || '0 80') ~~ /\d+ \s+ (\d+)/)[0] ;
 
-	# add binder to last key line
-	if @ks { @ks[*-1] = (|@ks[*-1], $!colorizer.color($b, $.color_kbs ?? @.kb_colors_cycle[$current_depth] !! 'binder')) }
+	# @ks
+	my @lines = self.split_text($k2, $width + $glyph_width) ;
+	for @lines  Z 0..* -> ($line, $index)
+		{
+		$line_length = $line.chars ;
 
-	@vs = $v2_width == $v2.chars # no color codes in $v2
-		?? self.split_text($v2, $width).map: { ($!colorizer.color($_, 'value'), ) }
-		!! self.split_colored_text($v2, $width).map: { ($!colorizer.color($_, 'value'), ) }
+		my $binder_length = 0 ;
+		my @binder = ('', '', '') ;
 
+		if $index == @lines.end
+			{
+			$binder_length = $b.chars ;
+			@binder = $!colorizer.color($b, $.color_kbs ?? @.kb_colors_cycle[$current_depth] !! 'binder') ;
+			}
+
+		my @padding ;
+		if @!color_filters
+			{
+			my $padding =  $terminal_width - ( $line_length + $binder_length + ($current_depth * $glyph_width) ) ;
+			@padding =  ("", ' ' x $padding , '') ;
+			}
+		
+		@ks.push:
+			(
+			$!colorizer.color($line, $.color_kbs ?? @.kb_colors_cycle[$current_depth] !! 'key'),
+			@binder, 
+			@padding
+			)
+		}
+
+	# @vs
+	my $splitter = $v2_width == $v2.chars 
+			?? self.^find_method('split_text').assuming(self)
+			!! self.^find_method('split_colored_text').assuming(self) ;
+
+	for $splitter($v2, $width)
+		{
+		my @padding ;
+		if $v2_width == $v2.chars && @!color_filters.elems
+			{
+			# multi lines are indented in -----------------------------------v
+			my $padding =  $terminal_width - ( $_.chars + (($current_depth + 1) * $glyph_width) ) ;
+			@padding =  ("", ' ' x $padding , '') ;
+			}
+	
+		@vs.push: ($!colorizer.color($_, 'value'), @padding)
+		}
+
+	# @fs
 	# put the footer and addresses on a single line if there is room
 	my $f2_ddt_link_perl_length = $f2.chars +  $ddt_address.chars +  $link.chars + $perl_address.chars ;
+	$f2_ddt_link_perl_length++ if $ddt_address.chars ;
+	$f2_ddt_link_perl_length++ if $link.chars ;
+	$f2_ddt_link_perl_length++ if $perl_address.chars ;
 
 	if $f2_ddt_link_perl_length
 		{
 		if $f2 !~~ /\n/ && $f2_ddt_link_perl_length + 2 <= $width
 			{
+			my $pad_text = '' ;
+			if @!color_filters
+				{
+				# multi lines are indented in --------------------------------------------------v
+				my $padding = $terminal_width - ( $f2_ddt_link_perl_length + (($current_depth + 1) * $glyph_width) ) ;
+				$pad_text = ' ' x $padding ;
+				}
+
 			@fs[0] = #single line
 				(
 					(
-					($f2, 		$.superscribe_type($f2),	'header'),
-					($ddt_address, 	' ' ~ $ddt_address,		'ddt_address'),
-					($link, 	$link,				'link'),
-					($perl_address, ' ' ~ $perl_address,		'perl_address')
+					($f2,		$.superscribe_type($f2),	'header'),
+					($ddt_address,	' ' ~ $ddt_address,		'ddt_address'),
+					($link,		' ' ~ $link,			'link'),
+					($perl_address,	' ' ~ $perl_address,		'perl_address'),
+					($pad_text,	$pad_text,			''),	
 					).map: -> ($entry, $text, $color)
 					{
 					$!colorizer.color($text, $color) if $entry ne '' ;
@@ -630,18 +727,40 @@ else
 			{
 			for self.split_text($.superscribe_type($f2), $width) Z 0..* -> ($e, $i)
 				{
+				my @padding ;
+				if @!color_filters
+					{
+					# multi lines are indented in -----------------------------------v
+					my $padding =  $terminal_width - ( $e.chars + (($current_depth + 1) * $glyph_width) ) ;
+					@padding =  ("", ' ' x $padding , '') ;
+					}
+	
 				my $l = $!colorizer.color($e, 'header') ;
-				@fs[$i] =  ($l,).List  ;
+				@fs[$i] =  ($l, @padding).List  ;
 				}
 
-			if $ddt_address.chars +  $link.chars + $perl_address.chars + 2 <= $width
+			my $f_length = $ddt_address.chars +  $link.chars + $perl_address.chars ;
+			$f_length++ if $ddt_address.chars ;
+			$f_length++ if $link.chars ;
+			$f_length++ if $perl_address.chars ;
+
+			if $f_length + 2 <= $width
 				{
+				my $pad_text = '' ;
+				if @!color_filters
+					{
+					# multi lines are indented in --------------------------------------------------v
+					my $padding = $terminal_width - ( $f_length + (($current_depth + 1) * $glyph_width) ) ;
+					$pad_text = ' ' x $padding ;
+					}
+
 				@fs.push:
 					(
 						(
-						($ddt_address, 	' ' ~ $ddt_address,		'ddt_address'),
-						($link, 	$link,				'link'),
-						($perl_address, ' ' ~ $perl_address,		'perl_address')
+						($ddt_address, 	' ' ~ $ddt_address,	'ddt_address'),
+						($link, 	' ' ~ $link,		'link'),
+						($perl_address, ' ' ~ $perl_address,	'perl_address'),
+						($pad_text,	$pad_text,			''),	
 						).map: -> ($entry, $text, $color)
 						{
 						$!colorizer.color($text, $color) if $entry ne '' ;
@@ -650,10 +769,23 @@ else
 				}
 			else
 				{
+				my $f_length = $ddt_address.chars +  $link.chars ;
+				$f_length++ if $ddt_address.chars ;
+				$f_length++ if $link.chars ;
+
+				my $pad_text = '' ;
+				if @!color_filters
+					{
+					# multi lines are indented in -----------------------------------v
+					my $padding = $terminal_width - ( $f_length + (($current_depth + 1) * $glyph_width) ) ;
+					$pad_text = ' ' x $padding ;
+					}
+
 				@fs.push: (
 						(
-						($ddt_address, 	' ' ~ $ddt_address,		'ddt_address'),
-						($link, 	$link,				'link'),
+						($ddt_address, 	' ' ~ $ddt_address,	'ddt_address'),
+						($link, 	' ' ~ $link,		'link'),
+						($pad_text,	$pad_text,		''),	
 						).map: -> ($entry, $text, $color)
 						{
 						$!colorizer.color($text, $color) if $entry ne '' ;
@@ -662,7 +794,19 @@ else
 
 				if $.display_perl_address
 					{
-					@fs.push: $!colorizer.color($.split_text($perl_address, $width), 'perl_address').List ;
+					my $pad_text = '' ;
+					if @!color_filters
+						{
+						# multi lines are indented in ---------------------------------------------v
+						my $padding = $terminal_width - ( $perl_address.chars + (($current_depth + 1) * $glyph_width) ) ;
+						$pad_text = ' ' x $padding ;
+						}
+
+					@fs.push: 
+						(
+						$!colorizer.color($perl_address, 'perl_address'),
+						('', $pad_text, '')
+						) ;
 					}
 				}
 			}

@@ -1,24 +1,23 @@
 
-randomize color
-	!either background color or kb colors
 
-	when scrolling large amount of repeated data it becomes difficult 
-	to see where data block start and end
+bg color blob padding when Vs have embedded colors
 
-	write a filter!
-
-	every x lines add a colored banner in the rendering
-
-:color_types
-	!change the color, specially background, for specific types
+remove magic 2 in split text
 	
-	write a filter!
-		or a filter generator
-		or a role with custom setup	
-
 object size
 
-hexdump object
+dhtml
+	user css override
+	visual cue for folds
+
+render role inheritance
+	eg: role X does Y
+
+Serialization and attributes links
+	https://github.com/FROGGS/p6-Ser/blob/master/lib/Ser.pm
+	https://github.com/Skarsnik/nativecall-typediag/blob/master/lib/NativeCall/TypeDiag.pm6#L96
+
+!hexdump object
 	P6 module: HexDump::Tiny
 
 	how do we handle lack of space, eg: wraping so the display still makes sense
@@ -40,18 +39,22 @@ hexdump object
 		key, binder, HexWrapper.new(data. :title<xxx>)
 
 
+!randomize color
+	!either background color or kb colors
 
+	when scrolling large amount of repeated data it becomes difficult 
+	to see where data block start and end
 
-dhtml
-	user css override
-	visual cue for folds
+	write a filter!
 
-render role inheritance
-	eg: role X does Y
+	every x lines add a colored banner in the rendering
 
-Serialization and attributes links
-	https://github.com/FROGGS/p6-Ser/blob/master/lib/Ser.pm
-	https://github.com/Skarsnik/nativecall-typediag/blob/master/lib/NativeCall/TypeDiag.pm6#L96
+!:color_types
+	!change the color, specially background, for specific types
+	
+	write a filter!
+		or a filter generator
+		or a role with custom setup	
 
 #Add screenshots to README.md
 	# filters

@@ -90,8 +90,7 @@ Renders $data_to_dump, see above for a list of adverbs.
 		] ;
 
 	ddt $s, :title<A complex structure> ;
-
-	ddt $s1, :!color ;
+	ddt $s, :!color ;
 
 =head2 Output
 
@@ -118,12 +117,10 @@ will display a call stack.
 
 =head1 Rendering
 
-Each line of output consists 6 elements, 2 elements, the tree and the address,
-are under Data::Dump::Tree's control; the three remaining elements are under
-your control but Data::Dump::Tree provides defaults.
+Each line of output consists 6 elements.
 
-Refer to section 'handling specific types' to learn how to render specific
-types with your own type handlers.
+Data::Dump::Tree (DDT) has a default render mode for all data types but you can
+greatly influence what and how things are rendered.
 
 =head2 Rendering elements
 
@@ -138,7 +135,8 @@ types with your own type handlers.
 The tree shows the relationship between the data elements. Data is indented
 under its container.
 
-You can control the color of the tree and it's rendering with ASCII or Unicode.
+DDT default tree rendering makes it easy to see relationship between the
+elements of your data structure but you can influence its rendering.
 
 =head3 key
 
@@ -347,10 +345,30 @@ By default this option is set, to change it use:
 
 Display the internal address of the objects. Default is False.
 
-=head3 Unicode vs ANSI tree drawing
+=head3 Tree rendering
 
-The tree is draw with Unicode characters + one space by default. See roles
-AsciiGlyphs and CompactUnicodeGlyphs.
+The tree is drawn by default with Unicode characters (glyphs) + one space.
+
+You can influence the rendering of the tree in multiple ways:
+
+=item using glyphs or simple indenting
+
+See role I<DDTR::FixedGlyphs>.
+
+=item rendering caracter set and spacing
+
+See role I<AsciiGlyphs> and I<CompactUnicodeGlyphs>.
+
+You can also create a role that defines the glyphs to use.
+
+=item the color of the tree
+
+See I<$color_glyphs> above.
+
+=item "color blob mode"
+
+See <Color Blob mode> for a way to gain control over the tree rendering
+at every node rendering.
 
 =head3 Horizontal layout
 
@@ -705,6 +723,32 @@ empty string.
 		('your key',   '',        Data::Dump::Tree::Type::Nothing.new),
 	}
 
+=head2 Color Blob Mode (for lack of a better name)
+
+When rendering very large data structures the default coloring helps, a better
+way to render large data set is to turn off coloring for most of the data and
+highlight only the data that is of greater interest. This lets you skip large
+amount of data quickly. The best way of highlighting is by using background
+color not text color as it gets lost in the amount of data.
+
+You can define "color filter" that control the color of the glyphs, the data,
+and will pad the colored lines to the end of terminal width.
+
+An example can be found in I<examples/background_color.pl6>. A few renderings
+are generated, some look noisy but they are there to show you the different 
+possibilities, the most interesting examples are the ones that highlight as
+little as possible. Remember to pass :!color to DDT so element coloring is off.
+
+As "Color blob mode" colors whole lines, DDT passes to you the glyphs and
+expects you to return the color you want for the line and the glyph, (that
+you can change). 
+
+if you forget to pass :!colorto DDT, only the glyphs will be highlighter as can
+be seen in the last renderings of the example.
+
+This mode also work surprisingly well for very short renderings, in that case
+try to use role I<DDTR::FixedGlyphs>.
+
 =head2 Roles provided with Data::Dump::Tree
 
 Data::Dump::Tree comes with a few extra roles that are not B<does>'ed by the
@@ -731,7 +775,7 @@ codes and hex values.
 
 =head3 DDTR::FixedGlyphs
 
-Replace all the glyphs by a single glyph; default is a three spaces glyph.
+Replace all the glyphs by a single glyph; default is a two spaces glyph.
 
 	my $d = Data::Dump::Tree.new does DDTR::FixedGlyphs(' . ') ;
 
@@ -857,6 +901,8 @@ distribution.
 
 Nadim ibn hamouda el Khemir
 https://github.com/nkh
+
+Do not hesitate to ask for help.
 
 =LICENSE
 

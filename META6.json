@@ -4,7 +4,7 @@
 
 "name" : "Data::Dump::Tree",
 "license" : "Artistic-2.0",
-"version" : "2.4.0",
+"version" : "2.5.0",
 "auth"    : "github:nkh",
 "authors" : ["Nadim Khemir"],
 
@@ -13,23 +13,23 @@
 	{
 	"DDT" : "lib/Data/Dump/Tree.pm",
 
-	"Data::Dump::Tree" : "lib/Data/Dump/Tree.pm",
-	"Data::Dump::Tree::DescribeBaseObjects" : "lib/Data/Dump/Tree/DescribeBaseObjects.pm",
-	"Data::Dump::Tree::Enums" : "lib/Data/Dump/Tree/Enums.pm",
+	"Data::Dump::Tree" : "lib/Data/Dump/Tree.pm6",
+	"Data::Dump::Tree::DescribeBaseObjects" : "lib/Data/Dump/Tree/DescribeBaseObjects.pm6",
+	"Data::Dump::Tree::Enums" : "lib/Data/Dump/Tree/Enums.pm6",
 
-	"Data::Dump::Tree::ExtraRoles" : "lib/Data/Dump/Tree/ExtraRoles.pm",
-	"Data::Dump::Tree::Colorizer" : "lib/Data/Dump/Tree/Colorizer.pm",
+	"Data::Dump::Tree::ExtraRoles" : "lib/Data/Dump/Tree/ExtraRoles.pm6",
+	"Data::Dump::Tree::Colorizer" : "lib/Data/Dump/Tree/Colorizer.pm6",
 
-	"Data::Dump::Tree::Diff" : "lib/Data/Dump/Tree/Diff.pm",
-	"Data::Dump::Tree::DHTML" : "lib/Data/Dump/Tree/DHTML.pm",
-	"Data::Dump::Tree::Ddt" : "lib/Data/Dump/Tree/Ddt.pm",
+	"Data::Dump::Tree::Diff" : "lib/Data/Dump/Tree/Diff.pm6",
+	"Data::Dump::Tree::DHTML" : "lib/Data/Dump/Tree/DHTML.pm6",
+	"Data::Dump::Tree::Ddt" : "lib/Data/Dump/Tree/Ddt.pm6",
 
-	"Data::Dump::Tree::Foldable" : "lib/Data/Dump/Tree/Foldable.pm",
-	"Data::Dump::Tree::TerminalFoldable" : "lib/Data/Dump/Tree/TerminalFoldable.pm",
+	"Data::Dump::Tree::Foldable" : "lib/Data/Dump/Tree/Foldable.pm6",
+	"Data::Dump::Tree::TerminalFoldable" : "lib/Data/Dump/Tree/TerminalFoldable.pm6",
 
-	"Data::Dump::Tree::LayHorizontal" : "lib/Data/Dump/Tree/LayHorizontal.pm",
-	"Data::Dump::Tree::Horizontal" : "lib/Data/Dump/Tree/Horizontal.pm",
-	"Data::Dump::Tree::MultiColumns" : "lib/Data/Dump/Tree/MultiColumns.pm"
+	"Data::Dump::Tree::LayHorizontal" : "lib/Data/Dump/Tree/LayHorizontal.pm6",
+	"Data::Dump::Tree::Horizontal" : "lib/Data/Dump/Tree/Horizontal.pm6",
+	"Data::Dump::Tree::MultiColumns" : "lib/Data/Dump/Tree/MultiColumns.pm6"
 	},
 
 "depends" : [ "Terminal::Print" ],
@@ -44,7 +44,9 @@
 	"diff",
 	"HTML",
 	"Layout",
-	"dumper"
+	"dumper",
+	"color",
+	"tree"
 	],
 
 "source-url" : "https://github.com/nkh/P6-Data-Dump-Tree.git"
