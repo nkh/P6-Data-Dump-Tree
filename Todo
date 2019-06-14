@@ -1,22 +1,4 @@
 
-data source
-	#separator
-		''  by default 
-		inserted between k,b, v, ...
-
-	#no_multiline
-		necessary to be a shell source
-		=> can be emulated with width(INF)
-
-	#output path before key
-		makes it possible to use dump as data source
-		=> filter
-	
-	#no tree (as :no_tree)
-		=> $d does DDTR::FixedGlyphs('') ;
-
-	create custom setup role
-	
 randomize color
 	!either background color or kb colors
 
@@ -70,6 +52,11 @@ render role inheritance
 Serialization and attributes links
 	https://github.com/FROGGS/p6-Ser/blob/master/lib/Ser.pm
 	https://github.com/Skarsnik/nativecall-typediag/blob/master/lib/NativeCall/TypeDiag.pm6#L96
+
+#Add screenshots to README.md
+	# filters
+	#extra roles
+		#Match
 
 #data source
 	#separator

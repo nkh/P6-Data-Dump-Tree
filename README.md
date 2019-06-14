@@ -515,6 +515,8 @@ For example, the Rat class type handler does not show a floating number, it disp
 Filtering
 ---------
 
+![Imgur](https://i.imgur.com/GCTcmdP.png)
+
 Data::Dump::Tree lets you filter the data to dump.
 
 NOTE: filter must be **multi** subs.
@@ -782,23 +784,27 @@ Give complete details about a Match. The match string is displayed as well as th
 
 You can set the maximum string length either by specifying a length when the role is added to the dumper or by setting the _$.match_string_limit_ member variable.
 
-    # from examples/named_captures.pl
-    $dumper does (DDTR::MatchDetails, DDTR::FixedGlyphs) ;
+	# from examples/match.pl
 
-    config [2]
-       0 = \{ \\s* '[' (\\w+) ']' \\h* \\n+ }.Regex
-       1 =     [passwords]\n        jack=password1\n (+74)[0..113]
-          <section>     [passwords]\n        jack=password1\n (+29)[0..68]
-	     <header>     [passwords]\n[0..15]
-	        <0> passwords[5..13]
-	     <kvpair>         jack=password1\n[16..38]
-	        <identifier> jack[24..27]
-	        <key> jack[24..27]
-	        <identifier> password1[29..37]
-	        <value> password1[29..37]
-	     <kvpair>         joy=muchmoresecure123\n[39..68]
-	        <identifier> joy[47..49]
-	        <key> joy[47..49]
+	Match    [passwords]\n        jack=password1\n (+74) ⁰··¹¹³
+	├ <section>  ⁰··⁶⁸
+	│ ├ <header> [passwords]⁴··¹⁴
+	│ ├ <kvpair>
+	│ │ ├ <key> jack ²⁴··²⁷
+	│ │ └ <value> password1 ²⁹··³⁷
+	│ └ <kvpair>
+	│   ├ <key> joy ⁴⁷··⁴⁹
+	│   └ <value> muchmoresecure123 ⁵¹··⁶⁷
+	└ <section>  ⁶⁹··¹¹³
+	  ├ <header> [quotas]⁷³··⁸⁰
+	  ├ <kvpair>
+	  │ ├ <key> jack ⁹⁰··⁹³
+	  │ └ <value> 123 ⁹⁵··⁹⁷
+	  └ <kvpair>
+	    ├ <key> joy ¹⁰⁷··¹⁰⁹
+	    └ <value> 42 ¹¹¹··¹¹²
+
+![Imgur](https://i.imgur.com/tssZj5I.png)
 
 Custom Setup Roles
 ------------------
