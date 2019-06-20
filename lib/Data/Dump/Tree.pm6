@@ -245,7 +245,10 @@ unless @.kb_colors.elems
 	}
 @!kb_colors_cycle = |@.kb_colors xx  * ;
 
-$.width //= %+((qx[stty size] || '0 80') ~~ /\d+ \s+ (\d+)/)[0] ;
+my $width= %+((qx[stty size] || '0 80') ~~ /\d+ \s+ (\d+)/)[0] ;
+
+$.width //= $width ;
+$.width = $width if @.color_filters ; # $.width can be set to Inf, we can't pad that far.
 $.width -= $.width_minus ;
 }
 
@@ -631,8 +634,7 @@ if none($k2, $v2, $f2) ~~ /\n/ && $one_line_width <= $width
 
 	if @!color_filters
 		{
-		my $terminal_width = %+((qx[stty size] || '0 80') ~~ /\d+ \s+ (\d+)/)[0] ;
-		my $padding =  $terminal_width - ( $one_line_width  + ($current_depth * $glyph_width) ) ;
+		my $padding =  $.width - ( $one_line_width  + ($current_depth * $glyph_width) ) ;
 		$padding++ ;
 		@kvf[0].push: ('', ' ' x $padding , '') ;
 		}
@@ -640,7 +642,6 @@ if none($k2, $v2, $f2) ~~ /\n/ && $one_line_width <= $width
 else
 	{
 	my $line_length = 0 ;
-	my $terminal_width = %+((qx[stty size] || '0 80') ~~ /\d+ \s+ (\d+)/)[0] ;
 
 	# @ks
 	my @lines = self.split_text($k2, $width + $glyph_width) ;
@@ -660,7 +661,7 @@ else
 		my @padding ;
 		if @!color_filters
 			{
-			my $padding =  $terminal_width - ( $line_length + $binder_length + ($current_depth * $glyph_width) ) ;
+			my $padding =  $.width - ( $line_length + $binder_length + ($current_depth * $glyph_width) ) ;
 			@padding =  ("", ' ' x $padding , '') ;
 			}
 		
@@ -682,8 +683,8 @@ else
 		my @padding ;
 		if $v2_width == $v2.chars && @!color_filters.elems
 			{
-			# multi lines are indented in -----------------------------------v
-			my $padding =  $terminal_width - ( $_.chars + (($current_depth + 1) * $glyph_width) ) ;
+			# multi lines are indented in ---------------------------v
+			my $padding =  $.width - ( $_.chars + (($current_depth + 1) * $glyph_width) ) ;
 			@padding =  ("", ' ' x $padding , '') ;
 			}
 	
@@ -704,8 +705,8 @@ else
 			my $pad_text = '' ;
 			if @!color_filters
 				{
-				# multi lines are indented in --------------------------------------------------v
-				my $padding = $terminal_width - ( $f2_ddt_link_perl_length + (($current_depth + 1) * $glyph_width) ) ;
+				# multi lines are indented in ------------------------------------------v
+				my $padding = $.width - ( $f2_ddt_link_perl_length + (($current_depth + 1) * $glyph_width) ) ;
 				$pad_text = ' ' x $padding ;
 				}
 
@@ -730,8 +731,8 @@ else
 				my @padding ;
 				if @!color_filters
 					{
-					# multi lines are indented in -----------------------------------v
-					my $padding =  $terminal_width - ( $e.chars + (($current_depth + 1) * $glyph_width) ) ;
+					# multi lines are indented in ---------------------------v
+					my $padding =  $.width - ( $e.chars + (($current_depth + 1) * $glyph_width) ) ;
 					@padding =  ("", ' ' x $padding , '') ;
 					}
 	
@@ -749,8 +750,8 @@ else
 				my $pad_text = '' ;
 				if @!color_filters
 					{
-					# multi lines are indented in --------------------------------------------------v
-					my $padding = $terminal_width - ( $f_length + (($current_depth + 1) * $glyph_width) ) ;
+					# multi lines are indented in ---------------------------v
+					my $padding = $.width - ( $f_length + (($current_depth + 1) * $glyph_width) ) ;
 					$pad_text = ' ' x $padding ;
 					}
 
@@ -776,8 +777,8 @@ else
 				my $pad_text = '' ;
 				if @!color_filters
 					{
-					# multi lines are indented in -----------------------------------v
-					my $padding = $terminal_width - ( $f_length + (($current_depth + 1) * $glyph_width) ) ;
+					# multi lines are indented in ---------------------------v
+					my $padding = $.width - ( $f_length + (($current_depth + 1) * $glyph_width) ) ;
 					$pad_text = ' ' x $padding ;
 					}
 
@@ -797,8 +798,8 @@ else
 					my $pad_text = '' ;
 					if @!color_filters
 						{
-						# multi lines are indented in ---------------------------------------------v
-						my $padding = $terminal_width - ( $perl_address.chars + (($current_depth + 1) * $glyph_width) ) ;
+						# multi lines are indented in -------------------------------------v
+						my $padding = $.width - ( $perl_address.chars + (($current_depth + 1) * $glyph_width) ) ;
 						$pad_text = ' ' x $padding ;
 						}
 
