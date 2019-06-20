@@ -306,10 +306,6 @@ The string is prepended to each line of the rendering
 
 Add an empty line after the last line of the rendering
 
-=head3 $die = Bool
-
-Dies after displaying the data
-
 =head3 $max_depth = Int
 
 Limit the depth of a dump. Default is: no limit.

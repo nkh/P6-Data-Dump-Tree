@@ -700,7 +700,7 @@ else
 
 	if $f2_ddt_link_perl_length
 		{
-		if $f2 !~~ /\n/ && $f2_ddt_link_perl_length + 2 <= $width
+		if $f2 !~~ /\n/ && $f2_ddt_link_perl_length <= $width
 			{
 			my $pad_text = '' ;
 			if @!color_filters
@@ -745,7 +745,7 @@ else
 			$f_length++ if $link.chars ;
 			$f_length++ if $perl_address.chars ;
 
-			if $f_length + 2 <= $width
+			if $f_length <= $width
 				{
 				my $pad_text = '' ;
 				if @!color_filters
@@ -795,19 +795,22 @@ else
 
 				if $.display_perl_address
 					{
-					my $pad_text = '' ;
-					if @!color_filters
+					for $.split_text($perl_address, $width).List -> $chunk
 						{
-						# multi lines are indented in -------------------------------------v
-						my $padding = $.width - ( $perl_address.chars + (($current_depth + 1) * $glyph_width) ) ;
-						$pad_text = ' ' x $padding ;
-						}
+						my $pad_text = '' ;
+						if @!color_filters
+							{
+							# multi lines are indented in ------------------------------v
+							my $padding = $.width - ( $chunk.chars + (($current_depth + 1) * $glyph_width) ) ;
+							$pad_text = ' ' x $padding ;
+							}
 
-					@fs.push: 
-						(
-						$!colorizer.color($perl_address, 'perl_address'),
-						('', $pad_text, '')
-						) ;
+						@fs.push: 
+							(
+							$!colorizer.color($chunk, 'perl_address'),
+							('', $pad_text, '')
+							) ;
+						}
 					}
 				}
 			}
