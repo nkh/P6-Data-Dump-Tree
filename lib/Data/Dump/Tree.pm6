@@ -62,6 +62,10 @@ has %.element_names ;
 
 has DDT_Address_Display $.display_address is rw = DDT_Address_Display::DDT_DISPLAY_CONTAINER ;
 
+has Str $.string_type is rw = '.Str' ;
+has Str $.string_quote is rw = '' ;
+has Str $.string_quote_end is rw ;
+
 has Bool $.display_info is rw = True ;
 has Bool $.display_type is rw = True ;
 has Bool $.display_perl_address is rw = False ;
@@ -336,22 +340,6 @@ my ($glyph_width, $glyph, $continuation_glyph, $multi_line_glyph, $empty_glyph, 
 
 my $width = $!width - ($glyph_width * ($current_depth + 1)) ;
 
-my $color ;
-my @reset_color ;
-
-@!color_filters andthen
-	{
-	$.filter_colors(
-		$s,
-		$current_depth,
-		$path,
-		$k,
-		($glyph_width, $glyph, $continuation_glyph, $multi_line_glyph, $empty_glyph, $filter_glyph),
-		$color,
-		@reset_color
-		) ;
-	}
-
 my ($v, $f, $final, $want_address) =
 	$s.WHAT =:= Mu
 		?? ('', '.Mu', DDT_FINAL )
@@ -380,6 +368,21 @@ if $.display_type
 else
 	{
 	$f = '' ;
+	}
+
+my ($color, @reset_color) ;
+
+@!color_filters andthen
+	{
+	$.filter_colors(
+		$s,
+		$current_depth,
+		$path,
+		$k,
+		($glyph_width, $glyph, $continuation_glyph, $multi_line_glyph, $empty_glyph, $filter_glyph),
+		$color,
+		@reset_color
+		) ;
 	}
 
 @!header_filters and $s.WHAT !=:= Mu and
@@ -495,10 +498,10 @@ else
 		}
 	}
 
-for @sub_elements Z 0..* -> (@buggy, $index)
+for @sub_elements Z 0..* -> (@se, $index)
 	{
-	# work around P6 "bug", confusing named parameters and pair in signatures
-	my ($k, $b, $element) = @buggy ;
+	# work around P6 named parameters and pair handling in signatures
+	my ($k, $b, $element) = @se ;
 
 	if $.keep_paths
 		{

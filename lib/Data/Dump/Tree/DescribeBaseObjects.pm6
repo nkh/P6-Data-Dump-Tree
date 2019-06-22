@@ -109,7 +109,7 @@ multi method get_header (Int:D $i) { $i,  $i.^name eq 'Int' ?? '   ' !! '.' ~ $i
 multi method get_elements (Int $e) { self!get_attributes($e) }
 
 multi method get_header (Str:U $s) { '', '.' ~ $s.^name, DDT_FINAL }
-multi method get_header (Str:D $s) { $s, '.' ~ $s.^name, |is_final($s, 'Str') }
+multi method get_header (Str:D $s) { $.string_quote ~ $s ~ ($.string_quote_end // $.string_quote), $.string_type, |is_final($s, 'Str') }
 multi method get_elements (Str $e) { self!get_attributes($e) }
 
 multi method get_header (Num:D $n) { $n, '.' ~ $n.^name, |is_final($n, 'Num') }

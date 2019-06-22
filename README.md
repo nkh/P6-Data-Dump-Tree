@@ -351,6 +351,24 @@ By default this option is set, to change it use:
 
 Display the internal address of the objects. Default is False.
 
+### Str rendering
+
+By default Str is rendered as the string with '.Str' 
+
+You can Control quoting and type display directly in the dumper without having to write a role for it.
+
+  * $string_type
+
+The type displayed for a Str.
+
+  * $string_quote
+
+The quote surrounding the string, it will be used on both sides of the string unless $string_quote_end is set.
+
+  * $string_quote_end
+
+Setting it allows you to have 'asymetrical quotes' like **[ the string ]**.
+
 ### Tree rendering
 
 The tree is drawn by default with Unicode characters (glyphs) + one space.

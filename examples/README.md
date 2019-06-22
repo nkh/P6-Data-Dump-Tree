@@ -15,6 +15,8 @@ Examples for Data::Dump::Tree
 
 - filter1.pl 			filter example
 
+- html.pl			takes a DOM::Tiny parsing of google.com and renders the html
+
 - JSON_filter.pl		compare json rendering to possible ddt rendering
 
 - jddt.pl			reads json file and pretty prints it

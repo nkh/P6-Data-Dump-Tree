@@ -1,4 +1,16 @@
 
+wrap background color sub in utility
+
+Check the flow between
+	v override
+	header filter
+	element filters
+
+	looks like override in a filter is not forwarded to next iteration
+
+	happened in the html example
+
+
 object size
 
 dhtml
