@@ -4,7 +4,7 @@
 
 "name" : "Data::Dump::Tree",
 "license" : "Artistic-2.0",
-"version" : "2.6.0",
+"version" : "2.7.0",
 "auth"    : "github:nkh",
 "authors" : ["Nadim Khemir"],
 
@@ -18,6 +18,7 @@
 	"Data::Dump::Tree::Enums" : "lib/Data/Dump/Tree/Enums.pm6",
 
 	"Data::Dump::Tree::ExtraRoles" : "lib/Data/Dump/Tree/ExtraRoles.pm6",
+	"DDTR::ColorBlobLevel" : "lib/Data/Dump/Tree/ColorBlobLevel.pm6",
 	"Data::Dump::Tree::Colorizer" : "lib/Data/Dump/Tree/Colorizer.pm6",
 
 	"Data::Dump::Tree::Diff" : "lib/Data/Dump/Tree/Diff.pm6",

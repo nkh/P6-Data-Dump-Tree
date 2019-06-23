@@ -72,12 +72,12 @@ for 1 -> $type
 	$color_filter_type = $type ;
 	$d.ddt: from-json($JSON_ONE_GLOSSARY),
 		:does[DDTR::FixedGlyphs],
-		:color_filters[&color_background],
+		:glyph_filters[&color_background],
 		:nl ;
 
 	$d.ddt: from-json($JSON_ONE_GLOSSARY),
 		:does[DDTR::FixedGlyphs],
-		:color_filters[&color_background],
+		:glyph_filters[&color_background],
 		:elements_filters[&final_first, &non_final_no_binder, &align_keys],
 		:nl ;
 	}
@@ -87,12 +87,12 @@ for 1..3 -> $type
 	$color_filter_type = $type ;
 	$d.ddt: from-json($JSON),
 		:does[DDTR::FixedGlyphs],
-		:color_filters[&color_background],
+		:glyph_filters[&color_background],
 		:nl ;
 
 	$d.ddt: from-json($JSON),
 		:does[DDTR::FixedGlyphs],
-		:color_filters[&color_background],
+		:glyph_filters[&color_background],
 		:elements_filters[&final_first, &non_final_no_binder, &align_keys],
 		:nl ;
 	}
@@ -102,11 +102,11 @@ $d.ddt: from-json($JSON), :color, :color_filters[&color_background], :nl ;
 
 $d.ddt: from-json($JSON),
 	:color,
-	:color_filters[&color_background],
+	:glyph_filters[&color_background],
 	:!display_type,
 	:elements_filters[&final_first, &non_final_no_binder, &align_keys] ;
 
-multi sub color_background($dumper, $s, $depth, $path, $key, @glyphs, \override_color,  @reset_color)
+multi sub color_background($dumper, $s, $depth, $path, $key, @glyphs, @reset_color)
 {
 my $color = '' ;
 
@@ -147,12 +147,12 @@ $filter_glyph       = ($color, |$filter_glyph[1..2]) ;
 @glyphs = ($glyph_width, $glyph, $continuation_glyph, $multi_line_glyph, $empty_glyph, $filter_glyph) ;
 }
 
-sub final_first($dumper, $, $, @sub_elements)
+multi sub final_first($dumper, $, $, @sub_elements)
 {
 @sub_elements = @sub_elements.sort: { $dumper.get_element_header($^a[2])[2] !~~ DDT_FINAL }
 }
 
-sub non_final_no_binder ($dumper, $, $, @sub_elements)
+multi sub non_final_no_binder ($dumper, $, $, @sub_elements)
 {
 for @sub_elements -> ($k, $binder is rw, $value, $)
 	{
@@ -160,7 +160,7 @@ for @sub_elements -> ($k, $binder is rw, $value, $)
 	}
 }
 
-sub align_keys ($dumper, $, $, @sub_elements)
+multi sub align_keys ($dumper, $, $, @sub_elements)
 {
 my $max_kb = ( my @cache = @sub_elements.map: { (.[0] ~ .[1]).chars }).max  ;
 

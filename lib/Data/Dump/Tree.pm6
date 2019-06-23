@@ -47,7 +47,7 @@ has $.wrap_data is rw ;
 has $.wrap_header ;
 has $.wrap_footer ;
 
-has @.color_filters ;
+has @.glyph_filters ;
 has @.removal_filters ;
 has @.header_filters ;
 has @.elements_filters ;
@@ -252,7 +252,7 @@ unless @.kb_colors.elems
 my $width= %+((qx[stty size] || '0 80') ~~ /\d+ \s+ (\d+)/)[0] ;
 
 $.width //= $width ;
-$.width = $width if @.color_filters ; # $.width can be set to Inf, we can't pad that far.
+$.width = $width if @.glyph_filters ; # $.width can be set to Inf, we can't pad that far.
 $.width -= $.width_minus ;
 }
 
@@ -370,18 +370,14 @@ else
 	$f = '' ;
 	}
 
-my ($color, @reset_color) ;
+my @reset_elements ;
 
-@!color_filters andthen
+@!glyph_filters andthen
 	{
-	$.filter_colors(
-		$s,
-		$current_depth,
-		$path,
-		$k,
+	$.filter_glyphs(
+		$s, $current_depth, $path, $k,
 		($glyph_width, $glyph, $continuation_glyph, $multi_line_glyph, $empty_glyph, $filter_glyph),
-		$color,
-		@reset_color
+		@reset_elements
 		) ;
 	}
 
@@ -438,7 +434,7 @@ my $rendered_lines = @!renderings.end ;
 
 if @kvf # single line rendering
 	{
-	@!renderings.push: (|@head_glyphs, $glyph , |@kvf[0], |@reset_color) ;
+	@!renderings.push: (|@head_glyphs, $glyph , |@kvf[0], |@reset_elements) ;
 	}
 else
 	{
@@ -448,16 +444,16 @@ else
 		{
 		for @ks[1..*-1] -> $ks
 			{
-			@!renderings.push: (|@head_glyphs, $continuation_glyph, |$ks, |@reset_color) ;
+			@!renderings.push: (|@head_glyphs, $continuation_glyph, |$ks, |@reset_elements) ;
 			}
 		}
 
-	for @vs { @!renderings.push: (|@head_glyphs, $continuation_glyph, $multi_line_glyph, |$_, |@reset_color) }
+	for @vs { @!renderings.push: (|@head_glyphs, $continuation_glyph, $multi_line_glyph, |$_, |@reset_elements) }
 
 	if $.display_info
 		{
 
-		for @fs { @!renderings.push: (|@head_glyphs, $continuation_glyph, $multi_line_glyph, |$_, |@reset_color) }
+		for @fs { @!renderings.push: (|@head_glyphs, $continuation_glyph, $multi_line_glyph, |$_, |@reset_elements) }
 		}
 	}
 
@@ -521,11 +517,11 @@ for @sub_elements Z 0..* -> (@se, $index)
 @sub_elements, %glyphs
 }
 
-method filter_colors(Mu $s, $current_depth, $path, $key, @c_glyphs, \color, @reset_color)
+method filter_glyphs(Mu $s, $current_depth, $path, $key, @c_glyphs, @reset_elements)
 {
-for @.color_filters -> $filter
+for @.glyph_filters -> $filter
 	{
-	$filter(self, $s,  $current_depth, $path, $key, @c_glyphs, color, @reset_color) ;
+	$filter(self, $s,  $current_depth, $path, $key, @c_glyphs, @reset_elements) ;
 
 	CATCH
 		{
@@ -635,7 +631,7 @@ if none($k2, $v2, $f2) ~~ /\n/ && $one_line_width <= $width
 		@kvf[0].push: $!colorizer.color($text, $color) if $entry ne '' ;
 		}
 
-	if @!color_filters
+	if @!glyph_filters
 		{
 		my $padding =  $.width - ( $one_line_width  + ($current_depth * $glyph_width) ) ;
 		$padding++ ;
@@ -662,7 +658,7 @@ else
 			}
 
 		my @padding ;
-		if @!color_filters
+		if @!glyph_filters
 			{
 			my $padding =  $.width - ( $line_length + $binder_length + ($current_depth * $glyph_width) ) ;
 			@padding =  ("", ' ' x $padding , '') ;
@@ -684,7 +680,7 @@ else
 	for $splitter($v2, $width)
 		{
 		my @padding ;
-		if $v2_width == $v2.chars && @!color_filters.elems
+		if $v2_width == $v2.chars && @!glyph_filters.elems
 			{
 			# multi lines are indented in ---------------------------v
 			my $padding =  $.width - ( $_.chars + (($current_depth + 1) * $glyph_width) ) ;
@@ -706,7 +702,7 @@ else
 		if $f2 !~~ /\n/ && $f2_ddt_link_perl_length <= $width
 			{
 			my $pad_text = '' ;
-			if @!color_filters
+			if @!glyph_filters
 				{
 				# multi lines are indented in ------------------------------------------v
 				my $padding = $.width - ( $f2_ddt_link_perl_length + (($current_depth + 1) * $glyph_width) ) ;
@@ -732,7 +728,7 @@ else
 			for self.split_text($.superscribe_type($f2), $width) Z 0..* -> ($e, $i)
 				{
 				my @padding ;
-				if @!color_filters
+				if @!glyph_filters
 					{
 					# multi lines are indented in ---------------------------v
 					my $padding =  $.width - ( $e.chars + (($current_depth + 1) * $glyph_width) ) ;
@@ -751,7 +747,7 @@ else
 			if $f_length <= $width
 				{
 				my $pad_text = '' ;
-				if @!color_filters
+				if @!glyph_filters
 					{
 					# multi lines are indented in ---------------------------v
 					my $padding = $.width - ( $f_length + (($current_depth + 1) * $glyph_width) ) ;
@@ -778,7 +774,7 @@ else
 				$f_length++ if $link.chars ;
 
 				my $pad_text = '' ;
-				if @!color_filters
+				if @!glyph_filters
 					{
 					# multi lines are indented in ---------------------------v
 					my $padding = $.width - ( $f_length + (($current_depth + 1) * $glyph_width) ) ;
@@ -801,7 +797,7 @@ else
 					for $.split_text($perl_address, $width).List -> $chunk
 						{
 						my $pad_text = '' ;
-						if @!color_filters
+						if @!glyph_filters
 							{
 							# multi lines are indented in ------------------------------v
 							my $padding = $.width - ( $chunk.chars + (($current_depth + 1) * $glyph_width) ) ;

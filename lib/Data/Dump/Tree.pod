@@ -296,7 +296,7 @@ DDT uses the whole terminal width if no width is given.
 
 =head3 $width_minus = Int
 
-Reduces the width, you can use it to reduce the computer width.
+Reduces the width, you can use it to reduce the computed width.
 
 =head3 $indent = Str
 
@@ -383,8 +383,7 @@ See I<$color_glyphs> above.
 
 =item "color blob mode"
 
-See <Color Blob mode> for a way to gain control over the tree rendering
-at every node rendering.
+See <Color Blob mode> for a way to gain control over the tree rendering.
 
 =head3 Horizontal layout
 
@@ -743,27 +742,41 @@ empty string.
 
 When rendering very large data structures the default coloring helps, a better
 way to render large data set is to turn off coloring for most of the data and
-highlight only the data that is of greater interest. This lets you skip large
-amount of data quickly. The best way of highlighting is by using background
-color not text color as it gets lost in the amount of data.
+highlight only the data that is of greater interest. This makes it easier to
+visually skip large amount of data quickly. The best way of highlighting is by
+using background color not text color.
 
-You can define "color filter" that control the color of the glyphs, the data,
-and will pad the colored lines to the end of terminal width.
+You can define "glyph filter" that controls the shape and color of the glyphs.
 
 An example can be found in I<examples/background_color.pl6>. A few renderings
 are generated, some look noisy but they are there to show you the different 
 possibilities, the most interesting examples are the ones that highlight as
 little as possible. Remember to pass :!color to DDT so element coloring is off.
 
-As "Color blob mode" colors whole lines, DDT passes to you the glyphs and
-expects you to return the color you want for the line and the glyph, (that
-you can change). 
+A simpler example is in I<examples/html.pl6>, it uses a role defined in
+<Data::Dump::Tree::ColorBlobLevel> to set blob colors and filters to transform
+B<DOM::Tiny> parsed data into a rendering more I<"HTML"> like.
 
-if you forget to pass :!colorto DDT, only the glyphs will be highlighter as can
-be seen in the last renderings of the example.
+	use Data::Dump::Tree::ColorBlobLevel ;
 
-This mode also work surprisingly well for very short renderings, in that case
-try to use role I<DDTR::FixedGlyphs>.
+	my $d = Data::Dump::Tree.new:
+		:string_type(''),
+		:string_quote('"'),
+		:does[DDTR::ColorBlobLevel],
+		:color_kbs,
+		:header_filters[&header],
+		:elements_filters[&elements],
+		:nl ;
+
+	# you can ialso override foreground and background color per level
+	# after you have used the ColorBlobLevel role
+	
+	# $d.blob_colors = <  on_125 on_61 on_33 on_37 on_64 > ;
+	# $d.blob_colors_fg = < 0 37 64 61> ;
+	
+
+The "ColorbBlob"  mode also work surprisingly well for very short renderings;
+in that case try to use role I<DDTR::FixedGlyphs> to replace glyphs by spaces.
 
 =head2 Roles provided with Data::Dump::Tree
 
@@ -813,6 +826,10 @@ You can also use the method it provides in your type handlers and filters.
 =head3 DDTR::Superscribe
 
 Use this role to display the type and address in Unicode superscript letters.
+
+=head3 Data::Dump::Tree::ColorBlobLevel
+
+Colors the rendering per level.
 
 =head3 Match objects
 

@@ -367,7 +367,7 @@ The quote surrounding the string, it will be used on both sides of the string un
 
   * $string_quote_end
 
-Setting it allows you to have 'asymetrical quotes' like **[ the string ]**.
+Setting it allows you to have 'asymmetrical quotes' like **[ the string ]**.
 
 ### Tree rendering
 
@@ -391,7 +391,7 @@ See *$color_glyphs* above.
 
   * "color blob mode"
 
-See <Color Blob mode> for a way to gain control over the tree rendering at every node rendering.
+See <Color Blob mode> for a way to gain control over the tree rendering.
 
 ### Horizontal layout
 
@@ -732,15 +732,15 @@ Returning a Data::Dump::Tree::Type::Nothing.new as value, that type renders an e
 Color Blob Mode (for lack of a better name)
 -------------------------------------------
 
-When rendering very large data structures the default coloring helps, a better way to render large data set is to turn off coloring for most of the data and highlight only the data that is of greater interest. This lets you skip large amount of data quickly. The best way of highlighting is by using background color not text color as it gets lost in the amount of data.
+When rendering very large data structures the default coloring helps, a better way to render large data set is to turn off coloring for most of the data and highlight only the data that is of greater interest. This makes it easier to visually skip large amount of data quickly. The best way of highlighting is by using background color not text color.
 
-You can define "color filter" that control the color of the glyphs, the data, and will pad the colored lines to the end of terminal width.
+You can define "glyph filter" that controls the shape and color of the glyphs.
 
 An example can be found in *examples/background_color.pl6*. A few renderings are generated, some look noisy but they are there to show you the different possibilities, the most interesting examples are the ones that highlight as little as possible. Remember to pass :!color to DDT so element coloring is off.
 
-As "Color blob mode" colors whole lines, DDT passes to you the glyphs and expects you to return the color you want for the line and the glyph, (that you can change). 
+A simpler example is in *examples/html.pl6*, it uses a role defined in <Data::Dump::Tree::ColorBlobLevel> to set blob colors and filters to transform **DOM::Tiny** parsed data into a rendering more *"HTML"* like.
 
-if you forget to pass :!colorto DDT, only the glyphs will be highlighter as can be seen in the last renderings of the example.
+    use Data::Dump::Tree::ColorBlobLevel ;
 
 This mode also work surprisingly well for very short renderings, in that case try to use role *DDTR::FixedGlyphs*.
 
