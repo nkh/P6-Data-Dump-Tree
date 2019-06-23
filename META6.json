@@ -11,7 +11,7 @@
 "description" : "Render data structures as trees; user definable filters",
 "provides" :
 	{
-	"DDT" : "lib/Data/Dump/Tree.pm",
+	"DDT" : "lib/Data/Dump/Tree.pm6",
 
 	"Data::Dump::Tree" : "lib/Data/Dump/Tree.pm6",
 	"Data::Dump::Tree::DescribeBaseObjects" : "lib/Data/Dump/Tree/DescribeBaseObjects.pm6",
