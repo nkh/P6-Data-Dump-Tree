@@ -294,27 +294,29 @@ method render_non_final(Mu $s, $current_depth, @head_glyphs, $element)
 {
 my (@sub_elements, %glyphs) := $.get_sub_elements($s, $current_depth, @head_glyphs, $element) ;
 
-# run removal filters
-for @sub_elements Z 0..* -> ($sub_element, $index)
+if @!removal_filters
 	{
-	my ($, $, $s, $path) = $sub_element ;
-
-	if @!removal_filters and $s.WHAT !=:= Mu
+	for @sub_elements Z 0..* -> ($sub_element, $index)
 		{
-		my $remove = False ;
+		my ($, $, $s, $path) = $sub_element ;
 
-		for @.removal_filters -> $filter
+		if @!removal_filters and $s.WHAT !=:= Mu
 			{
-			$remove += $filter(self, $s, $path) // False;
+			my $remove = False ;
 
-			CATCH
+			for @.removal_filters -> $filter
 				{
-				when X::Multi::NoMatch { } 
-				default                { .rethrow }
-				}
-			}
+				$remove += $filter(self, $s, $path) // False;
 
-		@sub_elements[$index]:delete if	$remove ;
+				CATCH
+					{
+					when X::Multi::NoMatch { } 
+					default                { .rethrow }
+					}
+				}
+
+			@sub_elements[$index]:delete if	$remove ;
+			}
 		}
 	}
 
@@ -326,7 +328,9 @@ for @sub_elements Z 0..* -> ($sub_element, $index)
 		$sub_element,
 		$current_depth + 1,
 		@head_glyphs,
-		self.get_element_glyphs(%glyphs, $index == @sub_elements.end),
+		$index == @sub_elements.end
+			?? %glyphs<__width last     last_continuation     multi_line empty filter>
+			!! %glyphs<__width not_last not_last_continuation multi_line empty filter>
 		) ;
 	}
 }
@@ -438,7 +442,7 @@ if @kvf # single line rendering
 	}
 else
 	{
- 	+@ks and @!renderings.push: (|@head_glyphs, $glyph, |@ks[0]) ;
+ 	+@ks and @!renderings.push: (|@head_glyphs, $glyph, |@ks[0], |@reset_elements) ;
 
 	if @ks > 1
 		{
@@ -452,7 +456,6 @@ else
 
 	if $.display_info
 		{
-
 		for @fs { @!renderings.push: (|@head_glyphs, $continuation_glyph, $multi_line_glyph, |$_, |@reset_elements) }
 		}
 	}
@@ -948,20 +951,6 @@ my $multi_line = %glyphs<multi_line> ;
 %glyphs<__width> = $glyph_width ; # squirrel in the width
 
 %glyphs
-}
-
-method get_element_glyphs(%glyphs, Bool $is_last) # is: cached
-{
-# returns:
-# glyph introducing the element
-# glyph displayed while sub elements are added
-# glyph multi line text
-# glyph for multiline DDT_FINAL
-# glyph to display in front of comment in filters
-
-$is_last
-	?? %glyphs<__width last     last_continuation     multi_line empty filter>
-	!! %glyphs<__width not_last not_last_continuation multi_line empty filter> ;
 }
 
 method !get_class_and_parents ($a) { get_class_and_parents($a) }

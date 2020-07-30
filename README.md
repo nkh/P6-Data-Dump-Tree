@@ -45,6 +45,8 @@ It also can:
 
   * colors the output if you install Term::ANSIColor (highly recommended)
 
+  * filter the data before rendering it
+
   * display two data structures side by side (DDTR::MultiColumns)
 
   * display the difference between two data structures (DDTR::Diff)
@@ -741,6 +743,21 @@ An example can be found in *examples/background_color.pl6*. A few renderings are
 A simpler example is in *examples/html.pl6*, it uses a role defined in <Data::Dump::Tree::ColorBlobLevel> to set blob colors and filters to transform **DOM::Tiny** parsed data into a rendering more *"HTML"* like.
 
     use Data::Dump::Tree::ColorBlobLevel ;
+    
+    my $d = Data::Dump::Tree.new:
+                :string_type(''),
+                :string_quote('"'),
+                :does[DDTR::ColorBlobLevel],
+                :color_kbs,
+                :header_filters[&header],
+                :elements_filters[&elements],
+                :nl ;
+    
+    # you can also override foreground and background color per level
+    # after you have used the ColorBlobLevel role
+    
+    # $d.blob_colors = <  on_125 on_61 on_33 on_37 on_64 > ;
+    # $d.blob_colors_fg = < 0 37 64 61> ;
 
 This mode also work surprisingly well for very short renderings, in that case try to use role *DDTR::FixedGlyphs*.
 
@@ -788,6 +805,10 @@ You can also use the method it provides in your type handlers and filters.
 ### DDTR::Superscribe
 
 Use this role to display the type and address in Unicode superscript letters.
+
+### Data::Dump::Tree::ColorBlobLevel
+
+Colors the rendering per level.
 
 ### Match objects
 

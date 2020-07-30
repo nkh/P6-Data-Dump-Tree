@@ -26,6 +26,8 @@ It also can:
 
 =item colors the output if you install Term::ANSIColor (highly recommended)
 
+=item filter the data before rendering it
+
 =item display two data structures side by side (DDTR::MultiColumns)
 
 =item display the difference between two data structures (DDTR::Diff)
@@ -517,7 +519,7 @@ To make that handler active, make your dumper B<do> the role
 	# or by passing roles to the constructor
 	my $d = Data::Dump::Tree.new: :does(DDTR::MatchDetails, your_hash_handler) ;
 
-	# or by passing roles to dump() method
+	# or by passing roles to ddt() method
 	my $d = Data::Dump::Tree.new ;
 	$d.ddt: $m, :does(DDTR::MatchDetails, your_hash_handler) ;
 

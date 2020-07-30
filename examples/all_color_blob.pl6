@@ -126,14 +126,14 @@ ddt
 	get_test_structure(),
 	:title<test data>,
 	:!color,
-	:color_filters[&color_background],
+	:glyph_filters[&color_background],
 	:caller,
 	:display_perl_address,
 	:width(75),
 	:does[DescribeDog, DescribeShyFinal], #DescribeShy
 	:max_depth(3) ;
 
-multi sub color_background($dumper, $s, $depth, $path, $key, @glyphs, \override_color,  @reset_color)
+multi sub color_background($dumper, $s, $depth, $path, $key, @glyphs, @reset_color)
 {
 my $color = '' ;
 
