@@ -215,9 +215,12 @@ else
 
 			for zipi(@sub_elements1, @sub_elements2) -> ($index, $sub1, $sub2)
 				{
-				my $sub_element_glyphs1 = $d1.get_element_glyphs(%glyphs1,  $index == @sub_elements1.end) ;
-				my $sub_element_glyphs2 = $d2.get_element_glyphs(%glyphs2,  $index == @sub_elements2.end) ;
-
+				my $sub_element_glyphs1 = $index == @sub_elements1.end
+								?? %glyphs1<__width last     last_continuation     multi_line empty filter>
+								!! %glyphs1<__width not_last not_last_continuation multi_line empty filter> ;
+				my $sub_element_glyphs2 = $index == @sub_elements2.end
+								?? %glyphs2<__width last     last_continuation     multi_line empty filter>
+								!! %glyphs2<__width not_last not_last_continuation multi_line empty filter> ;
 				if $sub1.defined && $sub2.defined
 					{
 					$is_different +=  $.diff_elements(
