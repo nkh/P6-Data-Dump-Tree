@@ -953,6 +953,19 @@ my $multi_line = %glyphs<multi_line> ;
 %glyphs
 }
 
+method get_element_glyphs(%glyphs, Bool $is_last) # is: cached
+{
+# returns:
+# glyph introducing the element
+# glyph displayed while sub elements are added
+# glyph multi line text
+# glyph for multiline DDT_FINAL
+# glyph to display in front of comment in filters
+
+$is_last
+	?? %glyphs<__width last     last_continuation     multi_line empty filter>
+	!! %glyphs<__width not_last not_last_continuation multi_line empty filter> ;
+}
 method !get_class_and_parents ($a) { get_class_and_parents($a) }
 sub get_class_and_parents (Any $a) is export
 {
