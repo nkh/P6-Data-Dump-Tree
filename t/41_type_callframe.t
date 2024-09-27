@@ -21,7 +21,9 @@ final = DDT_FINAL ;
 
 my $dump = $d.ddt: :get, [callframe()], :!color, :width(75), :elements_filters[&Stash_no_sub], :header_filters[&compress_ddt] ;
 
-is($dump.lines.elems, 35, 'lines of filtered callframedump') or diag $dump ;
+# Earlier rakudo versions had 35 lines, newer rakudo versions have 36 lines
+# because a new entry has come into the stash we're looking at here.
+is($dump.lines.elems, (35 | 36), 'lines of filtered callframedump') or diag $dump ;
 
 like $dump, /CallFrame/, 'CallFrame' or diag $dump ;
 like $dump, /'$.my'/, '$.my element' or diag $dump ;
