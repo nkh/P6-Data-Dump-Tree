@@ -76,11 +76,11 @@ multi method get_header (Grammar:U $g) { '', '.' ~ $g.^name, DDT_FINAL }
 
 multi method get_header (Bag:U $b) { '', '.' ~ $b.^name, DDT_FINAL }
 multi method get_header (Bag:D $b) { '', '.' ~ $b.^name ~ '(' ~ $b.elems ~ ')' }
-multi method get_elements (Bag $b) { |($b.sort(*.key)>>.kv.map: -> ($k, $v) {$k, ' => ', $v}) }
+multi method get_elements (Bag $b) { |($b.sort(*.key).map: {.key, ' => ', .value}) }
 
 multi method get_header (BagHash:U $b) { '', '.' ~ $b.^name, DDT_FINAL }
 multi method get_header (BagHash:D $b) { '', '.' ~ $b.^name ~ '(' ~ $b.elems ~ ')' }
-multi method get_elements (BagHash $b) { |($b.sort(*.key)>>.kv.map: -> ($k, $v) {$k, ' => ', $v}) }
+multi method get_elements (BagHash $b) { |($b.sort(*.key).map: {.key, ' => ', .value}) }
 
 multi method get_header (Set:D $s) { '', '.' ~ $s.^name ~ '(' ~ $s.elems ~ ')'  }
 multi method get_elements (Set $s) {
@@ -214,18 +214,16 @@ multi method get_header (Hash:U $h) { '', '{}', DDT_FINAL }
 multi method get_header (Hash:D $h) { '', '{' ~ $h.elems ~ '}' ~ $h.^name.substr(4) }
 multi method get_elements (Hash:D $h) {
 	|self!get_attributes($h, <descriptor storage>),
-	|($h.sort(*.key)>>.kv.map: -> ($k, $v) {$k, ' => ', $v}) }
+	|($h.sort(*.key).map: {.key, ' => ', .value}) }
 
 multi method get_header (Stash $s) { '', '.' ~ $s.^name ~ ' {' ~ ($s.keys.flat.elems) ~ '}' }
 
-# error in Rakudo
-#multi method get_elements (Stash $s) { $s.sort(*.key)>>.kv.map: -> ($k, $v) {$k, ' => ', $v} }
-multi method get_elements (Stash $s) { $s.sort(*.key)>>.&{.key, .value}.map: -> ($k, $v) {$k, ' => ', $v} }
+multi method get_elements (Stash $s) { $s.sort(*.key).map: {.key, ' => ', .value} }
 
 multi method get_header (Map $m) { '', '.' ~ $m.^name }
 multi method get_elements (Map $m) {
 	|self!get_attributes($m, (<storage>,)),
-	|$m.sort(*.key)>>.kv.map: -> ($k, $v) {$k, ' => ', $v} }
+	|$m.sort(*.key).map: {.key, ' => ', .value} }
 
 multi method get_header (Enumeration $e) { '', '.' ~ $e.^name, DDT_FINAL }
 
