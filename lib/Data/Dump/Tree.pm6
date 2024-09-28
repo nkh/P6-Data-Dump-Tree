@@ -601,7 +601,7 @@ method !get_element_subs(Mu $s)
 my regex ansi_color { \e \[ \d+ [\;\d+]* <?before [\;\d+]* > m }
 
 method !split_entry(
-	Int $current_depth, $width, Cool $k, Cool $b,
+	Int $current_depth, $width, Any $k, Cool $b,
 	Int $glyph_width, Cool $v, $f is copy,
 	($ddt_address is copy, $link, $perl_address))
 {
@@ -609,6 +609,8 @@ my (@kvf, @ks, @vs, @fs) ;
 
 # handle \t
 my ($k2, $v2, $f2) = ($k // '', $v // '', $f // '')  ;
+# handle Pair is keys, one of the few things that are not Cool.
+$k2 = ~$k2 unless $k2 ~~ Cool;
 if $.tab_size { ($k2, $v2, $f2) = ($k2, $v2, $f2).map: { .subst(/\t/, ' ' x $.tab_size, :g) } }
 
 my $v2_width = (S:g/ <ansi_color> // given $v2).chars ;
